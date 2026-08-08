@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BhAN's Trading - Price Action & Decision System</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+    .nav-link { transition: all 0.2s ease; border-radius: 0.75rem; }
+    .nav-link:hover { background-color: #f1f5f9; color: #7c3aed; }
+    .nav-link.active { background-color: #f3e8ff; color: #7c3aed; font-weight: 700; }
+  </style>
+</head>
+<body class="flex min-h-screen">
+
+  <!-- ======================================================== -->
+  <!-- LEFT SIDEBAR NAVIGATION                                  -->
+  <!-- ======================================================== -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-50">
+    <!-- Branding Header -->
+    <div class="p-5 border-b border-slate-100 flex items-center space-x-3">
+      <div class="bg-purple-600 text-white p-2.5 rounded-xl shadow-md">
+        <i data-lucide="line-chart" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-md font-extrabold text-slate-900 leading-none tracking-tight">BhAN's Trading</h1>
+        <p class="text-[9px] text-purple-700 font-bold mt-1 leading-tight">Price Action & Decision Engine</p>
+      </div>
+    </div>
+
+    <!-- Sidebar Links -->
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto text-xs font-medium">
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-link active w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button onclick="switchTab('planner')" id="nav-planner" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="edit-3" class="w-4 h-4"></i>
+        <span>Create Daily Plan</span>
+      </button>
+
+      <button onclick="switchTab('todays-plans')" id="nav-todays-plans" class="nav-link w-full flex items-center justify-between px-3.5 py-3 text-slate-600">
+        <div class="flex items-center space-x-3">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Today's Plans</span>
+        </div>
+        <span id="planBadgeCount" class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full text-[10px]">0</span>
+      </button>
+
+      <button onclick="switchTab('insights')" id="nav-insights" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="brain-circuit" class="w-4 h-4 text-purple-600"></i>
+        <span class="font-bold text-purple-900">Execution Insights</span>
+      </button>
+
+      <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="calendar" class="w-4 h-4"></i>
+        <span>P&L Calendar</span>
+      </button>
+
+      <button onclick="switchTab('strategy')" id="nav-strategy" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="target" class="w-4 h-4"></i>
+        <span>Strategy P&L</span>
+      </button>
+
+      <button onclick="switchTab('instrument')" id="nav-instrument" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="pie-chart" class="w-4 h-4"></i>
+        <span>Instrument Win Rate</span>
+      </button>
+
+      <button onclick="switchTab('execution')" id="nav-execution" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="play-circle" class="w-4 h-4"></i>
+        <span>Log Execution</span>
+      </button>
+
+      <button onclick="switchTab('history')" id="nav-history" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="database" class="w-4 h-4"></i>
+        <span>Master Trade Logs</span>
+      </button>
+    </nav>
+
+    <div class="p-4 border-t border-slate-100 space-y-2">
+      <button onclick="openSettingsModal()" class="w-full flex items-center justify-center space-x-2 border border-slate-200 hover:bg-slate-50 p-2.5 rounded-xl text-xs font-semibold text-slate-600">
+        <i data-lucide="settings" class="w-4 h-4 text-purple-600"></i>
+        <span>Manage Lists & Settings</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTENT AREA                                        -->
+  <!-- ======================================================== -->
+  <main class="flex-1 ml-64 p-8 min-h-screen space-y-6">
+
+    <!-- Top Tagline Bar -->
+    <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i data-lucide="quote" class="w-4 h-4 text-purple-400 opacity-80"></i>
+        <p class="text-xs font-medium italic text-slate-200">
+          “Read the market through price action and its ‘story.’ | Patience makes one master”
+        </p>
+      </div>
+    </div>
+
+    <!-- TAB 1: DASHBOARD (13-ROW SPECIFICATION VISUALS) -->
+    <div id="tab-dashboard" class="space-y-6">
+      
+      <!-- FILTERS / SLICERS BAR -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <span class="text-xs font-bold text-slate-700 flex items-center space-x-1">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-purple-600"></i>
+            <span>Filters & Slicers Bar</span>
+          </span>
+          <button onclick="resetFilters()" class="text-[10px] text-purple-600 hover:underline font-bold">Reset Filters</button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 text-xs">
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Instrument</label>
+            <select id="filterInstrument" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5 instrumentSelect">
+              <option value="ALL">All Instruments</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Direction</label>
+            <select id="filterDirection" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5">
+              <option value="ALL">All Directions</option>
+              <option value="Long">Long</option>
+              <option value="Short">Short</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Strategy</label>
+            <select id="filterStrategy" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5 strategySelect">
+              <option value="ALL">All Strategies</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Session</label>
+            <select id="filterSession" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5">
+              <option value="ALL">All Sessions</option>
+              <option value="London">London</option>
+              <option value="New York">New York</option>
+              <option value="Asia">Asia</option>
+              <option value="Outside">Outside</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Trade Type</label>
+            <select id="filterPlanned" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5">
+              <option value="ALL">All (Planned & Impulse)</option>
+              <option value="PLANNED">Planned Only</option>
+              <option value="UNPLANNED">Impulse Only</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block font-semibold">Outcome</label>
+            <select id="filterOutcome" onchange="applyFilters()" class="w-full border border-slate-200 rounded p-1.5">
+              <option value="ALL">All Outcomes</option>
+              <option value="WIN">Winners Only</option>
+              <option value="LOSS">Losses Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 1 — OVERALL PERFORMANCE -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Overall Performance</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Net P&L</p>
+            <p id="kpi-net-pnl" class="text-xl font-bold text-slate-800 mt-0.5">$0.00</p>
+            <span id="kpi-pnl-sub" class="text-[9px] text-slate-400">0 trades</span>
+          </div>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Expectancy / Trade</p>
+            <p id="kpi-expectancy" class="text-xl font-bold text-purple-700 mt-0.5">$0.00</p>
+            <span class="text-[9px] text-slate-400">Avg Return / Trade</span>
+          </div>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Profit Factor</p>
+            <p id="kpi-profit-factor" class="text-xl font-bold text-slate-800 mt-0.5">0.00</p>
+            <span id="kpi-pf-sub" class="text-[9px] text-slate-400">$0 / $0</span>
+          </div>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Win Rate</p>
+            <p id="kpi-win-rate" class="text-xl font-bold text-slate-800 mt-0.5">0%</p>
+            <span id="kpi-wr-sub" class="text-[9px] text-slate-400">0W / 0L</span>
+          </div>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Average R</p>
+            <p id="kpi-avg-r" class="text-xl font-bold text-emerald-600 mt-0.5">2.10 R</p>
+            <span class="text-[9px] text-slate-400">Realized R Multiple</span>
+          </div>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Max Drawdown</p>
+            <p id="kpi-max-dd" class="text-xl font-bold text-red-500 mt-0.5">-$0.00</p>
+            <span class="text-[9px] text-slate-400">Peak to Trough</span>
+          </div>
+          <div class="card p-3 bg-emerald-50/50 border-emerald-100">
+            <p class="text-[10px] font-bold text-emerald-700">Best Trade</p>
+            <p id="kpi-best-trade" class="text-xl font-bold text-emerald-600 mt-0.5">+$0.00</p>
+            <span id="kpi-best-sub" class="text-[9px] text-emerald-600">Max Winner</span>
+          </div>
+          <div class="card p-3 bg-red-50/50 border-red-100">
+            <p class="text-[10px] font-bold text-red-700">Worst Trade</p>
+            <p id="kpi-worst-trade" class="text-xl font-bold text-red-500 mt-0.5">-$0.00</p>
+            <span id="kpi-worst-sub" class="text-[9px] text-red-500">Max Loser</span>
+          </div>
+          <div class="card p-3 bg-purple-50/50 border-purple-100">
+            <p class="text-[10px] font-bold text-purple-700">Star Instrument</p>
+            <p id="kpi-star-pair" class="text-base font-extrabold text-purple-900 mt-0.5">None</p>
+            <span id="kpi-star-pnl" class="text-[9px] text-purple-600">Top P&L Pair</span>
+          </div>
+          <div class="card p-3 bg-slate-50 border-slate-200">
+            <p class="text-[10px] font-bold text-slate-600">Max Losing Pair</p>
+            <p id="kpi-losing-pair" class="text-base font-extrabold text-slate-800 mt-0.5">None</p>
+            <span id="kpi-losing-pnl" class="text-[9px] text-slate-500">Lowest P&L</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT EQUITY CURVE -->
+      <div class="card p-5 space-y-3 overflow-hidden relative">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">Account Equity Curve</h3>
+            <p class="text-[10px] text-slate-400">Cumulative account balance across all executed trades.</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <span class="text-[9px] text-slate-400 block font-semibold uppercase tracking-wide">Current Equity</span>
+              <span id="equityCurrentValue" class="text-lg font-extrabold text-emerald-600">$0.00</span>
+            </div>
+            <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+              <label for="equityStartingBalance" class="text-[10px] font-semibold text-slate-500 whitespace-nowrap">Starting Balance</label>
+              <span class="text-slate-400 text-xs">$</span>
+              <input type="number" id="equityStartingBalance" step="0.01" placeholder="0.00"
+                class="w-24 bg-transparent text-sm font-bold text-slate-800 focus:outline-none"
+                onchange="updateEquityStartingBalance(this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="h-72 relative">
+          <canvas id="equityCurveChart"></canvas>
+        </div>
+      </div>
+
+      <!-- ROW 2 & ROW 3 — TRADING BEHAVIOUR & TRADING EDGE -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Row 2: Trading Behaviour Visual -->
+        <div class="card p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Trading Behaviour</h3>
+            <span id="row2AdherenceBadge" class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">Plan Adherence: 0%</span>
+          </div>
+          <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden flex">
+            <div id="barPlannedRate" class="bg-purple-600 h-full" style="width: 0%" title="Planned Trades"></div>
+            <div id="barImpulseRate" class="bg-red-400 h-full" style="width: 0%" title="Impulse Trades"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+            <div class="bg-purple-50 p-2 rounded-lg border border-purple-100">
+              <span class="text-[10px] text-purple-700 font-bold block">Planned Executed</span>
+              <span id="row2PlannedCnt" class="text-sm font-extrabold text-purple-900">0</span>
+            </div>
+            <div class="bg-red-50 p-2 rounded-lg border border-red-100">
+              <span class="text-[10px] text-red-700 font-bold block">Impulse / Unplanned</span>
+              <span id="row2ImpulseCnt" class="text-sm font-extrabold text-red-900">0</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <span class="text-[10px] text-slate-500 font-bold block">Overtrading Risk</span>
+              <span id="row2OvertradeStatus" class="text-sm font-extrabold text-emerald-600">Low</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Trading Edge Visual -->
+        <div class="card p-5 space-y-3">
+          <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Trading Edge Matrix</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-100">
+              <span class="text-[10px] text-purple-700 font-bold block">Best Instrument</span>
+              <span id="row3BestInst" class="text-sm font-extrabold text-purple-950">None</span>
+            </div>
+            <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
+              <span class="text-[10px] text-emerald-700 font-bold block">Best Strategy</span>
+              <span id="row3BestStrat" class="text-sm font-extrabold text-emerald-950">Pullback</span>
+            </div>
+            <div class="bg-indigo-50 p-2.5 rounded-xl border border-indigo-100">
+              <span class="text-[10px] text-indigo-700 font-bold block">Best Session</span>
+              <span id="row3BestSess" class="text-sm font-extrabold text-indigo-950">London</span>
+            </div>
+            <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-100">
+              <span class="text-[10px] text-amber-800 font-bold block">Best Weekday</span>
+              <span id="row3BestDay" class="text-sm font-extrabold text-amber-950">Tuesday</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 4 & ROW 6 & ROW 7 — PLAN QUALITY, EXECUTION, RISK & REWARD VISUALS -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Row 4: Plan Quality -->
+        <div class="card p-5 space-y-2">
+          <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Plan Quality vs P&L</h3>
+          <div class="space-y-2 text-xs pt-2">
+            <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <span class="font-semibold text-slate-600">High Quality (Score ≥80)</span>
+              <span id="row4HighQualPnL" class="font-bold text-emerald-600">+$0.00</span>
+            </div>
+            <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <span class="font-semibold text-slate-600">Low Quality (Score &lt;70)</span>
+              <span id="row4LowQualPnL" class="font-bold text-red-500">-$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 6: Execution Quality -->
+        <div class="card p-5 space-y-2">
+          <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Execution Quality</h3>
+          <div class="pt-2 space-y-1">
+            <span class="text-[10px] text-slate-400 block font-semibold">Average Entry Deviation</span>
+            <p id="row6AvgDev" class="text-2xl font-black text-slate-800">0.00 pts</p>
+            <span id="row6ChasingStatus" class="text-[10px] font-bold text-emerald-600">Disciplined Execution (No Chasing)</span>
+          </div>
+        </div>
+
+        <!-- Row 7: Risk & Reward -->
+        <div class="card p-5 space-y-2">
+          <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Risk & Reward</h3>
+          <div class="grid grid-cols-2 gap-2 text-xs pt-2">
+            <div class="bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100">
+              <span class="text-[10px] text-emerald-700 font-bold block">Avg Winner</span>
+              <span id="row7AvgWinner" class="text-base font-bold text-emerald-600">+$0.00</span>
+            </div>
+            <div class="bg-red-50/50 p-2.5 rounded-lg border border-red-100">
+              <span class="text-[10px] text-red-700 font-bold block">Avg Loser</span>
+              <span id="row7AvgLoser" class="text-base font-bold text-red-500">-$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 12 & 13 — TRADING DNA & ACTIONABLE INSIGHTS VISUAL MATRIX -->
+      <div class="card p-6 space-y-4 bg-slate-900 text-white rounded-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-md font-extrabold text-white flex items-center space-x-2">
+              <i data-lucide="dna" class="w-5 h-5 text-purple-400"></i>
+              <span>Personal Trading DNA & Actionable Insights</span>
+            </h3>
+            <p class="text-xs text-slate-400">Evidence-backed session rule recommendations.</p>
+          </div>
+          <span class="text-[10px] bg-purple-900 text-purple-200 font-mono px-3 py-1 rounded-full border border-purple-700">BhAN DNA Matrix</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <!-- KEEP DOING -->
+          <div class="bg-emerald-950/40 border border-emerald-800/80 p-4 rounded-xl space-y-2">
+            <div class="flex items-center space-x-1.5 text-emerald-400 font-bold">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span>KEEP DOING</span>
+            </div>
+            <p id="specKeepDoing" class="text-slate-300 leading-relaxed">Execute trades with Plan Quality score ≥80 in London session.</p>
+          </div>
+
+          <!-- STOP DOING -->
+          <div class="bg-red-950/40 border border-red-800/80 p-4 rounded-xl space-y-2">
+            <div class="flex items-center space-x-1.5 text-red-400 font-bold">
+              <i data-lucide="x-circle" class="w-4 h-4"></i>
+              <span>STOP DOING</span>
+            </div>
+            <p id="specStopDoing" class="text-slate-300 leading-relaxed">Avoid impulse unplanned trades outside planned thesis area.</p>
+          </div>
+
+          <!-- TEST NEXT -->
+          <div class="bg-purple-950/40 border border-purple-800/80 p-4 rounded-xl space-y-2">
+            <div class="flex items-center space-x-1.5 text-purple-300 font-bold">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>TEST NEXT</span>
+            </div>
+            <p id="specTestNext" class="text-slate-300 leading-relaxed">Focus position size on 15m pullback setups at key 1H demand levels.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="card p-5">
+          <h3 class="text-sm font-bold text-slate-800 mb-4">Top Traded Assets</h3>
+          <div class="h-56 flex items-center justify-center">
+            <canvas id="assetsDonutChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card p-5 lg:col-span-2">
+          <h3 class="text-sm font-bold text-slate-800 mb-4">Pair Daily Distribution (Net P&L)</h3>
+          <div class="h-64">
+            <canvas id="pairDailyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tables -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card p-5">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Summary Week</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+                <tr>
+                  <th class="p-2">Day</th>
+                  <th class="p-2">Net P&L</th>
+                  <th class="p-2">Profit</th>
+                  <th class="p-2">Loss</th>
+                  <th class="p-2 text-right">Trades</th>
+                </tr>
+              </thead>
+              <tbody id="summaryWeekTbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Summary Session</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+                <tr>
+                  <th class="p-2">Session</th>
+                  <th class="p-2">Net P&L</th>
+                  <th class="p-2">Profit</th>
+                  <th class="p-2">Loss</th>
+                  <th class="p-2 text-right">Trades</th>
+                </tr>
+              </thead>
+              <tbody id="summarySessionTbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: CREATE PLAN -->
+    <div id="tab-planner" class="hidden space-y-6">
+      <div class="card p-6">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-100 mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Create Daily Market Thesis</h2>
+            <p class="text-xs text-slate-500">Define the story before taking any trade execution.</p>
+          </div>
+          <button type="button" onclick="resetPlannerForm()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg">Clear Form</button>
+        </div>
+
+        <form id="plannerForm" onsubmit="handleSavePlan(event)" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Plan ID</label>
+              <input type="text" id="planId" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono font-bold text-purple-700">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+              <input type="date" id="planDate" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Instrument</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddInstrument()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="planInstrument" required class="w-full border border-slate-200 rounded-lg p-2 text-xs instrumentSelect"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Direction</label>
+              <select id="planDirection" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="Long">Long</option>
+                <option value="Short">Short</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Strategy</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddStrategy()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="planStrategy" class="w-full border border-slate-200 rounded-lg p-2 text-xs strategySelect"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Lot Size / Lots Used</label>
+              <input type="number" step="0.01" id="planLotSize" value="1.0" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Entry Timeframe</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddTimeframe()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="planEntryTimeframe" class="w-full border border-slate-200 rounded-lg p-2 text-xs timeframeSelect"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Time Frame Structure</label>
+              <select id="planHTF" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="HH-HL">HH-HL (Uptrend)</option>
+                <option value="LH-LL">LH-LL (Downtrend)</option>
+                <option value="Range">Range Compression</option>
+                <option value="BOS">Break of Structure (BOS)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Session</label>
+              <select id="planSession" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="London">London</option>
+                <option value="New York">New York</option>
+                <option value="Asia">Asia</option>
+                <option value="Outside">Outside</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
+            <input type="checkbox" id="chkNoNews" onchange="toggleNoNews(this)" class="w-4 h-4 text-purple-600 rounded">
+            <label for="chkNoNews" class="text-xs font-bold text-amber-900 cursor-pointer">
+              No High-Impact News Scheduled Today
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Entry Price</label>
+              <input type="number" step="any" id="planEntry" oninput="calculateRR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Stop Loss (SL)</label>
+              <input type="number" step="any" id="planSL" oninput="calculateRR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Take Profit (TP)</label>
+              <input type="number" step="any" id="planTP" oninput="calculateRR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Risk:Reward</label>
+              <input type="text" id="planRR" readonly class="w-full bg-white font-bold border border-slate-200 rounded-lg p-2 text-xs text-purple-700">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Market Story Narrative</label>
+              <textarea id="planStory" rows="3" required placeholder="Monthly, Weekly, Daily, 4H thesis..." class="w-full border border-slate-200 rounded-lg p-2 text-xs"></textarea>
+              <input type="text" id="planTags" oninput="previewPlanTags(this.value)" placeholder="Tags (comma separated) e.g. FOMC, Trend Continuation, High Confidence"
+                class="w-full border border-slate-200 rounded-lg p-2 text-xs mt-2">
+              <div id="planTagsPreview" class="flex flex-wrap gap-1 mt-1.5"></div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Invalidation Condition</label>
+              <textarea id="planInvalidation" rows="3" required placeholder="What price action proves this idea wrong?" class="w-full border border-slate-200 rounded-lg p-2 text-xs"></textarea>
+            </div>
+          </div>
+
+          <div class="card p-5 space-y-4 bg-slate-50/50 border-purple-200">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Plan Quality Score Checklist (Total: 100 Points)</h3>
+                <p class="text-[10px] text-slate-500">Check each condition met to calculate your score.</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400 block font-semibold">Calculated Score</span>
+                <span id="computedQualityScoreDisplay" class="text-2xl font-black text-purple-700">100 / 100</span>
+                <input type="hidden" id="planQualityScore" value="100">
+              </div>
+            </div>
+            <div id="qualityChecklistContainer" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Confidence</label>
+              <select id="planConfidence" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="High">High Confidence</option>
+                <option value="Medium">Medium Confidence</option>
+                <option value="Low">Low Confidence</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Chart URL</label>
+              <input type="url" id="planChartUrl" placeholder="https://..." class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4 border-t border-slate-100">
+            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs flex items-center space-x-2">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Save Plan & Sync to Google Sheets</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 3: TODAY'S PLANS (ACCORDION) -->
+    <div id="tab-todays-plans" class="hidden space-y-6">
+      <div class="flex justify-between items-center card p-4">
+        <div>
+          <h2 class="text-md font-bold text-slate-800">Today's Planned Market Ideas</h2>
+          <p class="text-xs text-slate-500">Click any card to expand/collapse. Execute or delete directly.</p>
+        </div>
+        <div class="flex space-x-2">
+          <button onclick="switchTab('planner')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>+ Create Plan</span>
+          </button>
+          <button onclick="clearTodaysPlans()" class="border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>Clear All</span>
+          </button>
+          <button onclick="restoreHiddenPlans()" title="Bring back plans hidden from this view (they were never deleted from your Sheet)" class="border border-slate-200 text-slate-500 hover:bg-slate-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Show Hidden</span>
+          </button>
+        </div>
+      </div>
+      <div id="todaysPlansContainer" class="space-y-4"></div>
+    </div>
+
+    <!-- TAB 4: EXECUTION INSIGHTS -->
+    <div id="tab-insights" class="hidden space-y-6">
+      <div class="card p-6 space-y-6">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Psychology & Execution Insights</h2>
+          <p class="text-xs text-slate-500">Data-driven answers to your trading behavior and plan adherence.</p>
+        </div>
+
+        <div class="bg-purple-50/50 border border-purple-100 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-purple-950 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-purple-600"></i>
+            <span>1. "Do my planned trades make more money than my impulse trades?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Planned Trades Net P&L</span>
+              <span id="ansPlannedPnL" class="text-2xl font-black text-emerald-600">$0.00</span>
+              <p id="ansPlannedCount" class="text-[10px] text-slate-400 mt-1">0 trades</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Unplanned / Impulse Trades Net P&L</span>
+              <span id="ansImpulsePnL" class="text-2xl font-black text-red-500">$0.00</span>
+              <p id="ansImpulseCount" class="text-[10px] text-slate-400 mt-1">0 trades</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-indigo-50/50 border border-indigo-100 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-indigo-950 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-indigo-600"></i>
+            <span>2. "How often do I execute my plans vs. abandoning them?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Plan-to-Execution Rate</span>
+              <span id="ansExecRate" class="text-2xl font-black text-purple-700">0%</span>
+              <p class="text-[10px] text-slate-400 mt-1">Executed / Total Plans</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Total Plans Created</span>
+              <span id="ansTotalPlans" class="text-2xl font-black text-slate-800">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Executed Plans Count</span>
+              <span id="ansExecutedPlans" class="text-2xl font-black text-emerald-600">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-slate-600"></i>
+            <span>3. "How far did my actual entry price deviate from my planned entry price?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Average Entry Price Deviation</span>
+              <span id="ansAvgDeviation" class="text-2xl font-black text-slate-800">0.00 pts</span>
+              <p class="text-[10px] text-slate-400 mt-1">Difference between Planned Entry vs Actual Entry</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 font-semibold block">Entry Discipline Status</span>
+                <span id="ansEntryStatus" class="text-sm font-bold text-emerald-600">Disciplined Execution</span>
+              </div>
+              <i data-lucide="shield-check" class="w-8 h-8 text-emerald-500 opacity-80"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: P&L CALENDAR VIEW -->
+    <div id="tab-calendar" class="hidden space-y-6">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Monthly P&L Performance Calendar</h2>
+            <p class="text-xs text-slate-500">Visual breakdown of daily trading outcomes.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="month" id="calendarMonthSelect" onchange="renderCalendar()" class="border border-slate-200 rounded-lg p-2 text-xs font-semibold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+          <div>
+            <span class="text-slate-400 block">Monthly Net P&L</span>
+            <span id="calMonthlyPnL" class="text-lg font-bold text-slate-800">$0.00</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Winning Days</span>
+            <span id="calWinDays" class="text-lg font-bold text-emerald-600">0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Losing Days</span>
+            <span id="calLossDays" class="text-lg font-bold text-red-500">0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Win Rate</span>
+            <span id="calWinRate" class="text-lg font-bold text-purple-600">0%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2">
+          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+      </div>
+    </div>
+
+    <!-- TAB 6: STRATEGY P&L TAB -->
+    <div id="tab-strategy" class="hidden space-y-6">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Strategy Performance Analytics</h2>
+            <p class="text-xs text-slate-500">Compare win rate, expectancy, and P&L by setup type.</p>
+          </div>
+          <button onclick="promptAddStrategy()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Custom Strategy</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-4 lg:col-span-1">
+            <h3 class="text-xs font-bold text-slate-700 mb-3">Net P&L by Strategy</h3>
+            <div class="h-64">
+              <canvas id="strategyBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+                <tr>
+                  <th class="p-2.5">Strategy</th>
+                  <th class="p-2.5">Trades</th>
+                  <th class="p-2.5 cursor-pointer select-none hover:text-purple-600" onclick="toggleStrategyWinRateSort()">
+                    <span class="inline-flex items-center gap-1">
+                      Win Rate
+                      <span id="strategyWinRateSortIcon" class="text-[9px]">▼</span>
+                    </span>
+                  </th>
+                  <th class="p-2.5">Profit Factor</th>
+                  <th class="p-2.5 text-right">Net P&L</th>
+                </tr>
+              </thead>
+              <tbody id="strategyTbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: INSTRUMENT WIN RATE TAB -->
+    <div id="tab-instrument" class="hidden space-y-6">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Instrument-Wise Win Rate & Performance</h2>
+            <p class="text-xs text-slate-500">Asset profitability breakdowns and win percentages.</p>
+          </div>
+          <button onclick="promptAddInstrument()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Instrument</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+              <tr>
+                <th class="p-3">Instrument</th>
+                <th class="p-3">Executions</th>
+                <th class="p-3 cursor-pointer select-none hover:text-purple-600" onclick="toggleInstrumentWinRateSort()">
+                  <span class="inline-flex items-center gap-1">
+                    Win Rate %
+                    <span id="instrumentWinRateSortIcon" class="text-[9px] text-slate-300">⇅</span>
+                  </span>
+                </th>
+                <th class="p-3">W / L Breakdown</th>
+                <th class="p-3 text-right">Net P&L ($)</th>
+              </tr>
+            </thead>
+            <tbody id="instrumentWinRateTbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 8: LOG EXECUTION -->
+    <div id="tab-execution" class="hidden space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-6">Log Executed Trade</h2>
+
+        <form id="executionForm" onsubmit="handleLogExecution(event)" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Execution ID</label>
+              <input type="text" id="execId" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono font-bold text-emerald-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Link Plan ID</label>
+              <select id="execPlanId" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="UNPLANNED">-- Unplanned Trade --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+              <input type="date" id="execDate" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Instrument</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddInstrument()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="execInstrument" class="w-full border border-slate-200 rounded-lg p-2 text-xs instrumentSelect"></select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Strategy</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddStrategy()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="execStrategy" class="w-full border border-slate-200 rounded-lg p-2 text-xs strategySelect"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Lot Size / Lots Used</label>
+              <input type="number" step="0.01" id="execLotSize" value="1.0" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Entry Price</label>
+              <input type="number" step="any" id="execEntry" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Exit Price</label>
+              <input type="number" step="any" id="execExit" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Net P&L ($)</label>
+              <input type="number" step="any" id="execPnL" placeholder="-500 or +1200" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Session</label>
+              <select id="execSession" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="London">London</option>
+                <option value="New York">New York</option>
+                <option value="Asia">Asia</option>
+                <option value="Outside">Outside</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Execution Notes</label>
+              <input type="text" id="execNotes" placeholder="Notes / Story reflection..." class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Exit Reason</label>
+                <div class="space-x-1">
+                  <button type="button" onclick="promptAddExitReason()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                  <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
+                </div>
+              </div>
+              <select id="execExitReason" class="w-full border border-slate-200 rounded-lg p-2 text-xs exitReasonSelect"></select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1 flex items-center gap-1.5">
+                <i data-lucide="image" class="w-3.5 h-3.5 text-slate-400"></i>
+                Before Entry Screenshot URL
+              </label>
+              <input type="url" id="execBeforeImage" placeholder="https://..." oninput="previewExecImage('before', this.value)" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1 flex items-center gap-1.5">
+                <i data-lucide="image" class="w-3.5 h-3.5 text-slate-400"></i>
+                After Entry Screenshot URL
+              </label>
+              <input type="url" id="execAfterImage" placeholder="https://..." oninput="previewExecImage('after', this.value)" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+          </div>
+
+          <div id="execImagePreview" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+          <div class="flex justify-end pt-4 border-t border-slate-100">
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs flex items-center space-x-2">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              <span>Log Trade & Sync</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 9: MASTER TRADE LOGS (WITH DELETION OPTION) -->
+    <div id="tab-history" class="hidden space-y-6">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-md font-bold text-slate-800">Master Executed Trade Database</h2>
+          <span class="text-xs text-slate-400">Click 🗑️ to delete trade record with confirmation.</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+              <tr>
+                <th class="p-2">Execution ID</th>
+                <th class="p-2">Plan ID</th>
+                <th class="p-2">Date</th>
+                <th class="p-2">Asset</th>
+                <th class="p-2">Lots</th>
+                <th class="p-2">Strategy</th>
+                <th class="p-2">Session</th>
+                <th class="p-2">Entry</th>
+                <th class="p-2">Exit</th>
+                <th class="p-2">Net P&L</th>
+                <th class="p-2">Exit Reason</th>
+                <th class="p-2 text-center">Images</th>
+                <th class="p-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="executedLogsTable" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SETTINGS & MANAGER MODAL -->
+  <div id="dayDetailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto p-4">
+    <div class="card max-w-lg w-full p-6 space-y-4 my-8">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h3 id="dayDetailTitle" class="font-bold text-slate-800 text-base">Day Detail</h3>
+          <p id="dayDetailSubtitle" class="text-[11px] text-slate-400 mt-0.5">0 trades &bull; $0.00 Net P&L</p>
+        </div>
+        <button onclick="closeDayDetailModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="dayDetailList" class="space-y-2 max-h-96 overflow-y-auto text-xs"></div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto p-4">
+    <div class="card max-w-2xl w-full p-6 space-y-6 my-8">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 text-base">BhAN System Settings & Lists Manager</h3>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Google Apps Script Web App URL</label>
+        <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+      </div>
+
+      <!-- MANAGE INSTRUMENTS -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-bold text-slate-800">Manage Instruments (Click 🗑️ to delete)</h4>
+          <button onclick="promptAddInstrument()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Instrument</button>
+        </div>
+        <div id="manageInstrumentsContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
+      </div>
+
+      <!-- MANAGE STRATEGIES -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-bold text-slate-800">Manage Strategies (Click 🗑️ to delete)</h4>
+          <button onclick="promptAddStrategy()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Strategy</button>
+        </div>
+        <div id="manageStrategiesContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
+      </div>
+
+      <!-- MANAGE TIMEFRAMES -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-bold text-slate-800">Manage Timeframes (Click 🗑️ to delete)</h4>
+          <button onclick="promptAddTimeframe()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Timeframe</button>
+        </div>
+        <div id="manageTimeframesContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
+      </div>
+
+      <!-- MANAGE EXIT REASONS -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-bold text-slate-800">Manage Exit Reasons (Click 🗑️ to delete)</h4>
+          <button onclick="promptAddExitReason()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Exit Reason</button>
+        </div>
+        <div id="manageExitReasonsContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
+      </div>
+
+      <!-- EDITABLE CHECKLIST QUESTIONS -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <div>
+            <h4 class="text-xs font-bold text-slate-800">Quality Score Checklist Config</h4>
+            <p class="text-[10px] text-slate-400">Target Total Weight: <span id="checklistTotalWeightDisplay" class="font-bold text-emerald-600">100 pts</span></p>
+          </div>
+          <div class="space-x-2">
+            <button onclick="resetChecklistToDefault()" class="text-[10px] text-amber-600 font-bold hover:underline">Reset Default</button>
+            <button onclick="addCustomQuestion()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Rule</button>
+          </div>
+        </div>
+        <div id="editableChecklistContainer" class="space-y-2 max-h-52 overflow-y-auto pr-1"></div>
+      </div>
+
+      <div class="flex justify-between pt-4 border-t border-slate-100">
+        <button onclick="fetchFromGS()" class="text-xs text-purple-600 font-semibold hover:underline">Fetch GS Data</button>
+        <button onclick="saveSettings()" class="bg-purple-600 text-white px-5 py-2 rounded-lg text-xs font-semibold">Save All Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript App Engine -->
+  <script>
+    function safeLucide() {
+      try {
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons();
+        }
+      } catch(e) {}
+    }
+
+    let defaultChecklist = [
+      { id: 'q1', text: '1. Higher-Timeframe Structure (Monthly/Weekly/Daily identified)', points: 15, checked: true },
+      { id: 'q2', text: '2. 4H + 1H Alignment (Both support direction)', points: 15, checked: true },
+      { id: 'q3', text: '3. Supply/Demand Zone (Relevant 1H/4H zone)', points: 10, checked: true },
+      { id: 'q4', text: '4. Price Action / Trendline Context (Clear trendline, BOS, rejection)', points: 10, checked: true },
+      { id: 'q5', text: '5. Entry Trigger (Exact condition required before entry)', points: 15, checked: true },
+      { id: 'q6', text: '6. Invalidation (Clear condition proving idea wrong)', points: 10, checked: true },
+      { id: 'q7', text: '7. SL + TP Defined (Both defined before entry)', points: 10, checked: true },
+      { id: 'q8', text: '8. R:R Requirement (Meets minimum R:R rule)', points: 5, checked: true },
+      { id: 'q9', text: '9. News + Session Check (News and session considered)', points: 5, checked: true },
+      { id: 'q10', text: '10. Chart Evidence (Screenshot attached)', points: 5, checked: true }
+    ];
+
+    let checklistQuestions = JSON.parse(localStorage.getItem('checklistQuestions')) || defaultChecklist;
+    let instruments = JSON.parse(localStorage.getItem('instrumentsStore') || '["BTCUSD.x", "XAUUSD.x", "NAS100.x", "JAP225.x", "NZDCHF", "EURUSD", "US30"]');
+    let strategies = JSON.parse(localStorage.getItem('strategiesStore') || '["Pullback", "Breakout", "Liquidity Sweep", "Structure Break", "Scalper", "DayTrader", "SwingTrader"]');
+    let timeframes = JSON.parse(localStorage.getItem('timeframesStore') || '["1m", "5m", "15m", "30m", "1H", "4H", "Daily"]');
+    let exitReasons = JSON.parse(localStorage.getItem('exitReasonsStore') || '["Take Profit Hit", "Stop Loss Hit", "Manual Close", "Break Even", "Trailing Stop", "News Event"]');
+    let plansStore = JSON.parse(localStorage.getItem('plansStore') || '[]');
+    let executionsStore = JSON.parse(localStorage.getItem('executionsStore') || '[]');
+    // Plans "cleared" from the webpage view only — never deleted from Google Sheets.
+    // Kept so a refresh (which re-pulls from the Sheet) doesn't bring them back.
+    let dismissedPlanIds = new Set(JSON.parse(localStorage.getItem('dismissedPlanIds') || '[]'));
+    let gsUrl = localStorage.getItem('gsUrl') || '';
+
+    let expandedPlans = new Set();
+    let assetChartInstance = null;
+    let pairChartInstance = null;
+    let strategyChartInstance = null;
+    let equityChartInstance = null;
+    let strategyWinRateSortDir = null; // null = no sort, 'asc' = low to high, 'desc' = high to low
+    let instrumentWinRateSortDir = null;
+    let equityStartingBalance = parseFloat(localStorage.getItem('equityStartingBalance'));
+    if (isNaN(equityStartingBalance)) equityStartingBalance = 0;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const calSelect = document.getElementById('calendarMonthSelect');
+      if (calSelect) calSelect.value = new Date().toISOString().slice(0,7);
+
+      const eqInput = document.getElementById('equityStartingBalance');
+      if (eqInput) eqInput.value = equityStartingBalance;
+
+      renderDropdowns();
+      renderQualityChecklistForm();
+      initIds();
+
+      if (gsUrl) {
+        const urlInput = document.getElementById('scriptUrlInput');
+        if (urlInput) urlInput.value = gsUrl;
+        fetchFromGS();
+      } else {
+        updateDashboard();
+      }
+      renderTodaysPlans();
+      safeLucide();
+    });
+
+    function switchTab(tabId) {
+      const tabs = ['dashboard', 'planner', 'todays-plans', 'insights', 'calendar', 'strategy', 'instrument', 'execution', 'history'];
+      tabs.forEach(id => {
+        const tabEl = document.getElementById(`tab-${id}`);
+        if (tabEl) tabEl.classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${id}`);
+        if (navBtn) navBtn.classList.remove('active');
+      });
+
+      const activeTab = document.getElementById(`tab-${tabId}`);
+      if (activeTab) activeTab.classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) activeNav.classList.add('active');
+
+      if (tabId === 'todays-plans') renderTodaysPlans();
+      if (tabId === 'insights') renderExecutionInsights();
+      if (tabId === 'calendar') renderCalendar();
+      if (tabId === 'strategy') renderStrategyAnalytics();
+      if (tabId === 'instrument') renderInstrumentAnalytics();
+      safeLucide();
+    }
+
+    function renderDropdowns() {
+      document.querySelectorAll('.instrumentSelect').forEach(select => {
+        const val = select.value;
+        select.innerHTML = select.id === 'filterInstrument' ? '<option value="ALL">All Instruments</option>' : '';
+        instruments.forEach(inst => select.innerHTML += `<option value="${inst}">${inst}</option>`);
+        if (val && instruments.includes(val)) select.value = val;
+      });
+
+      document.querySelectorAll('.strategySelect').forEach(select => {
+        const val = select.value;
+        select.innerHTML = select.id === 'filterStrategy' ? '<option value="ALL">All Strategies</option>' : '';
+        strategies.forEach(s => select.innerHTML += `<option value="${s}">${s}</option>`);
+        if (val && strategies.includes(val)) select.value = val;
+      });
+
+      document.querySelectorAll('.timeframeSelect').forEach(select => {
+        const val = select.value;
+        select.innerHTML = '';
+        timeframes.forEach(tf => select.innerHTML += `<option value="${tf}">${tf}</option>`);
+        if (val && timeframes.includes(val)) select.value = val;
+        else if (timeframes.includes('15m')) select.value = '15m';
+      });
+
+      document.querySelectorAll('.exitReasonSelect').forEach(select => {
+        const val = select.value;
+        select.innerHTML = '';
+        exitReasons.forEach(r => select.innerHTML += `<option value="${r}">${r}</option>`);
+        if (val && exitReasons.includes(val)) select.value = val;
+      });
+    }
+
+    function promptAddInstrument() {
+      const val = prompt("Enter Custom Instrument Ticker (e.g. SOLUSD, GBPUSD):");
+      if (val && val.trim()) {
+        const cleaned = val.trim().toUpperCase();
+        if (!instruments.includes(cleaned)) {
+          instruments.push(cleaned);
+          localStorage.setItem('instrumentsStore', JSON.stringify(instruments));
+          renderDropdowns();
+          renderSettingsLists();
+        }
+      }
+    }
+
+    function promptAddStrategy() {
+      const val = prompt("Enter Custom Strategy Name (e.g. Order Block, VWAP Reversion):");
+      if (val && val.trim()) {
+        const cleaned = val.trim();
+        if (!strategies.includes(cleaned)) {
+          strategies.push(cleaned);
+          localStorage.setItem('strategiesStore', JSON.stringify(strategies));
+          renderDropdowns();
+          renderSettingsLists();
+        }
+      }
+    }
+
+    function promptAddTimeframe() {
+      const val = prompt("Enter Custom Timeframe (e.g. 2H, Weekly, 4H):");
+      if (val && val.trim()) {
+        const cleaned = val.trim();
+        if (!timeframes.includes(cleaned)) {
+          timeframes.push(cleaned);
+          localStorage.setItem('timeframesStore', JSON.stringify(timeframes));
+          renderDropdowns();
+          renderSettingsLists();
+        }
+      }
+    }
+
+    function removeTimeframe(idx) {
+      if (timeframes.length <= 1) {
+        alert("You must keep at least one timeframe.");
+        return;
+      }
+      const item = timeframes[idx];
+      if (confirm(`Remove timeframe "${item}"?`)) {
+        timeframes.splice(idx, 1);
+        localStorage.setItem('timeframesStore', JSON.stringify(timeframes));
+        renderDropdowns();
+        renderSettingsLists();
+      }
+    }
+
+    function promptAddExitReason() {
+      const val = prompt("Enter Custom Exit Reason (e.g. Liquidity Grab, Time Stop):");
+      if (val && val.trim()) {
+        const cleaned = val.trim();
+        if (!exitReasons.includes(cleaned)) {
+          exitReasons.push(cleaned);
+          localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons));
+          renderDropdowns();
+          renderSettingsLists();
+        }
+      }
+    }
+
+    function removeExitReason(idx) {
+      if (exitReasons.length <= 1) {
+        alert("You must keep at least one exit reason.");
+        return;
+      }
+      const item = exitReasons[idx];
+      if (confirm(`Remove exit reason "${item}"?`)) {
+        exitReasons.splice(idx, 1);
+        localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons));
+        renderDropdowns();
+        renderSettingsLists();
+      }
+    }
+
+    function removeInstrument(idx) {
+      if (instruments.length <= 1) {
+        alert("You must keep at least one instrument.");
+        return;
+      }
+      const item = instruments[idx];
+      if (confirm(`Remove instrument "${item}"?`)) {
+        instruments.splice(idx, 1);
+        localStorage.setItem('instrumentsStore', JSON.stringify(instruments));
+        renderDropdowns();
+        renderSettingsLists();
+      }
+    }
+
+    function removeStrategy(idx) {
+      if (strategies.length <= 1) {
+        alert("You must keep at least one strategy.");
+        return;
+      }
+      const item = strategies[idx];
+      if (confirm(`Remove strategy "${item}"?`)) {
+        strategies.splice(idx, 1);
+        localStorage.setItem('strategiesStore', JSON.stringify(strategies));
+        renderDropdowns();
+        renderSettingsLists();
+      }
+    }
+
+    function renderSettingsLists() {
+      const instBox = document.getElementById('manageInstrumentsContainer');
+      if (instBox) {
+        instBox.innerHTML = '';
+        instruments.forEach((inst, idx) => {
+          instBox.innerHTML += `
+            <span class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+              <span>${inst}</span>
+              <button onclick="removeInstrument(${idx})" class="text-red-500 hover:text-red-700 font-extrabold text-sm ml-1">&times;</button>
+            </span>
+          `;
+        });
+      }
+
+      const stratBox = document.getElementById('manageStrategiesContainer');
+      if (stratBox) {
+        stratBox.innerHTML = '';
+        strategies.forEach((strat, idx) => {
+          stratBox.innerHTML += `
+            <span class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+              <span>${strat}</span>
+              <button onclick="removeStrategy(${idx})" class="text-red-500 hover:text-red-700 font-extrabold text-sm ml-1">&times;</button>
+            </span>
+          `;
+        });
+      }
+
+      const tfBox = document.getElementById('manageTimeframesContainer');
+      if (tfBox) {
+        tfBox.innerHTML = '';
+        timeframes.forEach((tf, idx) => {
+          tfBox.innerHTML += `
+            <span class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+              <span>${tf}</span>
+              <button onclick="removeTimeframe(${idx})" class="text-red-500 hover:text-red-700 font-extrabold text-sm ml-1">&times;</button>
+            </span>
+          `;
+        });
+      }
+
+      const erBox = document.getElementById('manageExitReasonsContainer');
+      if (erBox) {
+        erBox.innerHTML = '';
+        exitReasons.forEach((r, idx) => {
+          erBox.innerHTML += `
+            <span class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+              <span>${r}</span>
+              <button onclick="removeExitReason(${idx})" class="text-red-500 hover:text-red-700 font-extrabold text-sm ml-1">&times;</button>
+            </span>
+          `;
+        });
+      }
+    }
+
+    function renderQualityChecklistForm() {
+      const container = document.getElementById('qualityChecklistContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      checklistQuestions.forEach((q, idx) => {
+        container.innerHTML += `
+          <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+            <input type="checkbox" id="chk_q_${idx}" ${q.checked ? 'checked' : ''} onchange="calculateQualityScoreFromChecklist()" class="w-4 h-4 text-purple-600 rounded">
+            <span class="text-slate-700 font-medium">${q.text} <b class="text-purple-600">(${q.points}pt)</b></span>
+          </label>
+        `;
+      });
+      calculateQualityScoreFromChecklist();
+    }
+
+    function calculateQualityScoreFromChecklist() {
+      let score = 0;
+      checklistQuestions.forEach((q, idx) => {
+        const chk = document.getElementById(`chk_q_${idx}`);
+        if (chk && chk.checked) score += Number(q.points) || 0;
+      });
+      const scoreInput = document.getElementById('planQualityScore');
+      if (scoreInput) scoreInput.value = score;
+      const scoreDisp = document.getElementById('computedQualityScoreDisplay');
+      if (scoreDisp) scoreDisp.innerText = `${score} / 100`;
+    }
+
+    function parseTags(raw) {
+      return (raw || '')
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+    }
+
+    function previewPlanTags(raw) {
+      const preview = document.getElementById('planTagsPreview');
+      if (!preview) return;
+      const tags = parseTags(raw);
+      preview.innerHTML = tags.map(t =>
+        `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">${t}</span>`
+      ).join('');
+    }
+
+    function toggleNoNews(chk) {
+      if (chk && chk.checked) alert("No High-Impact News flagged for today.");
+    }
+
+    function initIds() {
+      const todayStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      const pIdEl = document.getElementById('planId');
+      const eIdEl = document.getElementById('execId');
+      const pDateEl = document.getElementById('planDate');
+      const eDateEl = document.getElementById('execDate');
+
+      if (pIdEl) pIdEl.value = `PLN-${todayStr}-${Math.floor(100 + Math.random() * 900)}`;
+      if (eIdEl) eIdEl.value = `EXC-${todayStr}-${Math.floor(100 + Math.random() * 900)}`;
+      if (pDateEl) pDateEl.value = new Date().toISOString().slice(0,10);
+      if (eDateEl) eDateEl.value = new Date().toISOString().slice(0,10);
+
+      const select = document.getElementById('execPlanId');
+      if (select) {
+        select.innerHTML = '<option value="UNPLANNED">-- Unplanned Trade --</option>';
+        plansStore.forEach(p => {
+          select.innerHTML += `<option value="${p.planId}">${p.planId} (${p.instrument} - ${p.direction})</option>`;
+        });
+      }
+
+      const badge = document.getElementById('planBadgeCount');
+      if (badge) badge.innerText = plansStore.length;
+    }
+
+    function calculateRR() {
+      const entry = parseFloat(document.getElementById('planEntry')?.value || 0);
+      const sl = parseFloat(document.getElementById('planSL')?.value || 0);
+      const tp = parseFloat(document.getElementById('planTP')?.value || 0);
+      const rrEl = document.getElementById('planRR');
+      if (rrEl && entry && sl && tp && Math.abs(entry - sl) > 0) {
+        rrEl.value = `${(Math.abs(tp - entry) / Math.abs(entry - sl)).toFixed(2)} R`;
+      }
+    }
+
+    function resetPlannerForm() {
+      const form = document.getElementById('plannerForm');
+      if (form) form.reset();
+      const tagsPreview = document.getElementById('planTagsPreview');
+      if (tagsPreview) tagsPreview.innerHTML = '';
+      initIds();
+      renderQualityChecklistForm();
+    }
+
+    async function handleSavePlan(e) {
+      e.preventDefault();
+      const planData = {
+        planId: document.getElementById('planId')?.value || '',
+        date: document.getElementById('planDate')?.value || '',
+        instrument: document.getElementById('planInstrument')?.value || '',
+        direction: document.getElementById('planDirection')?.value || '',
+        strategy: document.getElementById('planStrategy')?.value || '',
+        lotSize: parseFloat(document.getElementById('planLotSize')?.value || 1.0),
+        entryTimeframe: document.getElementById('planEntryTimeframe')?.value || '15m',
+        marketBias: document.getElementById('planBias')?.value || 'Bullish',
+        htfStructure: document.getElementById('planHTF')?.value || 'HH-HL',
+        session: document.getElementById('planSession')?.value || 'London',
+        noNews: document.getElementById('chkNoNews')?.checked || false,
+        plannedEntry: document.getElementById('planEntry')?.value || '',
+        plannedSL: document.getElementById('planSL')?.value || '',
+        plannedTP: document.getElementById('planTP')?.value || '',
+        plannedRR: document.getElementById('planRR')?.value || '',
+        marketStory: document.getElementById('planStory')?.value || '',
+        tags: document.getElementById('planTags')?.value || '',
+        invalidation: document.getElementById('planInvalidation')?.value || '',
+        qualityScore: document.getElementById('planQualityScore')?.value || '100',
+        confidence: document.getElementById('planConfidence')?.value || 'High',
+        chartUrl: document.getElementById('planChartUrl')?.value || '',
+        status: "Planned"
+      };
+
+      plansStore.unshift(planData);
+      localStorage.setItem('plansStore', JSON.stringify(plansStore));
+      if (gsUrl) await syncToGS('SAVE_PLAN', planData);
+
+      alert(`Plan ${planData.planId} Saved & Synced!`);
+      resetPlannerForm();
+      updateDashboard();
+      switchTab('todays-plans');
+    }
+
+    function renderTodaysPlans() {
+      const container = document.getElementById('todaysPlansContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (plansStore.length === 0) {
+        container.innerHTML = `<div class="card p-12 text-center text-slate-400 font-semibold">No planned trades created yet today.</div>`;
+        return;
+      }
+
+      plansStore.forEach(p => {
+        const isExpanded = expandedPlans.has(p.planId);
+        const planTagsArr = parseTags(p.tags);
+        container.innerHTML += `
+          <div class="card overflow-hidden">
+            <div onclick="togglePlanAccordion('${p.planId}')" class="p-4 bg-white flex justify-between items-center cursor-pointer hover:bg-slate-50 border-b border-slate-100">
+              <div class="flex items-center space-x-3 flex-wrap gap-y-1.5">
+                <span class="font-mono text-xs font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded">${p.planId}</span>
+                <span class="font-bold text-slate-800 text-sm">${p.instrument}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.direction === 'Long' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${p.direction}</span>
+                <span class="text-xs text-slate-500">${p.strategy} (${p.lotSize || 1} Lots)</span>
+                <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">${p.entryTimeframe || '15m'}</span>
+                ${planTagsArr.length > 0 ? `
+                  <span class="flex flex-wrap gap-1">
+                    ${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}
+                  </span>
+                ` : ''}
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Score: ${p.qualityScore}/100</span>
+                <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-400"></i>
+              </div>
+            </div>
+
+            ${isExpanded ? `
+              <div class="p-5 bg-slate-50/50 space-y-4 border-t border-slate-100 text-xs">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-slate-200 font-mono">
+                  <div><span class="text-[10px] text-slate-400 block font-sans">Entry</span><span class="font-bold">${p.plannedEntry}</span></div>
+                  <div><span class="text-[10px] text-slate-400 block font-sans">SL</span><span class="font-bold text-red-500">${p.plannedSL}</span></div>
+                  <div><span class="text-[10px] text-slate-400 block font-sans">TP</span><span class="font-bold text-emerald-600">${p.plannedTP}</span></div>
+                  <div><span class="text-[10px] text-slate-400 block font-sans">R:R</span><span class="font-bold text-purple-700">${p.plannedRR || 'N/A'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                    <span class="font-semibold block">Market Story</span>
+                    ${planTagsArr.length > 0 ? `<div class="flex flex-wrap gap-1">${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>` : ''}
+                    <p>${p.marketStory}</p>
+                  </div>
+                  <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="font-semibold block mb-1">Invalidation</span><p>${p.invalidation}</p></div>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                  <div>${p.chartUrl ? `<a href="${p.chartUrl}" target="_blank" class="text-purple-600 font-semibold hover:underline">View Chart Link</a>` : ''}</div>
+                  <div class="flex space-x-2">
+                    <button onclick="executePlanDirectly('${p.planId}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold">Log Execution</button>
+                    <button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Delete</button>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      safeLucide();
+    }
+
+    function togglePlanAccordion(id) {
+      if (expandedPlans.has(id)) expandedPlans.delete(id);
+      else expandedPlans.add(id);
+      renderTodaysPlans();
+    }
+
+    function executePlanDirectly(id) {
+      const plan = plansStore.find(p => p.planId === id);
+      if (plan) {
+        switchTab('execution');
+        const pIdSelect = document.getElementById('execPlanId');
+        if (pIdSelect) pIdSelect.value = plan.planId;
+        const instSelect = document.getElementById('execInstrument');
+        if (instSelect) instSelect.value = plan.instrument;
+        const stratSelect = document.getElementById('execStrategy');
+        if (stratSelect) stratSelect.value = plan.strategy;
+        const lotInput = document.getElementById('execLotSize');
+        if (lotInput) lotInput.value = plan.lotSize || 1.0;
+        const entryInput = document.getElementById('execEntry');
+        if (entryInput) entryInput.value = plan.plannedEntry;
+      }
+    }
+
+    function deletePlan(id) {
+      dismissedPlanIds.add(id);
+      localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
+      plansStore = plansStore.filter(p => p.planId !== id);
+      localStorage.setItem('plansStore', JSON.stringify(plansStore));
+      renderTodaysPlans();
+      initIds();
+    }
+
+    function clearTodaysPlans() {
+      if (confirm("Clear all planned trades from this view? Your Google Sheet history will not be affected.")) {
+        plansStore.forEach(p => dismissedPlanIds.add(p.planId));
+        localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
+        plansStore = [];
+        localStorage.setItem('plansStore', JSON.stringify([]));
+        renderTodaysPlans();
+        initIds();
+      }
+    }
+
+    function restoreHiddenPlans() {
+      dismissedPlanIds.clear();
+      localStorage.setItem('dismissedPlanIds', JSON.stringify([]));
+      if (gsUrl) fetchFromGS();
+      else renderTodaysPlans();
+    }
+
+    function renderExecutionInsights() {
+      let plannedPnL = 0, plannedCount = 0;
+      let impulsePnL = 0, impulseCount = 0;
+      let totalDeviations = 0, deviationCount = 0;
+
+      executionsStore.forEach(x => {
+        const pnl = Number(x.netPnL) || 0;
+        if (x.planId && x.planId !== 'UNPLANNED') {
+          plannedPnL += pnl;
+          plannedCount++;
+
+          const linkedPlan = plansStore.find(p => p.planId === x.planId);
+          if (linkedPlan && linkedPlan.plannedEntry) {
+            const dev = Math.abs((Number(x.entryPrice) || 0) - (Number(linkedPlan.plannedEntry) || 0));
+            totalDeviations += dev;
+            deviationCount++;
+          }
+        } else {
+          impulsePnL += pnl;
+          impulseCount++;
+        }
+      });
+
+      const totalPlans = plansStore.length;
+      const execRate = totalPlans > 0 ? ((plannedCount / totalPlans) * 100).toFixed(1) : '0';
+      const avgDev = deviationCount > 0 ? (totalDeviations / deviationCount).toFixed(2) : '0.00';
+
+      const pPnLEl = document.getElementById('ansPlannedPnL');
+      if (pPnLEl) {
+        pPnLEl.innerText = `${plannedPnL >= 0 ? '+' : ''}$${plannedPnL.toFixed(2)}`;
+        pPnLEl.className = `text-2xl font-black ${plannedPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const pCntEl = document.getElementById('ansPlannedCount');
+      if (pCntEl) pCntEl.innerText = `${plannedCount} executed planned trades`;
+
+      const iPnLEl = document.getElementById('ansImpulsePnL');
+      if (iPnLEl) {
+        iPnLEl.innerText = `${impulsePnL >= 0 ? '+' : ''}$${impulsePnL.toFixed(2)}`;
+        iPnLEl.className = `text-2xl font-black ${impulsePnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const iCntEl = document.getElementById('ansImpulseCount');
+      if (iCntEl) iCntEl.innerText = `${impulseCount} impulse / unplanned trades`;
+
+      const exRateEl = document.getElementById('ansExecRate');
+      if (exRateEl) exRateEl.innerText = `${execRate}%`;
+      const totPlansEl = document.getElementById('ansTotalPlans');
+      if (totPlansEl) totPlansEl.innerText = totalPlans;
+      const exPlansEl = document.getElementById('ansExecutedPlans');
+      if (exPlansEl) exPlansEl.innerText = plannedCount;
+
+      const devEl = document.getElementById('ansAvgDeviation');
+      if (devEl) devEl.innerText = `${avgDev} pts`;
+      const statusEl = document.getElementById('ansEntryStatus');
+      if (statusEl) {
+        if (parseFloat(avgDev) < 1.0) {
+          statusEl.innerText = "Disciplined Entry Execution";
+          statusEl.className = "text-sm font-bold text-emerald-600";
+        } else {
+          statusEl.innerText = "Chasing Price / Late Entries Detected";
+          statusEl.className = "text-sm font-bold text-red-500";
+        }
+      }
+    }
+
+    function renderCalendar() {
+      const monthInput = document.getElementById('calendarMonthSelect');
+      if (!monthInput) return;
+      const monthStr = monthInput.value;
+      const [year, month] = monthStr.split('-').map(Number);
+      const grid = document.getElementById('calendarGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month - 1, 1).getDay();
+      const totalDays = new Date(year, month, 0).getDate();
+      const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+      let monthlyPnL = 0, winDays = 0, lossDays = 0;
+
+      for (let i = 0; i < startOffset; i++) {
+        grid.innerHTML += `<div class="h-24 bg-slate-50/50 rounded-xl border border-slate-100 opacity-20"></div>`;
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateKey = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const dayTrades = getFilteredExecutions().filter(x => x.date === dateKey);
+        
+        let dayPnL = 0;
+        dayTrades.forEach(t => dayPnL += (Number(t.netPnL) || 0));
+
+        let badgeBg = 'bg-slate-100 text-slate-500';
+        if (dayTrades.length > 0) {
+          if (dayPnL > 0) { badgeBg = 'bg-emerald-100 text-emerald-800 font-bold'; winDays++; }
+          else if (dayPnL < 0) { badgeBg = 'bg-red-100 text-red-800 font-bold'; lossDays++; }
+          monthlyPnL += dayPnL;
+        }
+
+        const hasTrades = dayTrades.length > 0;
+        const tooltip = hasTrades
+          ? `${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''} \u2022 Net P&L: ${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(2)}`
+          : 'No trades';
+
+        grid.innerHTML += `
+          <div class="h-24 card p-2 flex flex-col justify-between ${hasTrades ? 'cursor-pointer hover:shadow-md hover:border-purple-300 hover:-translate-y-0.5 transition-all' : ''}"
+            title="${tooltip}"
+            ${hasTrades ? `onclick="showDayDetail('${dateKey}')"` : ''}>
+            <span class="text-xs font-bold text-slate-400">${day}</span>
+            ${dayTrades.length > 0 ? `
+              <div class="${badgeBg} p-1.5 rounded-lg text-center text-xs">
+                <div>${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(0)}</div>
+                <div class="text-[9px] opacity-75">${dayTrades.length} trades</div>
+              </div>
+            ` : '<span class="text-[10px] text-slate-300 text-center block">—</span>'}
+          </div>
+        `;
+      }
+
+      const mPnLEl = document.getElementById('calMonthlyPnL');
+      if (mPnLEl) {
+        mPnLEl.innerText = `${monthlyPnL >= 0 ? '+' : ''}$${monthlyPnL.toFixed(2)}`;
+        mPnLEl.className = `text-lg font-bold ${monthlyPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const wDaysEl = document.getElementById('calWinDays');
+      if (wDaysEl) wDaysEl.innerText = winDays;
+      const lDaysEl = document.getElementById('calLossDays');
+      if (lDaysEl) lDaysEl.innerText = lossDays;
+      const wRateEl = document.getElementById('calWinRate');
+      if (wRateEl) wRateEl.innerText = `${(winDays + lossDays) > 0 ? ((winDays / (winDays + lossDays)) * 100).toFixed(0) : 0}%`;
+    }
+
+    function showDayDetail(dateKey) {
+      const dayTrades = getFilteredExecutions().filter(x => x.date === dateKey);
+      if (dayTrades.length === 0) return;
+
+      let dayPnL = 0;
+      dayTrades.forEach(t => dayPnL += (Number(t.netPnL) || 0));
+
+      const titleEl = document.getElementById('dayDetailTitle');
+      if (titleEl) {
+        const d = new Date(dateKey + 'T00:00:00');
+        titleEl.innerText = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      }
+      const subEl = document.getElementById('dayDetailSubtitle');
+      if (subEl) {
+        subEl.innerHTML = `${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''} &bull; <span class="${dayPnL >= 0 ? 'text-emerald-600' : 'text-red-500'} font-bold">${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(2)} Net P&L</span>`;
+      }
+
+      const listEl = document.getElementById('dayDetailList');
+      if (listEl) {
+        listEl.innerHTML = dayTrades.map(t => {
+          const pnl = Number(t.netPnL) || 0;
+          const win = pnl > 0;
+          const flat = pnl === 0;
+          return `
+            <div class="flex items-center justify-between p-2.5 rounded-lg border ${win ? 'bg-emerald-50/50 border-emerald-100' : flat ? 'bg-slate-50 border-slate-200' : 'bg-red-50/50 border-red-100'}">
+              <div>
+                <span class="font-bold text-slate-800">${t.instrument || '—'}</span>
+                <span class="text-[10px] text-slate-400 ml-2">${t.direction || ''} ${t.strategy ? '\u2022 ' + t.strategy : ''} ${t.session ? '\u2022 ' + t.session : ''}</span>
+                ${(t.beforeImageUrl || t.afterImageUrl) ? `
+                  <div class="mt-1 space-x-2">
+                    ${t.beforeImageUrl ? `<a href="${t.beforeImageUrl}" target="_blank" class="text-[10px] text-purple-600 hover:underline font-semibold">Before</a>` : ''}
+                    ${t.afterImageUrl ? `<a href="${t.afterImageUrl}" target="_blank" class="text-[10px] text-purple-600 hover:underline font-semibold">After</a>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+              <span class="font-bold ${win ? 'text-emerald-600' : flat ? 'text-slate-500' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const modal = document.getElementById('dayDetailModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDayDetailModal() {
+      const modal = document.getElementById('dayDetailModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function toggleStrategyWinRateSort() {
+      if (strategyWinRateSortDir === 'desc') strategyWinRateSortDir = 'asc';
+      else if (strategyWinRateSortDir === 'asc') strategyWinRateSortDir = null;
+      else strategyWinRateSortDir = 'desc';
+      renderStrategyAnalytics();
+    }
+
+    function renderStrategyAnalytics() {
+      const tbody = document.getElementById('strategyTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      let stratStats = {};
+      strategies.forEach(s => stratStats[s] = { trades: 0, wins: 0, losses: 0, profit: 0, loss: 0, net: 0 });
+
+      getFilteredExecutions().forEach(x => {
+        const s = x.strategy || 'Pullback';
+        if (!stratStats[s]) stratStats[s] = { trades: 0, wins: 0, losses: 0, profit: 0, loss: 0, net: 0 };
+        const pnl = Number(x.netPnL) || 0;
+        stratStats[s].trades++;
+        stratStats[s].net += pnl;
+        if (pnl > 0) { stratStats[s].wins++; stratStats[s].profit += pnl; }
+        else if (pnl < 0) { stratStats[s].losses++; stratStats[s].loss += Math.abs(pnl); }
+      });
+
+      let rows = Object.keys(stratStats).map(s => {
+        const st = stratStats[s];
+        const wr = st.trades > 0 ? (st.wins / st.trades) * 100 : 0;
+        const pf = st.loss > 0 ? (st.profit / st.loss) : (st.profit > 0 ? Infinity : 0);
+        return { strategy: s, trades: st.trades, winRate: wr, pf, net: st.net };
+      });
+
+      if (strategyWinRateSortDir === 'asc') {
+        rows.sort((a, b) => a.winRate - b.winRate);
+      } else if (strategyWinRateSortDir === 'desc') {
+        rows.sort((a, b) => b.winRate - a.winRate);
+      }
+
+      const labels = rows.map(r => r.strategy);
+      const netValues = rows.map(r => r.net);
+
+      rows.forEach(r => {
+        const wr = r.winRate.toFixed(1);
+        const pf = r.pf === Infinity ? 'INF' : r.pf.toFixed(2);
+        tbody.innerHTML += `
+          <tr>
+            <td class="p-2.5 font-bold text-slate-800">${r.strategy}</td>
+            <td class="p-2.5 font-semibold">${r.trades}</td>
+            <td class="p-2.5 font-bold ${r.winRate >= 50 ? 'text-emerald-600' : 'text-slate-600'}">${wr}%</td>
+            <td class="p-2.5 font-bold text-purple-700">${pf}</td>
+            <td class="p-2.5 text-right font-bold ${r.net >= 0 ? 'text-emerald-600' : 'text-red-500'}">${r.net >= 0 ? '+' : ''}$${r.net.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      const sortIcon = document.getElementById('strategyWinRateSortIcon');
+      if (sortIcon) {
+        sortIcon.innerText = strategyWinRateSortDir === 'asc' ? '▲' : strategyWinRateSortDir === 'desc' ? '▼' : '⇅';
+        sortIcon.className = strategyWinRateSortDir ? 'text-[9px] text-purple-600' : 'text-[9px] text-slate-300';
+      }
+
+      const chartCanvas = document.getElementById('strategyBarChart');
+      if (chartCanvas) {
+        if (strategyChartInstance) strategyChartInstance.destroy();
+        strategyChartInstance = new Chart(chartCanvas, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Net P&L ($)',
+              data: netValues,
+              backgroundColor: netValues.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)'),
+              hoverBackgroundColor: netValues.map(v => v >= 0 ? '#059669' : '#dc2626'),
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 38
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeOutQuart' },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#0f172a', padding: 10, cornerRadius: 8, displayColors: false,
+                callbacks: { label: (ctx) => `Net P&L: ${ctx.parsed.x >= 0 ? '+' : ''}$${ctx.parsed.x.toFixed(2)}` }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: '#f1f5f9' },
+                ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => `$${v}` }
+              },
+              y: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, weight: '600' } } }
+            }
+          }
+        });
+      }
+    }
+
+    function toggleInstrumentWinRateSort() {
+      if (instrumentWinRateSortDir === 'desc') instrumentWinRateSortDir = 'asc';
+      else if (instrumentWinRateSortDir === 'asc') instrumentWinRateSortDir = null;
+      else instrumentWinRateSortDir = 'desc';
+      renderInstrumentAnalytics();
+    }
+
+    function renderInstrumentAnalytics() {
+      const tbody = document.getElementById('instrumentWinRateTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      let instStats = {};
+      instruments.forEach(i => instStats[i] = { trades: 0, wins: 0, losses: 0, net: 0 });
+
+      getFilteredExecutions().forEach(x => {
+        const inst = x.instrument || 'BTCUSD.x';
+        if (!instStats[inst]) instStats[inst] = { trades: 0, wins: 0, losses: 0, net: 0 };
+        const pnl = Number(x.netPnL) || 0;
+        instStats[inst].trades++;
+        instStats[inst].net += pnl;
+        if (pnl > 0) instStats[inst].wins++;
+        else if (pnl < 0) instStats[inst].losses++;
+      });
+
+      let rows = Object.keys(instStats).map(inst => {
+        const st = instStats[inst];
+        const wr = st.trades > 0 ? (st.wins / st.trades) * 100 : 0;
+        return { inst, trades: st.trades, wins: st.wins, losses: st.losses, net: st.net, winRate: wr };
+      });
+
+      if (instrumentWinRateSortDir === 'asc') {
+        rows.sort((a, b) => a.winRate - b.winRate);
+      } else if (instrumentWinRateSortDir === 'desc') {
+        rows.sort((a, b) => b.winRate - a.winRate);
+      }
+
+      rows.forEach(r => {
+        const wr = r.winRate.toFixed(1);
+        tbody.innerHTML += `
+          <tr>
+            <td class="p-3 font-bold text-slate-800">${r.inst}</td>
+            <td class="p-3 font-semibold">${r.trades}</td>
+            <td class="p-3 font-bold ${r.winRate >= 50 ? 'text-emerald-600' : 'text-amber-500'}">${wr}%</td>
+            <td class="p-3 text-slate-500">${r.wins}W / ${r.losses}L</td>
+            <td class="p-3 text-right font-bold ${r.net >= 0 ? 'text-emerald-600' : 'text-red-500'}">${r.net >= 0 ? '+' : ''}$${r.net.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      const sortIcon = document.getElementById('instrumentWinRateSortIcon');
+      if (sortIcon) {
+        sortIcon.innerText = instrumentWinRateSortDir === 'asc' ? '▲' : instrumentWinRateSortDir === 'desc' ? '▼' : '⇅';
+        sortIcon.className = instrumentWinRateSortDir ? 'text-[9px] text-purple-600' : 'text-[9px] text-slate-300';
+      }
+    }
+
+    function getFilteredExecutions() {
+      const fInst = document.getElementById('filterInstrument')?.value || 'ALL';
+      const fDir = document.getElementById('filterDirection')?.value || 'ALL';
+      const fStrat = document.getElementById('filterStrategy')?.value || 'ALL';
+      const fSess = document.getElementById('filterSession')?.value || 'ALL';
+      const fPlanned = document.getElementById('filterPlanned')?.value || 'ALL';
+      const fOutcome = document.getElementById('filterOutcome')?.value || 'ALL';
+
+      return executionsStore.filter(x => {
+        if (fInst !== 'ALL' && x.instrument !== fInst) return false;
+        if (fDir !== 'ALL' && x.direction !== fDir) return false;
+        if (fStrat !== 'ALL' && x.strategy !== fStrat) return false;
+        if (fSess !== 'ALL' && x.session !== fSess) return false;
+        if (fPlanned === 'PLANNED' && (!x.planId || x.planId === 'UNPLANNED')) return false;
+        if (fPlanned === 'UNPLANNED' && (x.planId && x.planId !== 'UNPLANNED')) return false;
+        const pnl = Number(x.netPnL) || 0;
+        if (fOutcome === 'WIN' && pnl <= 0) return false;
+        if (fOutcome === 'LOSS' && pnl >= 0) return false;
+        return true;
+      });
+    }
+
+    function applyFilters() { updateDashboard(); }
+    function resetFilters() {
+      const elI = document.getElementById('filterInstrument'); if (elI) elI.value = 'ALL';
+      const elD = document.getElementById('filterDirection'); if (elD) elD.value = 'ALL';
+      const elS = document.getElementById('filterStrategy'); if (elS) elS.value = 'ALL';
+      const elSe = document.getElementById('filterSession'); if (elSe) elSe.value = 'ALL';
+      const elP = document.getElementById('filterPlanned'); if (elP) elP.value = 'ALL';
+      const elO = document.getElementById('filterOutcome'); if (elO) elO.value = 'ALL';
+      updateDashboard();
+    }
+
+    function previewExecImage(which, url) {
+      const container = document.getElementById('execImagePreview');
+      if (!container) return;
+      const id = which === 'before' ? 'execBeforePreviewImg' : 'execAfterPreviewImg';
+      let existing = document.getElementById(id);
+      if (!url) {
+        if (existing) existing.remove();
+        return;
+      }
+      if (!existing) {
+        existing = document.createElement('div');
+        existing.id = id;
+        existing.innerHTML = `<span class="text-[10px] text-slate-400 font-semibold block mb-1">${which === 'before' ? 'Before' : 'After'} Preview</span><img class="w-full h-32 object-cover rounded-lg border border-slate-200">`;
+        container.appendChild(existing);
+      }
+      existing.querySelector('img').src = url;
+    }
+
+    async function handleLogExecution(e) {
+      e.preventDefault();
+      const entryPriceVal = document.getElementById('execEntry')?.value || '';
+      const exitPriceVal = document.getElementById('execExit')?.value || '';
+      const netPnLVal = parseFloat(document.getElementById('execPnL')?.value || 0);
+
+      // Backend-only calculation: not shown in the UI, used for future analytics/export.
+      const entryNum = parseFloat(entryPriceVal);
+      const exitNum = parseFloat(exitPriceVal);
+      let profitPoints = 0, lossPoints = 0;
+      if (!isNaN(entryNum) && !isNaN(exitNum)) {
+        const pointsDiff = Math.abs(exitNum - entryNum);
+        if (netPnLVal >= 0) profitPoints = pointsDiff;
+        else lossPoints = pointsDiff;
+      }
+
+      const execData = {
+        executionId: document.getElementById('execId')?.value || '',
+        planId: document.getElementById('execPlanId')?.value || 'UNPLANNED',
+        date: document.getElementById('execDate')?.value || '',
+        instrument: document.getElementById('execInstrument')?.value || '',
+        strategy: document.getElementById('execStrategy')?.value || '',
+        lotSize: parseFloat(document.getElementById('execLotSize')?.value || 1.0),
+        entryPrice: entryPriceVal,
+        exitPrice: exitPriceVal,
+        netPnL: netPnLVal,
+        session: document.getElementById('execSession')?.value || 'London',
+        beforeImageUrl: document.getElementById('execBeforeImage')?.value || '',
+        afterImageUrl: document.getElementById('execAfterImage')?.value || '',
+        notes: document.getElementById('execNotes')?.value || '',
+        exitReason: document.getElementById('execExitReason')?.value || '',
+        profitPoints: profitPoints,
+        lossPoints: lossPoints
+      };
+
+      executionsStore.push(execData);
+      localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+      if (gsUrl) await syncToGS('LOG_EXECUTION', execData);
+
+      alert('Trade Execution Logged!');
+      const form = document.getElementById('executionForm');
+      if (form) form.reset();
+      const preview = document.getElementById('execImagePreview');
+      if (preview) preview.innerHTML = '';
+      initIds();
+      updateDashboard();
+      switchTab('history');
+    }
+
+    async function syncToGS(action, payload) {
+      try {
+        await fetch(gsUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, payload })
+        });
+      } catch (err) { console.error('GS Sync Error:', err); }
+    }
+
+    function normalizeDateField(val) {
+      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}/.test(val)) return val.slice(0, 10);
+      if (val instanceof Date || (typeof val === 'string' && !isNaN(Date.parse(val)))) {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+        }
+      }
+      return val;
+    }
+
+    async function fetchFromGS() {
+      if (!gsUrl) return;
+      try {
+        const res = await fetch(gsUrl);
+        const data = await res.json();
+        if (data.planned) plansStore = data.planned.map(x => ({ ...x, date: normalizeDateField(x.date) })).filter(p => !dismissedPlanIds.has(p.planId));
+        if (data.executed) executionsStore = data.executed.map(x => ({ ...x, date: normalizeDateField(x.date), netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0) }));
+        localStorage.setItem('plansStore', JSON.stringify(plansStore));
+        localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+        updateDashboard();
+        renderTodaysPlans();
+      } catch(err) { console.error("Fetch GS Error:", err); }
+    }
+
+    // MASTER LOG DELETION WITH CONFIRMATION PROMPT
+    async function deleteExecutedTrade(execId) {
+      if (confirm(`Are you sure you want to delete trade record ${execId}? This action cannot be undone.`)) {
+        executionsStore = executionsStore.filter(x => x.executionId !== execId);
+        localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+        if (gsUrl) await syncToGS('DELETE_EXECUTION', { executionId: execId });
+        updateDashboard();
+        renderExecutedLogsTable();
+      }
+    }
+
+    function updateDashboard() {
+      const filtered = getFilteredExecutions();
+      const totalTrades = filtered.length;
+      let netPnL = 0, wins = 0, losses = 0, breakeven = 0;
+      let totalProfit = 0, totalLoss = 0, daysSet = new Set();
+      let bestTrade = 0, worstTrade = 0;
+      let assetPnL = {}, sessionPnL = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
+      let weekDaysPnL = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+
+      let totalDev = 0, devCount = 0;
+      let plannedExecutedCount = 0, impulseCount = 0;
+
+      let highQualPnL = 0, lowQualPnL = 0;
+
+      filtered.forEach(x => {
+        const pnl = Number(x.netPnL) || 0;
+        netPnL += pnl;
+        if (x.date) daysSet.add(x.date);
+
+        if (pnl > bestTrade) bestTrade = pnl;
+        if (pnl < worstTrade) worstTrade = pnl;
+
+        if (pnl > 0) { wins++; totalProfit += pnl; }
+        else if (pnl < 0) { losses++; totalLoss += Math.abs(pnl); }
+        else { breakeven++; }
+
+        if (x.planId && x.planId !== 'UNPLANNED') {
+          plannedExecutedCount++;
+          const lPlan = plansStore.find(p => p.planId === x.planId);
+          if (lPlan) {
+            if (lPlan.plannedEntry) {
+              totalDev += Math.abs((Number(x.entryPrice) || 0) - (Number(lPlan.plannedEntry) || 0));
+              devCount++;
+            }
+            const score = Number(lPlan.qualityScore || 100);
+            if (score >= 80) highQualPnL += pnl;
+            else if (score < 70) lowQualPnL += pnl;
+          }
+        } else {
+          impulseCount++;
+        }
+
+        const inst = x.instrument || 'Unknown';
+        assetPnL[inst] = (assetPnL[inst] || 0) + pnl;
+
+        const sess = x.session || 'London';
+        if (sessionPnL[sess] !== undefined) sessionPnL[sess] += pnl;
+
+        if (x.date) {
+          const d = new Date(x.date);
+          const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+          if (weekDaysPnL[dayName] !== undefined) weekDaysPnL[dayName] += pnl;
+        }
+      });
+
+      let starPair = 'None', starPnLVal = 0;
+      let losingPair = 'None', losingPnLVal = 0;
+      Object.keys(assetPnL).forEach(inst => {
+        if (assetPnL[inst] > starPnLVal) { starPair = inst; starPnLVal = assetPnL[inst]; }
+        if (assetPnL[inst] < losingPnLVal) { losingPair = inst; losingPnLVal = assetPnL[inst]; }
+      });
+
+      const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : '0';
+      const profitFactor = totalLoss > 0 ? (totalProfit / totalLoss).toFixed(2) : (totalProfit > 0 ? 'INF' : '0.00');
+      const expectancy = totalTrades > 0 ? (netPnL / totalTrades).toFixed(2) : '0.00';
+      const avgWin = wins > 0 ? (totalProfit / wins).toFixed(2) : '0.00';
+      const avgLoss = losses > 0 ? (totalLoss / losses).toFixed(2) : '0.00';
+      const avgDev = devCount > 0 ? (totalDev / devCount).toFixed(2) : '0.00';
+      const planAdherence = (plannedExecutedCount + impulseCount) > 0 ? ((plannedExecutedCount / (plannedExecutedCount + impulseCount)) * 100).toFixed(0) : '0';
+
+      const pnlEl = document.getElementById('kpi-net-pnl');
+      if (pnlEl) {
+        pnlEl.innerText = `${netPnL >= 0 ? '+' : ''}$${netPnL.toFixed(2)}`;
+        pnlEl.className = `text-xl font-bold mt-0.5 ${netPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+
+      const pSub = document.getElementById('kpi-pnl-sub'); if (pSub) pSub.innerText = `${totalTrades} trades`;
+      const expEl = document.getElementById('kpi-expectancy'); if (expEl) expEl.innerText = `${expectancy >= 0 ? '+' : ''}$${expectancy}`;
+      const avgD = document.getElementById('kpi-avg-daily'); if (avgD) avgD.innerText = `$${(daysSet.size > 0 ? netPnL / daysSet.size : 0).toFixed(2)}`;
+      const pfEl = document.getElementById('kpi-profit-factor'); if (pfEl) pfEl.innerText = profitFactor;
+      const wrEl = document.getElementById('kpi-win-rate'); if (wrEl) wrEl.innerText = `${winRate}%`;
+      const wrSub = document.getElementById('kpi-wr-sub'); if (wrSub) wrSub.innerText = `${wins}W / ${losses}L`;
+
+      const bTrd = document.getElementById('kpi-best-trade'); if (bTrd) bTrd.innerText = `+$${bestTrade.toFixed(2)}`;
+      const wTrd = document.getElementById('kpi-worst-trade'); if (wTrd) wTrd.innerText = `-$${Math.abs(worstTrade).toFixed(2)}`;
+      const sPair = document.getElementById('kpi-star-pair'); if (sPair) sPair.innerText = starPair;
+      const sPnL = document.getElementById('kpi-star-pnl'); if (sPnL) sPnL.innerText = `+$${starPnLVal.toFixed(2)}`;
+      const lPair = document.getElementById('kpi-losing-pair'); if (lPair) lPair.innerText = losingPair;
+      const lPnL = document.getElementById('kpi-losing-pnl'); if (lPnL) lPnL.innerText = `-$${Math.abs(losingPnLVal).toFixed(2)}`;
+
+      // Update Spec Dashboard Matrix
+      const specAdh = document.getElementById('specPlanAdherence'); if (specAdh) specAdh.innerText = `${planAdherence}%`;
+      const specImpSub = document.getElementById('specImpulseSub'); if (specImpSub) specImpSub.innerText = `${impulseCount} Impulse Trades taken`;
+      const specDev = document.getElementById('specEntryDev'); if (specDev) specDev.innerText = `${avgDev} pts`;
+      const specWinLoss = document.getElementById('specWinVsLoss'); if (specWinLoss) specWinLoss.innerText = `+$${avgWin} / -$${avgLoss}`;
+
+      // Update Row 2 Behaviour Visual
+      const r2Badge = document.getElementById('row2AdherenceBadge'); if (r2Badge) r2Badge.innerText = `Plan Adherence: ${planAdherence}%`;
+      const barP = document.getElementById('barPlannedRate'); if (barP) barP.style.width = `${planAdherence}%`;
+      const barI = document.getElementById('barImpulseRate'); if (barI) barI.style.width = `${100 - planAdherence}%`;
+      const r2P = document.getElementById('row2PlannedCnt'); if (r2P) r2P.innerText = plannedExecutedCount;
+      const r2I = document.getElementById('row2ImpulseCnt'); if (r2I) r2I.innerText = impulseCount;
+
+      // Update Row 3 Edge Matrix
+      const r3Inst = document.getElementById('row3BestInst'); if (r3Inst) r3Inst.innerText = starPair;
+
+      // Update Row 4, 6, 7 Visuals
+      const r4H = document.getElementById('row4HighQualPnL'); if (r4H) r4H.innerText = `${highQualPnL >= 0 ? '+' : ''}$${highQualPnL.toFixed(2)}`;
+      const r4L = document.getElementById('row4LowQualPnL'); if (r4L) r4L.innerText = `${lowQualPnL >= 0 ? '+' : ''}$${lowQualPnL.toFixed(2)}`;
+      const r6D = document.getElementById('row6AvgDev'); if (r6D) r6D.innerText = `${avgDev} pts`;
+      const r7W = document.getElementById('row7AvgWinner'); if (r7W) r7W.innerText = `+$${avgWin}`;
+      const r7L = document.getElementById('row7AvgLoser'); if (r7L) r7L.innerText = `-$${avgLoss}`;
+
+      renderDynamicCharts(assetPnL, weekDaysPnL);
+      renderDynamicTables(sessionPnL);
+      renderExecutedLogsTable();
+      renderEquityCurve();
+    }
+
+    function updateEquityStartingBalance(val) {
+      const n = parseFloat(val);
+      equityStartingBalance = isNaN(n) ? 0 : n;
+      localStorage.setItem('equityStartingBalance', equityStartingBalance);
+      renderEquityCurve();
+    }
+
+    function renderEquityCurve() {
+      const canvas = document.getElementById('equityCurveChart');
+      if (!canvas) return;
+
+      const trades = getFilteredExecutions()
+        .filter(x => x.date)
+        .slice()
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const labels = ['Start'];
+      const data = [equityStartingBalance];
+      let running = equityStartingBalance;
+      trades.forEach((x, i) => {
+        running += Number(x.netPnL) || 0;
+        labels.push(x.date);
+        data.push(running);
+      });
+
+      const currentEl = document.getElementById('equityCurrentValue');
+      if (currentEl) {
+        currentEl.innerText = `${running >= 0 ? '' : '-'}$${Math.abs(running).toFixed(2)}`;
+        currentEl.className = `text-lg font-extrabold ${running >= equityStartingBalance ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+
+      const isUp = running >= equityStartingBalance;
+      const lineColor = isUp ? '#7c3aed' : '#ef4444';
+
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 280);
+      if (isUp) {
+        gradient.addColorStop(0, 'rgba(124, 58, 237, 0.35)');
+        gradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+      } else {
+        gradient.addColorStop(0, 'rgba(239, 68, 68, 0.30)');
+        gradient.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+      }
+
+      if (equityChartInstance) equityChartInstance.destroy();
+      equityChartInstance = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Account Equity',
+            data,
+            borderColor: lineColor,
+            backgroundColor: gradient,
+            borderWidth: 2.5,
+            pointRadius: data.length > 40 ? 0 : 2.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: lineColor,
+            pointBorderWidth: 2,
+            fill: true,
+            tension: 0.35,
+            cubicInterpolationMode: 'monotone'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: 'easeOutQuart' },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#e2e8f0',
+              bodyColor: '#f8fafc',
+              padding: 10,
+              cornerRadius: 8,
+              displayColors: false,
+              callbacks: {
+                label: (ctx) => `Equity: $${ctx.parsed.y.toFixed(2)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#94a3b8', font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+            },
+            y: {
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: (v) => `$${v.toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderDynamicCharts(assetPnL, weekDaysPnL) {
+      const donutPalette = ['#7c3aed', '#34d399', '#60a5fa', '#fbbf24', '#f472b6', '#22d3ee'];
+      const doughnutCanvas = document.getElementById('assetsDonutChart');
+      if (doughnutCanvas) {
+        if (assetChartInstance) assetChartInstance.destroy();
+        assetChartInstance = new Chart(doughnutCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(assetPnL).length > 0 ? Object.keys(assetPnL) : ['No Trades'],
+            datasets: [{
+              data: Object.values(assetPnL).length > 0 ? Object.values(assetPnL).map(v => Math.abs(v)) : [1],
+              backgroundColor: donutPalette,
+              borderColor: '#ffffff',
+              borderWidth: 3,
+              hoverOffset: 8,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            animation: { animateRotate: true, animateScale: true, duration: 800, easing: 'easeOutQuart' },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, pointStyle: 'circle', font: { size: 10 }, color: '#64748b', padding: 12 }
+              },
+              tooltip: {
+                backgroundColor: '#0f172a', padding: 10, cornerRadius: 8, displayColors: true,
+                callbacks: { label: (ctx) => ` ${ctx.label}: $${ctx.parsed.toFixed(2)}` }
+              }
+            }
+          }
+        });
+      }
+
+      const barCanvas = document.getElementById('pairDailyChart');
+      if (barCanvas) {
+        if (pairChartInstance) pairChartInstance.destroy();
+        const vals = Object.values(weekDaysPnL);
+        pairChartInstance = new Chart(barCanvas, {
+          type: 'bar',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Net P&L ($)',
+              data: vals,
+              backgroundColor: vals.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)'),
+              hoverBackgroundColor: vals.map(v => v >= 0 ? '#059669' : '#dc2626'),
+              borderRadius: 8,
+              borderSkipped: false,
+              maxBarThickness: 42
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeOutQuart' },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#0f172a', padding: 10, cornerRadius: 8, displayColors: false,
+                callbacks: { label: (ctx) => `Net P&L: ${ctx.parsed.y >= 0 ? '+' : ''}$${ctx.parsed.y.toFixed(2)}` }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, border: { display: false }, ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } } },
+              y: {
+                grid: { display: false },
+                border: { display: false },
+                ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => `$${v}` }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function renderDynamicTables(sessionPnL) {
+      const sessTbody = document.getElementById('summarySessionTbody');
+      if (!sessTbody) return;
+      sessTbody.innerHTML = '';
+      Object.keys(sessionPnL).forEach(s => {
+        const val = sessionPnL[s];
+        sessTbody.innerHTML += `
+          <tr>
+            <td class="p-2 font-medium">${s}</td>
+            <td class="p-2 font-bold ${val >= 0 ? 'text-emerald-600' : 'text-red-500'}">${val >= 0 ? '+' : ''}$${val.toFixed(2)}</td>
+            <td class="p-2">${val > 0 ? '$' + val.toFixed(2) : '$0.00'}</td>
+            <td class="p-2">${val < 0 ? '$' + Math.abs(val).toFixed(2) : '$0.00'}</td>
+            <td class="p-2 text-right font-bold">-</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderExecutedLogsTable() {
+      const tbody = document.getElementById('executedLogsTable');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      getFilteredExecutions().forEach(x => {
+        const pnl = Number(x.netPnL) || 0;
+        tbody.innerHTML += `
+          <tr>
+            <td class="p-2 font-mono font-bold text-emerald-600">${x.executionId}</td>
+            <td class="p-2 font-mono text-purple-600">${x.planId || 'UNPLANNED'}</td>
+            <td class="p-2">${x.date}</td>
+            <td class="p-2 font-bold">${x.instrument}</td>
+            <td class="p-2 font-bold text-slate-800">${x.lotSize || 1.0}</td>
+            <td class="p-2">${x.strategy || 'Scalper'}</td>
+            <td class="p-2">${x.session || 'London'}</td>
+            <td class="p-2 font-mono">${x.entryPrice}</td>
+            <td class="p-2 font-mono">${x.exitPrice}</td>
+            <td class="p-2 font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+            <td class="p-2 text-slate-500">${x.exitReason || '—'}</td>
+            <td class="p-2 text-center space-x-1">
+              ${x.beforeImageUrl ? `<a href="${x.beforeImageUrl}" target="_blank" title="Before Entry" class="text-purple-600 hover:underline font-semibold">Before</a>` : ''}
+              ${x.beforeImageUrl && x.afterImageUrl ? '<span class="text-slate-300">|</span>' : ''}
+              ${x.afterImageUrl ? `<a href="${x.afterImageUrl}" target="_blank" title="After Entry" class="text-purple-600 hover:underline font-semibold">After</a>` : ''}
+              ${!x.beforeImageUrl && !x.afterImageUrl ? '<span class="text-slate-300">—</span>' : ''}
+            </td>
+            <td class="p-2 text-center">
+              <button onclick="deleteExecutedTrade('${x.executionId}')" title="Delete Trade Record" class="text-red-500 hover:text-red-700 font-bold p-1 border border-red-200 rounded hover:bg-red-50">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openSettingsModal() { 
+      renderSettingsLists();
+      renderEditableChecklistSettings();
+      const modal = document.getElementById('settingsModal');
+      if (modal) modal.classList.remove('hidden'); 
+    }
+    function closeSettingsModal() { 
+      const modal = document.getElementById('settingsModal');
+      if (modal) modal.classList.add('hidden'); 
+    }
+
+    function renderEditableChecklistSettings() {
+      const container = document.getElementById('editableChecklistContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      checklistQuestions.forEach((q, idx) => {
+        container.innerHTML += `
+          <div class="flex items-center space-x-2 bg-slate-50 p-2 rounded border border-slate-200 text-xs">
+            <input type="text" id="edit_text_${idx}" value="${q.text}" class="flex-1 border border-slate-200 rounded p-1">
+            <input type="number" id="edit_pts_${idx}" value="${q.points}" oninput="updateSettingsChecklistSum()" class="w-16 border border-slate-200 rounded p-1 font-bold">
+            <button onclick="removeQuestion(${idx})" class="text-red-500 font-bold px-2 text-lg">&times;</button>
+          </div>
+        `;
+      });
+      updateSettingsChecklistSum();
+    }
+
+    function updateSettingsChecklistSum() {
+      let total = 0;
+      checklistQuestions.forEach((q, idx) => {
+        const ptsEl = document.getElementById(`edit_pts_${idx}`);
+        const val = ptsEl ? parseInt(ptsEl.value || 0) : q.points;
+        total += val;
+      });
+      const sumEl = document.getElementById('checklistTotalWeightDisplay');
+      if (sumEl) {
+        sumEl.innerText = `${total} / 100 pts`;
+        sumEl.className = total === 100 ? "font-bold text-emerald-600" : "font-bold text-amber-600";
+      }
+    }
+
+    function resetChecklistToDefault() {
+      if (confirm("Reset checklist to original 100-point default rules?")) {
+        checklistQuestions = JSON.parse(JSON.stringify(defaultChecklist));
+        localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions));
+        renderEditableChecklistSettings();
+        renderQualityChecklistForm();
+      }
+    }
+
+    function addCustomQuestion() {
+      checklistQuestions.push({ id: `q_${Date.now()}`, text: 'New Checklist Rule', points: 5, checked: true });
+      renderEditableChecklistSettings();
+    }
+
+    function removeQuestion(idx) {
+      checklistQuestions.splice(idx, 1);
+      renderEditableChecklistSettings();
+    }
+
+    function saveSettings() {
+      checklistQuestions.forEach((q, idx) => {
+        const textEl = document.getElementById(`edit_text_${idx}`);
+        const ptsEl = document.getElementById(`edit_pts_${idx}`);
+        if (textEl && ptsEl) {
+          q.text = textEl.value;
+          q.points = parseInt(ptsEl.value || 0);
+        }
+      });
+
+      localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions));
+      const urlInp = document.getElementById('scriptUrlInput');
+      if (urlInp) {
+        gsUrl = urlInp.value;
+        localStorage.setItem('gsUrl', gsUrl);
+      }
+
+      renderQualityChecklistForm();
+      closeSettingsModal();
+      fetchFromGS();
+    }
+  </script>
+</body>
+</html>
