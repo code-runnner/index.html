@@ -24,7 +24,7 @@
   <!-- ======================================================== -->
   <!-- LEFT SIDEBAR NAVIGATION                                  -->
   <!-- ======================================================== -->
-  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-50">
+  <aside id="appSidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-50 transition-transform duration-300">
     <!-- Branding Header -->
     <div class="p-5 border-b border-slate-100 flex items-center space-x-3">
       <div class="bg-purple-600 text-white p-2.5 rounded-xl shadow-md">
@@ -92,13 +92,23 @@
         <i data-lucide="settings" class="w-4 h-4 text-purple-600"></i>
         <span>Manage Lists & Settings</span>
       </button>
+      <button onclick="toggleSidebar()" class="w-full flex items-center justify-center space-x-2 border border-slate-200 hover:bg-slate-50 p-2.5 rounded-xl text-xs font-semibold text-slate-500">
+        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+        <span>Hide Sidebar</span>
+      </button>
     </div>
   </aside>
+
+  <!-- Floating button to bring the sidebar back once hidden -->
+  <button id="showSidebarBtn" onclick="toggleSidebar()"
+    class="hidden fixed top-4 left-4 z-50 bg-white border border-slate-200 shadow-md p-2.5 rounded-xl hover:bg-slate-50">
+    <i data-lucide="panel-left-open" class="w-4 h-4 text-purple-600"></i>
+  </button>
 
   <!-- ======================================================== -->
   <!-- MAIN CONTENT AREA                                        -->
   <!-- ======================================================== -->
-  <main class="flex-1 ml-64 p-8 min-h-screen space-y-6">
+  <main id="mainContent" class="flex-1 ml-64 p-8 min-h-screen space-y-6 transition-all duration-300">
 
     <!-- Top Tagline Bar -->
     <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
@@ -1108,12 +1118,43 @@
     let equityStartingBalance = parseFloat(localStorage.getItem('equityStartingBalance'));
     if (isNaN(equityStartingBalance)) equityStartingBalance = 0;
 
+    function toggleSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const main = document.getElementById('mainContent');
+      const showBtn = document.getElementById('showSidebarBtn');
+      if (!sidebar || !main) return;
+
+      const isHidden = sidebar.classList.contains('-translate-x-full');
+      if (isHidden) {
+        sidebar.classList.remove('-translate-x-full');
+        main.classList.remove('ml-0');
+        main.classList.add('ml-64');
+        if (showBtn) showBtn.classList.add('hidden');
+        localStorage.setItem('sidebarHidden', 'false');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        main.classList.remove('ml-64');
+        main.classList.add('ml-0');
+        if (showBtn) showBtn.classList.remove('hidden');
+        localStorage.setItem('sidebarHidden', 'true');
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const calSelect = document.getElementById('calendarMonthSelect');
       if (calSelect) calSelect.value = new Date().toISOString().slice(0,7);
 
       const eqInput = document.getElementById('equityStartingBalance');
       if (eqInput) eqInput.value = equityStartingBalance;
+
+      if (localStorage.getItem('sidebarHidden') === 'true') {
+        const sidebar = document.getElementById('appSidebar');
+        const main = document.getElementById('mainContent');
+        const showBtn = document.getElementById('showSidebarBtn');
+        if (sidebar) sidebar.classList.add('-translate-x-full');
+        if (main) { main.classList.remove('ml-64'); main.classList.add('ml-0'); }
+        if (showBtn) showBtn.classList.remove('hidden');
+      }
 
       renderDropdowns();
       renderQualityChecklistForm();
@@ -1190,6 +1231,7 @@
         if (!instruments.includes(cleaned)) {
           instruments.push(cleaned);
           localStorage.setItem('instrumentsStore', JSON.stringify(instruments));
+          syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
         }
@@ -1203,6 +1245,7 @@
         if (!strategies.includes(cleaned)) {
           strategies.push(cleaned);
           localStorage.setItem('strategiesStore', JSON.stringify(strategies));
+          syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
         }
@@ -1216,6 +1259,7 @@
         if (!timeframes.includes(cleaned)) {
           timeframes.push(cleaned);
           localStorage.setItem('timeframesStore', JSON.stringify(timeframes));
+          syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
         }
@@ -1231,6 +1275,7 @@
       if (confirm(`Remove timeframe "${item}"?`)) {
         timeframes.splice(idx, 1);
         localStorage.setItem('timeframesStore', JSON.stringify(timeframes));
+        syncConfigToGS();
         renderDropdowns();
         renderSettingsLists();
       }
@@ -1243,6 +1288,7 @@
         if (!exitReasons.includes(cleaned)) {
           exitReasons.push(cleaned);
           localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons));
+          syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
         }
@@ -1258,6 +1304,7 @@
       if (confirm(`Remove exit reason "${item}"?`)) {
         exitReasons.splice(idx, 1);
         localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons));
+        syncConfigToGS();
         renderDropdowns();
         renderSettingsLists();
       }
@@ -1272,6 +1319,7 @@
       if (confirm(`Remove instrument "${item}"?`)) {
         instruments.splice(idx, 1);
         localStorage.setItem('instrumentsStore', JSON.stringify(instruments));
+        syncConfigToGS();
         renderDropdowns();
         renderSettingsLists();
       }
@@ -1286,6 +1334,7 @@
       if (confirm(`Remove strategy "${item}"?`)) {
         strategies.splice(idx, 1);
         localStorage.setItem('strategiesStore', JSON.stringify(strategies));
+        syncConfigToGS();
         renderDropdowns();
         renderSettingsLists();
       }
@@ -2048,6 +2097,36 @@
       return val;
     }
 
+    // Syncs the "decision engine" config — checklist questions/scores, instruments,
+    // strategies, timeframes, exit reasons — as one JSON blob so it stays identical
+    // across every device, not just the trade/plan data.
+    function syncConfigToGS() {
+      if (!gsUrl) return;
+      syncToGS('SAVE_CONFIG', {
+        instruments: JSON.stringify(instruments),
+        strategies: JSON.stringify(strategies),
+        timeframes: JSON.stringify(timeframes),
+        exitReasons: JSON.stringify(exitReasons),
+        checklistQuestions: JSON.stringify(checklistQuestions)
+      });
+    }
+
+    function applyRemoteConfig(config) {
+      if (!config) return;
+      try {
+        if (config.instruments) { instruments = JSON.parse(config.instruments); localStorage.setItem('instrumentsStore', JSON.stringify(instruments)); }
+        if (config.strategies) { strategies = JSON.parse(config.strategies); localStorage.setItem('strategiesStore', JSON.stringify(strategies)); }
+        if (config.timeframes) { timeframes = JSON.parse(config.timeframes); localStorage.setItem('timeframesStore', JSON.stringify(timeframes)); }
+        if (config.exitReasons) { exitReasons = JSON.parse(config.exitReasons); localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons)); }
+        if (config.checklistQuestions) { checklistQuestions = JSON.parse(config.checklistQuestions); localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions)); }
+        renderDropdowns();
+        renderQualityChecklistForm();
+        if (document.getElementById('settingsModal') && !document.getElementById('settingsModal').classList.contains('hidden')) {
+          renderSettingsLists();
+        }
+      } catch (err) { console.error('Apply Remote Config Error:', err); }
+    }
+
     async function fetchFromGS() {
       if (!gsUrl) return;
       try {
@@ -2055,6 +2134,7 @@
         const data = await res.json();
         if (data.planned) plansStore = data.planned.map(x => ({ ...x, date: normalizeDateField(x.date) })).filter(p => !dismissedPlanIds.has(p.planId));
         if (data.executed) executionsStore = data.executed.map(x => ({ ...x, date: normalizeDateField(x.date), netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0) }));
+        if (data.config) applyRemoteConfig(data.config);
         localStorage.setItem('plansStore', JSON.stringify(plansStore));
         localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
         updateDashboard();
@@ -2469,6 +2549,7 @@
       if (confirm("Reset checklist to original 100-point default rules?")) {
         checklistQuestions = JSON.parse(JSON.stringify(defaultChecklist));
         localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions));
+        syncConfigToGS();
         renderEditableChecklistSettings();
         renderQualityChecklistForm();
       }
@@ -2495,6 +2576,7 @@
       });
 
       localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions));
+      syncConfigToGS();
       const urlInp = document.getElementById('scriptUrlInput');
       if (urlInp) {
         gsUrl = urlInp.value;
