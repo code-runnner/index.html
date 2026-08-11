@@ -8,9 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-if (window.Chart) { Chart.defaults.scale.grid.display = false; }
-</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -49,11 +46,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
       <button onclick="switchTab('planner')" id="nav-planner" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
         <i data-lucide="edit-3" class="w-4 h-4"></i>
         <span>Create Daily Plan</span>
-      </button>
-
-      <button onclick="switchTab('notebooks')" id="nav-notebooks" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
-        <i data-lucide="book-open" class="w-4 h-4"></i>
-        <span>Notebooks</span>
       </button>
 
       <button onclick="switchTab('todays-plans')" id="nav-todays-plans" class="nav-link w-full flex items-center justify-between px-3.5 py-3 text-slate-600">
@@ -200,10 +192,10 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             <p id="kpi-net-pnl" class="text-xl font-bold text-slate-800 mt-0.5">$0.00</p>
             <span id="kpi-pnl-sub" class="text-[9px] text-slate-400">0 trades</span>
           </div>
-          <div class="card p-3 bg-purple-50/50 border-purple-100">
-            <p class="text-[10px] font-bold text-purple-700">Best Weekday</p>
-            <p id="kpi-best-day" class="text-base font-extrabold text-purple-900 mt-0.5">—</p>
-            <span id="kpi-best-day-sub" class="text-[9px] text-purple-600">Avg P&L / trade</span>
+          <div class="card p-3">
+            <p class="text-[10px] font-medium text-slate-500">Expectancy / Trade</p>
+            <p id="kpi-expectancy" class="text-xl font-bold text-purple-700 mt-0.5">$0.00</p>
+            <span class="text-[9px] text-slate-400">Avg Return / Trade</span>
           </div>
           <div class="card p-3">
             <p class="text-[10px] font-medium text-slate-500">Profit Factor</p>
@@ -316,11 +308,11 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             </div>
             <div class="bg-indigo-50 p-2.5 rounded-xl border border-indigo-100">
               <span class="text-[10px] text-indigo-700 font-bold block">Best Session</span>
-              <span id="row3BestSess" class="text-xs font-extrabold text-indigo-950">London</span>
+              <span id="row3BestSess" class="text-sm font-extrabold text-indigo-950">London</span>
             </div>
             <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-100">
               <span class="text-[10px] text-amber-800 font-bold block">Best Weekday</span>
-              <span id="row3BestDay" class="text-xs font-extrabold text-amber-950">Tuesday</span>
+              <span id="row3BestDay" class="text-sm font-extrabold text-amber-950">Tuesday</span>
             </div>
           </div>
         </div>
@@ -478,7 +470,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             <h2 class="text-lg font-bold text-slate-800">Create Daily Market Thesis</h2>
             <p class="text-xs text-slate-500">Define the story before taking any trade execution.</p>
           </div>
-          <div class="flex gap-2"><button type="button" onclick="switchTab('todays-plans')" class="text-xs border border-purple-200 hover:bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg font-semibold">← Back</button><button type="button" onclick="resetPlannerForm()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg">Clear Form</button></div>
+          <button type="button" onclick="resetPlannerForm()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg">Clear Form</button>
         </div>
 
         <form id="plannerForm" onsubmit="handleSavePlan(event)" class="space-y-6">
@@ -635,36 +627,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
       </div>
     </div>
 
-    <!-- TAB 3: NOTEBOOKS -->
-    <div id="tab-notebooks" class="hidden space-y-6">
-      <div class="flex h-[calc(100vh-8rem)] min-h-[680px] card overflow-hidden">
-        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
-          <div class="p-4 border-b border-slate-100">
-            <div class="flex items-center justify-between mb-3">
-              <div><h2 class="text-sm font-extrabold text-slate-800">Notebook</h2><p class="text-[9px] text-slate-400">Folders, thoughts, images & journal notes</p></div>
-              <button onclick="createNotebookFolder()" title="New folder" class="p-1.5 rounded-lg border border-slate-200 hover:bg-purple-50 text-purple-600"><i data-lucide="folder-plus" class="w-4 h-4"></i></button>
-            </div>
-            <input id="notebookSearch" oninput="renderNotebookTree()" placeholder="Search folders and notes" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-100">
-          </div>
-          <div class="px-4 py-3 border-b border-slate-100 space-y-1">
-            <button onclick="selectNotebookFolder('root')" class="w-full flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> Trading Journals</button>
-          </div>
-          <div id="notebookFolderTree" class="flex-1 overflow-y-auto p-2"></div>
-        </aside>
-        <section class="flex-1 min-w-0 flex flex-col bg-slate-50/40">
-          <div class="p-5 bg-white border-b border-slate-200 flex justify-between items-start gap-4">
-            <div><div class="flex items-center gap-2"><i data-lucide="notebook-pen" class="w-5 h-5 text-purple-600"></i><h2 id="notebookTitle" class="text-lg font-extrabold text-slate-900">Trading Journals</h2></div><p id="notebookMeta" class="text-[10px] text-slate-400 mt-1">Create folders for playbooks, psychology, reviews, routines and daily journals.</p></div>
-            <div class="flex items-center gap-2">
-              <input type="date" id="notebookDatePicker" onchange="selectNotebookDate(this.value)" class="border border-slate-200 rounded-lg p-2 text-xs font-semibold">
-              <button onclick="newNotebookNote()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> New Note</button>
-            </div>
-          </div>
-          <div id="notebookContent" class="flex-1 overflow-y-auto p-5 space-y-5"></div>
-        </section>
-      </div>
-    </div>
-
-    <!-- TAB 4: TODAY'S PLANS (ACCORDION) -->
+    <!-- TAB 3: TODAY'S PLANS (ACCORDION) -->
     <div id="tab-todays-plans" class="hidden space-y-6">
       <div class="flex justify-between items-center card p-4">
         <div>
@@ -692,64 +655,185 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     <!-- TAB 4: EXECUTION INSIGHTS -->
     <div id="tab-insights" class="hidden space-y-6">
       <div class="card p-6 space-y-6">
-        <div><h2 class="text-lg font-extrabold text-slate-900">Execution Insights</h2><p class="text-xs text-slate-500">Diagnostics focused on risk, discipline, consistency and repeatable behaviour.</p></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="card p-4"><span class="text-[10px] text-slate-400 block font-semibold">Best Trading Day</span><b id="insBestTradingDay" class="text-xl text-purple-700">—</b></div>
-          <div class="card p-4"><span class="text-[10px] text-slate-400 block font-semibold">Average Realized R</span><b id="insAvgR" class="text-xl text-purple-700">0.00R</b></div>
-          <div class="card p-4"><span class="text-[10px] text-slate-400 block font-semibold">Profit Factor</span><b id="insPF" class="text-xl">0.00</b></div>
-          <div class="card p-4"><span class="text-[10px] text-slate-400 block font-semibold">Max Drawdown</span><b id="insDD" class="text-xl text-red-500">$0.00</b></div>
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Psychology & Execution Insights</h2>
+          <p class="text-xs text-slate-500">Data-driven answers to your trading behavior and plan adherence.</p>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div class="card p-5"><h3 class="text-sm font-bold text-slate-800 mb-3">Plan vs Impulse</h3><div class="grid grid-cols-2 gap-3"><div class="bg-emerald-50 p-4 rounded-xl"><span class="text-[10px] text-slate-500 block">Planned</span><b id="ansPlannedPnL" class="text-xl">$0.00</b><p id="ansPlannedCount" class="text-[10px] text-slate-400">0 trades</p></div><div class="bg-amber-50 p-4 rounded-xl"><span class="text-[10px] text-slate-500 block">Impulse</span><b id="ansImpulsePnL" class="text-xl">$0.00</b><p id="ansImpulseCount" class="text-[10px] text-slate-400">0 trades</p></div></div></div>
-          <div class="card p-5"><h3 class="text-sm font-bold text-slate-800 mb-3">Plan Adherence</h3><div class="grid grid-cols-3 gap-3"><div><span class="text-[10px] text-slate-400 block">Execution Rate</span><b id="ansExecRate" class="text-xl text-purple-700">0%</b></div><div><span class="text-[10px] text-slate-400 block">Plans</span><b id="ansTotalPlans" class="text-xl">0</b></div><div><span class="text-[10px] text-slate-400 block">Executed Plans</span><b id="ansExecutedPlans" class="text-xl text-emerald-600">0</b></div></div></div>
+
+        <div class="bg-purple-50/50 border border-purple-100 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-purple-950 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-purple-600"></i>
+            <span>1. "Do my planned trades make more money than my impulse trades?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Planned Trades Net P&L</span>
+              <span id="ansPlannedPnL" class="text-2xl font-black text-emerald-600">$0.00</span>
+              <p id="ansPlannedCount" class="text-[10px] text-slate-400 mt-1">0 trades</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Unplanned / Impulse Trades Net P&L</span>
+              <span id="ansImpulsePnL" class="text-2xl font-black text-red-500">$0.00</span>
+              <p id="ansImpulseCount" class="text-[10px] text-slate-400 mt-1">0 trades</p>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="card p-5"><h3 class="text-sm font-bold mb-3">Entry Discipline</h3><b id="ansAvgDeviation" class="text-2xl">0.00 pts</b><p id="ansEntryStatus" class="text-xs font-bold text-emerald-600 mt-2">No data</p></div>
-          <div class="card p-5"><h3 class="text-sm font-bold mb-3">Streaks</h3><div class="flex justify-between text-xs"><span>Max Win Streak</span><b id="insWinStreak">0</b></div><div class="flex justify-between text-xs mt-2"><span>Max Loss Streak</span><b id="insLossStreak">0</b></div></div>
-          <div class="card p-5"><h3 class="text-sm font-bold mb-3">Best Edge</h3><div class="text-xs"><span class="text-slate-400">Weekday</span><b id="insBestWeekday" class="block text-lg">—</b><span class="text-slate-400">Session</span><b id="insBestSession" class="block">—</b><span class="text-slate-400">Strategy</span><b id="insBestStrategy" class="block">—</b></div></div>
+
+        <div class="bg-indigo-50/50 border border-indigo-100 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-indigo-950 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-indigo-600"></i>
+            <span>2. "How often do I execute my plans vs. abandoning them?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Plan-to-Execution Rate</span>
+              <span id="ansExecRate" class="text-2xl font-black text-purple-700">0%</span>
+              <p class="text-[10px] text-slate-400 mt-1">Executed / Total Plans</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Total Plans Created</span>
+              <span id="ansTotalPlans" class="text-2xl font-black text-slate-800">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Executed Plans Count</span>
+              <span id="ansExecutedPlans" class="text-2xl font-black text-emerald-600">0</span>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          <div class="card p-5"><div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-extrabold text-slate-800">Weekly Trading Review</h3><p class="text-[10px] text-slate-400">Automatic review of the latest completed trading week.</p></div><span id="weeklyReviewBadge" class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-500">No data</span></div><div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs mb-4"><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Week P&L</span><b id="weeklyPnL" class="text-lg">$0.00</b></div><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Trades</span><b id="weeklyTrades" class="text-lg">0</b></div><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Win Rate</span><b id="weeklyWR" class="text-lg">0%</b></div><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Avg R</span><b id="weeklyR" class="text-lg">N/A</b></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs"><div class="border rounded-xl p-3"><span class="text-[9px] text-slate-400 block">Best day</span><b id="weeklyBestDay">—</b></div><div class="border rounded-xl p-3"><span class="text-[9px] text-slate-400 block">Top strategy</span><b id="weeklyBestStrategy">—</b></div><div class="border rounded-xl p-3"><span class="text-[9px] text-slate-400 block">Focus</span><b id="weeklyFocus">Keep collecting clean data</b></div></div></div>
-          <div class="card p-5"><div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-extrabold text-slate-800">Streak Analysis</h3><p class="text-[10px] text-slate-400">Current and historical win/loss streak behaviour, based on each day's closing net P&L.</p></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs"><div class="bg-emerald-50 p-3 rounded-xl"><span class="text-[9px] text-emerald-600 block">Current Win Streak</span><b id="currentWinStreak" class="text-xl text-emerald-700">0</b></div><div class="bg-red-50 p-3 rounded-xl"><span class="text-[9px] text-red-600 block">Current Loss Streak</span><b id="currentLossStreak" class="text-xl text-red-700">0</b></div><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Max Win Streak</span><b id="maxWinStreak2" class="text-xl">0</b></div><div class="bg-slate-50 p-3 rounded-xl"><span class="text-[9px] text-slate-400 block">Max Loss Streak</span><b id="maxLossStreak2" class="text-xl">0</b></div></div><div id="streakInsight" class="mt-3 text-xs text-slate-600 bg-slate-50 border rounded-xl p-3">No streak pattern yet.</div></div>
+
+        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="help-circle" class="w-4 h-4 text-slate-600"></i>
+            <span>3. "How far did my actual entry price deviate from my planned entry price?"</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+              <span class="text-xs text-slate-400 font-semibold block">Average Entry Price Deviation</span>
+              <span id="ansAvgDeviation" class="text-2xl font-black text-slate-800">0.00 pts</span>
+              <p class="text-[10px] text-slate-400 mt-1">Difference between Planned Entry vs Actual Entry</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 font-semibold block">Entry Discipline Status</span>
+                <span id="ansEntryStatus" class="text-sm font-bold text-emerald-600">Disciplined Execution</span>
+              </div>
+              <i data-lucide="shield-check" class="w-8 h-8 text-emerald-500 opacity-80"></i>
+            </div>
+          </div>
         </div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          <div class="card p-5"><div class="flex justify-between items-center mb-3"><div><h3 class="text-sm font-extrabold text-slate-800">Trading Mistake Tracker</h3><p class="text-[10px] text-slate-400">Which mistakes are costing you the most?</p></div></div><div id="mistakeTracker" class="space-y-2"></div></div>
-          <div class="card p-5 overflow-hidden"><div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4"><div><div class="flex items-center gap-2"><i data-lucide="calendar-days" class="w-4 h-4 text-purple-600"></i><h3 class="text-sm font-extrabold text-slate-800">Trading Calendar Heatmap</h3></div><p class="text-[10px] text-slate-400 mt-1">Daily closing P&L across the latest 16 weeks. Click any trading day to open its details.</p></div><div id="heatmapSummary" class="flex gap-2 text-[9px]"></div></div><div id="tradingHeatmap" class="overflow-x-auto pb-1"></div><div class="flex items-center justify-between mt-4 text-[9px] text-slate-400"><span>16 weeks ago</span><div class="flex items-center gap-1.5"><span>Loss</span><span class="w-3 h-3 rounded-[4px] bg-red-100 border border-red-200"></span><span class="w-3 h-3 rounded-[4px] bg-red-400"></span><span class="w-3 h-3 rounded-[4px] bg-slate-100 border border-slate-200"></span><span class="w-3 h-3 rounded-[4px] bg-emerald-300"></span><span class="w-3 h-3 rounded-[4px] bg-emerald-500"></span><span>Profit</span></div><span>Latest</span></div></div>
-        </div>
-        <div class="card p-5"><h3 class="text-sm font-extrabold text-slate-800 mb-3">Trade Quality Distribution</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs"><div class="bg-emerald-50 p-3 rounded-xl"><span class="text-[9px] text-emerald-600 block">A+ (90–100)</span><b id="qAplus" class="text-lg text-emerald-700">0</b></div><div class="bg-emerald-50/60 p-3 rounded-xl"><span class="text-[9px] text-emerald-600 block">A (80–89)</span><b id="qA" class="text-lg">0</b></div><div class="bg-blue-50 p-3 rounded-xl"><span class="text-[9px] text-blue-600 block">B (70–79)</span><b id="qB" class="text-lg">0</b></div><div class="bg-amber-50 p-3 rounded-xl"><span class="text-[9px] text-amber-600 block">C (60–69)</span><b id="qC" class="text-lg">0</b></div><div class="bg-red-50 p-3 rounded-xl"><span class="text-[9px] text-red-600 block">D (&lt;60)</span><b id="qD" class="text-lg text-red-600">0</b></div></div></div>
-        <div class="card p-5"><h3 class="text-sm font-bold text-slate-800 mb-3">What to Improve Next</h3><div id="insActionList" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div></div>
       </div>
     </div>
 
     <!-- TAB 5: P&L CALENDAR VIEW -->
     <div id="tab-calendar" class="hidden space-y-6">
       <div class="card p-6">
-        <div class="flex justify-between items-center mb-5"><div><h2 class="text-lg font-bold text-slate-800">P&L Calendar & Monthly History</h2><p class="text-xs text-slate-500">All Months shows month cards with every trading day and its net P&L. Select a month for the detailed calendar.</p></div><div class="flex gap-2"><select id="calendarViewSelect" onchange="renderCalendar()" class="border border-slate-200 rounded-lg p-2 text-xs font-semibold"><option value="ALL">All Months</option></select></div></div>
-        <div id="allMonthsContainer" class="space-y-5"></div>
-        <div id="singleMonthContainer" class="hidden">
-          <div class="grid grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs"><div><span class="text-slate-400 block">Monthly Net P&L</span><span id="calMonthlyPnL" class="text-lg font-bold">$0.00</span></div><div><span class="text-slate-400 block">Winning Days</span><span id="calWinDays" class="text-lg font-bold text-emerald-600">0</span></div><div><span class="text-slate-400 block">Losing Days</span><span id="calLossDays" class="text-lg font-bold text-red-500">0</span></div><div><span class="text-slate-400 block">Day Win Rate</span><span id="calWinRate" class="text-lg font-bold text-purple-600">0%</span></div></div>
-          <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div><div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Monthly P&L Performance Calendar</h2>
+            <p class="text-xs text-slate-500">Visual breakdown of daily trading outcomes.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="month" id="calendarMonthSelect" onchange="renderCalendar()" class="border border-slate-200 rounded-lg p-2 text-xs font-semibold">
+          </div>
         </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+          <div>
+            <span class="text-slate-400 block">Monthly Net P&L</span>
+            <span id="calMonthlyPnL" class="text-lg font-bold text-slate-800">$0.00</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Winning Days</span>
+            <span id="calWinDays" class="text-lg font-bold text-emerald-600">0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Losing Days</span>
+            <span id="calLossDays" class="text-lg font-bold text-red-500">0</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Win Rate</span>
+            <span id="calWinRate" class="text-lg font-bold text-purple-600">0%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2">
+          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
       </div>
     </div>
 
     <!-- TAB 6: STRATEGY P&L TAB -->
     <div id="tab-strategy" class="hidden space-y-6">
-      <div class="card p-6 space-y-5">
-        <div class="flex justify-between items-center"><div><h2 class="text-lg font-bold text-slate-800">Playbook Performance Diagnostics</h2><p class="text-xs text-slate-500">Analyze which setups create positive expectancy, which lag, and where rule adherence breaks down.</p></div><button onclick="promptAddStrategy()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Custom Strategy</button></div>
-        <div class="card p-4"><h3 class="text-xs font-bold mb-3">Net P&L by Playbook</h3><div class="h-72"><canvas id="strategyBarChart"></canvas></div></div>
-        <div id="strategyDiagnostics" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Strategy Performance Analytics</h2>
+            <p class="text-xs text-slate-500">Compare win rate, expectancy, and P&L by setup type.</p>
+          </div>
+          <button onclick="promptAddStrategy()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Custom Strategy</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-4 lg:col-span-1">
+            <h3 class="text-xs font-bold text-slate-700 mb-3">Net P&L by Strategy</h3>
+            <div class="h-64">
+              <canvas id="strategyBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+                <tr>
+                  <th class="p-2.5">Strategy</th>
+                  <th class="p-2.5">Trades</th>
+                  <th class="p-2.5 cursor-pointer select-none hover:text-purple-600" onclick="toggleStrategyWinRateSort()">
+                    <span class="inline-flex items-center gap-1">
+                      Win Rate
+                      <span id="strategyWinRateSortIcon" class="text-[9px]">▼</span>
+                    </span>
+                  </th>
+                  <th class="p-2.5">Profit Factor</th>
+                  <th class="p-2.5 text-right">Net P&L</th>
+                </tr>
+              </thead>
+              <tbody id="strategyTbody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- TAB 7: INSTRUMENT WIN RATE TAB -->
     <div id="tab-instrument" class="hidden space-y-6">
-      <div class="card p-6 space-y-5"><div class="flex justify-between items-center"><div><h2 class="text-lg font-bold text-slate-800">Instrument Performance</h2><p class="text-xs text-slate-500">Visual comparison of win rate and net P&L. Deleted .x aliases are consolidated into the canonical instrument.</p></div><button onclick="promptAddInstrument()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Instrument</button></div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div class="card p-4"><h3 class="text-xs font-bold mb-3">Win Rate by Instrument</h3><div class="h-80"><canvas id="instrumentWinRateChart"></canvas></div></div>
-          <div class="card p-4"><h3 class="text-xs font-bold mb-3">Net P&L by Instrument</h3><div class="h-80"><canvas id="instrumentPnLChart"></canvas></div></div>
-          <div class="card p-4"><h3 class="text-xs font-bold mb-3">Average P&L per Trade</h3><div class="h-80"><canvas id="instrumentAvgPnLChart"></canvas></div></div>
-          <div class="card p-4"><h3 class="text-xs font-bold mb-3">Profit Factor by Instrument</h3><div class="h-80"><canvas id="instrumentPFChart"></canvas></div></div>
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Instrument-Wise Win Rate & Performance</h2>
+            <p class="text-xs text-slate-500">Asset profitability breakdowns and win percentages.</p>
+          </div>
+          <button onclick="promptAddInstrument()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Instrument</button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+              <tr>
+                <th class="p-3">Instrument</th>
+                <th class="p-3">Executions</th>
+                <th class="p-3 cursor-pointer select-none hover:text-purple-600" onclick="toggleInstrumentWinRateSort()">
+                  <span class="inline-flex items-center gap-1">
+                    Win Rate %
+                    <span id="instrumentWinRateSortIcon" class="text-[9px] text-slate-300">⇅</span>
+                  </span>
+                </th>
+                <th class="p-3">W / L Breakdown</th>
+                <th class="p-3 text-right">Net P&L ($)</th>
+              </tr>
+            </thead>
+            <tbody id="instrumentWinRateTbody" class="divide-y divide-slate-100"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -757,7 +841,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     <!-- TAB 8: LOG EXECUTION -->
     <div id="tab-execution" class="hidden space-y-6">
       <div class="card p-6">
-        <h2 class="text-lg font-bold text-slate-800 mb-2">Log Executed Trade</h2><p class="text-[10px] text-slate-400 mb-6">P&L is auto-calculated from Entry × Exit × Lots × instrument multiplier. Use “change multiplier” if your broker uses a different contract value.</p>
+        <h2 class="text-lg font-bold text-slate-800 mb-6">Log Executed Trade</h2>
 
         <form id="executionForm" onsubmit="handleLogExecution(event)" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -767,7 +851,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Link Plan ID</label>
-              <select id="execPlanId" onchange="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <select id="execPlanId" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
                 <option value="UNPLANNED">-- Unplanned Trade --</option>
               </select>
             </div>
@@ -783,11 +867,11 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
                   <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Delete</button>
                 </div>
               </div>
-              <select id="execInstrument" onchange="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs instrumentSelect"></select>
+              <select id="execInstrument" class="w-full border border-slate-200 rounded-lg p-2 text-xs instrumentSelect"></select>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="block text-xs font-semibold text-slate-600">Strategy</label>
@@ -800,29 +884,19 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Lot Size / Lots Used</label>
-              <input type="number" step="0.01" id="execLotSize" value="1.0" required oninput="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+              <input type="number" step="0.01" id="execLotSize" value="1.0" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Entry Price</label>
-              <input type="number" step="any" id="execEntry" required oninput="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <input type="number" step="any" id="execEntry" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Exit Price</label>
-              <input type="number" step="any" id="execExit" required oninput="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Stop Loss Price</label>
-              <input type="number" step="any" id="execSL" oninput="calculateExecutionPnL()" placeholder="Plan SL or enter SL" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
-              <span id="execSlHint" class="text-[9px] text-slate-400 mt-1 block">Uses linked plan SL when available.</span>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Risk ($)</label>
-              <input type="number" step="any" id="execRisk" placeholder="Auto-calculated" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-bold text-amber-700">
-              <span id="execRiskHint" class="text-[9px] text-slate-400 mt-1 block">Initial risk based on Entry → SL.</span>
+              <input type="number" step="any" id="execExit" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Net P&L ($)</label>
-              <input type="number" step="any" id="execPnL" placeholder="Auto-calculated" readonly required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold"><span id="execPnlHint" class="text-[9px] text-slate-400 mt-1 block">Enter entry + exit; P&L is calculated from direction, lots and instrument multiplier.</span>
+              <input type="number" step="any" id="execPnL" placeholder="-500 or +1200" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
             </div>
           </div>
 
@@ -850,18 +924,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
               </div>
               <select id="execExitReason" class="w-full border border-slate-200 rounded-lg p-2 text-xs exitReasonSelect"></select>
             </div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="lg:col-span-2 bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <div class="flex justify-between items-center mb-2"><label class="block text-xs font-extrabold text-slate-700">Trading Mistakes / Rule Violations</label><span class="text-[9px] text-slate-400">Select only what actually happened</span></div>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="FOMO" class="rounded"> FOMO</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Early Entry" class="rounded"> Early Entry</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Late Entry" class="rounded"> Late Entry</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Moved SL" class="rounded"> Moved SL</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Oversized Risk" class="rounded"> Oversized Risk</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Revenge Trade" class="rounded"> Revenge Trade</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Overtrading" class="rounded"> Overtrading</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Ignored Setup" class="rounded"> Ignored Setup</label>
-                <label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Premature Exit" class="rounded"> Premature Exit</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Held Loser" class="rounded"> Held Loser</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="Outside Session" class="rounded"> Outside Session</label><label class="flex items-center gap-1.5"><input type="checkbox" name="tradeMistake" value="No Confirmation" class="rounded"> No Confirmation</label>
-              </div>
-            </div>
-            <div class="bg-purple-50 border border-purple-100 rounded-xl p-4"><label class="block text-xs font-extrabold text-purple-800 mb-2">Trade Quality Score</label><div class="flex items-end gap-2"><span id="tradeQualityPreview" class="text-3xl font-black text-purple-700">—</span><span class="text-xs text-purple-400 mb-1">/ 100</span></div><p class="text-[9px] text-purple-500 mt-2">Calculated from plan quality, rule adherence, risk discipline and execution.</p></div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -909,14 +971,11 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
                 <th class="p-2">Date</th>
                 <th class="p-2">Asset</th>
                 <th class="p-2">Lots</th>
-                <th class="p-2">Risk</th>
                 <th class="p-2">Strategy</th>
                 <th class="p-2">Session</th>
                 <th class="p-2">Entry</th>
                 <th class="p-2">Exit</th>
                 <th class="p-2">Net P&L</th>
-                <th class="p-2">Quality</th>
-                <th class="p-2">Mistakes</th>
                 <th class="p-2">Exit Reason</th>
                 <th class="p-2 text-center">Images</th>
                 <th class="p-2 text-center">Action</th>
@@ -1043,13 +1102,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     let timeframes = JSON.parse(localStorage.getItem('timeframesStore') || '["1m", "5m", "15m", "30m", "1H", "4H", "Daily"]');
     let exitReasons = JSON.parse(localStorage.getItem('exitReasonsStore') || '["Take Profit Hit", "Stop Loss Hit", "Manual Close", "Break Even", "Trailing Stop", "News Event"]');
     let plansStore = JSON.parse(localStorage.getItem('plansStore') || '[]');
-    // Permanent plan archive. Today's Plans is only a working view; deleting/hiding it never removes this history.
-    let allPlansStore = JSON.parse(localStorage.getItem('allPlansStore') || 'null');
-    if (!Array.isArray(allPlansStore)) allPlansStore = JSON.parse(localStorage.getItem('plansStore') || '[]');
-    localStorage.setItem('allPlansStore', JSON.stringify(allPlansStore));
     let executionsStore = JSON.parse(localStorage.getItem('executionsStore') || '[]');
-    let selectedNotebookDate = localStorage.getItem('selectedNotebookDate') || new Date().toISOString().slice(0,10);
-    let editingPlanId = null;
     // Plans "cleared" from the webpage view only — never deleted from Google Sheets.
     // Kept so a refresh (which re-pulls from the Sheet) doesn't bring them back.
     let dismissedPlanIds = new Set(JSON.parse(localStorage.getItem('dismissedPlanIds') || '[]'));
@@ -1059,10 +1112,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     let assetChartInstance = null;
     let pairChartInstance = null;
     let strategyChartInstance = null;
-    let instrumentWinRateChartInstance = null;
-    let instrumentPnLChartInstance = null;
-    let instrumentAvgPnLChartInstance = null;
-    let instrumentPFChartInstance = null;
     let equityChartInstance = null;
     let strategyWinRateSortDir = null; // null = no sort, 'asc' = low to high, 'desc' = high to low
     let instrumentWinRateSortDir = null;
@@ -1119,13 +1168,11 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
         updateDashboard();
       }
       renderTodaysPlans();
-      renderNotebooks();
-      renderExecutionInsights();
       safeLucide();
     });
 
     function switchTab(tabId) {
-      const tabs = ['dashboard', 'planner', 'notebooks', 'todays-plans', 'insights', 'calendar', 'strategy', 'instrument', 'execution', 'history'];
+      const tabs = ['dashboard', 'planner', 'todays-plans', 'insights', 'calendar', 'strategy', 'instrument', 'execution', 'history'];
       tabs.forEach(id => {
         const tabEl = document.getElementById(`tab-${id}`);
         if (tabEl) tabEl.classList.add('hidden');
@@ -1138,7 +1185,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
       const activeNav = document.getElementById(`nav-${tabId}`);
       if (activeNav) activeNav.classList.add('active');
 
-      if (tabId === 'notebooks') renderNotebooks();
       if (tabId === 'todays-plans') renderTodaysPlans();
       if (tabId === 'insights') renderExecutionInsights();
       if (tabId === 'calendar') renderCalendar();
@@ -1417,8 +1463,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
 
       const badge = document.getElementById('planBadgeCount');
       if (badge) badge.innerText = plansStore.length;
-      const nbDate = document.getElementById('notebookDatePicker');
-      if (nbDate && !nbDate.value) nbDate.value = selectedNotebookDate;
     }
 
     function calculateRR() {
@@ -1432,35 +1476,12 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     }
 
     function resetPlannerForm() {
-      editingPlanId = null;
       const form = document.getElementById('plannerForm');
       if (form) form.reset();
       const tagsPreview = document.getElementById('planTagsPreview');
       if (tagsPreview) tagsPreview.innerHTML = '';
       initIds();
       renderQualityChecklistForm();
-      const btn = document.querySelector('#plannerForm button[type=submit] span');
-      if (btn) btn.innerText = 'Save Plan & Sync to Google Sheets';
-    }
-
-    function editPlan(id) {
-      const p = allPlansStore.find(x => x.planId === id) || plansStore.find(x => x.planId === id);
-      if (!p) return;
-      editingPlanId = id;
-      switchTab('planner');
-      const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value ?? ''; };
-      set('planId', p.planId); set('planDate', p.date); set('planInstrument', p.instrument); set('planDirection', p.direction);
-      set('planStrategy', p.strategy); set('planLotSize', p.lotSize || 1); set('planEntryTimeframe', p.entryTimeframe || '15m');
-      set('planHTF', p.htfStructure || 'HH-HL'); set('planSession', p.session || 'London'); set('planEntry', p.plannedEntry);
-      set('planSL', p.plannedSL); set('planTP', p.plannedTP); set('planRR', p.plannedRR); set('planStory', p.marketStory);
-      set('planTags', p.tags); set('planInvalidation', p.invalidation); set('planConfidence', p.confidence || 'High'); set('planChartUrl', p.chartUrl);
-      const news = document.getElementById('chkNoNews'); if (news) news.checked = !!p.noNews;
-      renderQualityChecklistForm();
-      const score = document.getElementById('planQualityScore'); if (score) score.value = p.qualityScore || 100;
-      const disp = document.getElementById('computedQualityScoreDisplay'); if (disp) disp.innerText = `${p.qualityScore || 100} / 100`;
-      previewPlanTags(p.tags || ''); calculateRR();
-      const btn = document.querySelector('#plannerForm button[type=submit] span');
-      if (btn) btn.innerText = 'Update Plan & Keep History';
     }
 
     async function handleSavePlan(e) {
@@ -1490,25 +1511,13 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
         status: "Planned"
       };
 
-      if (editingPlanId) {
-        const idxAll = allPlansStore.findIndex(p => p.planId === editingPlanId);
-        if (idxAll >= 0) allPlansStore[idxAll] = { ...allPlansStore[idxAll], ...planData, updatedAt: new Date().toISOString() };
-        const idxActive = plansStore.findIndex(p => p.planId === editingPlanId);
-        if (idxActive >= 0) plansStore[idxActive] = { ...plansStore[idxActive], ...planData, updatedAt: new Date().toISOString() };
-        if (gsUrl) await syncToGS('UPDATE_PLAN', planData);
-      } else {
-        allPlansStore.unshift(planData);
-        plansStore.unshift(planData);
-        if (gsUrl) await syncToGS('SAVE_PLAN', planData);
-      }
-      localStorage.setItem('allPlansStore', JSON.stringify(allPlansStore));
+      plansStore.unshift(planData);
       localStorage.setItem('plansStore', JSON.stringify(plansStore));
+      if (gsUrl) await syncToGS('SAVE_PLAN', planData);
 
-      alert(`Plan ${planData.planId} ${editingPlanId ? 'Updated' : 'Saved'}!`);
+      alert(`Plan ${planData.planId} Saved & Synced!`);
       resetPlannerForm();
       updateDashboard();
-      renderTodaysPlans();
-      renderNotebooks();
       switchTab('todays-plans');
     }
 
@@ -1566,8 +1575,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
                   <div>${p.chartUrl ? `<a href="${p.chartUrl}" target="_blank" class="text-purple-600 font-semibold hover:underline">View Chart Link</a>` : ''}</div>
                   <div class="flex space-x-2">
                     <button onclick="executePlanDirectly('${p.planId}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold">Log Execution</button>
-                    <button onclick="editPlan('${p.planId}')" class="border border-purple-200 text-purple-700 px-3 py-1.5 rounded-lg font-semibold">Edit</button>
-                    <button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Hide</button>
+                    <button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Delete</button>
                   </div>
                 </div>
               </div>
@@ -1592,34 +1600,32 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
         if (pIdSelect) pIdSelect.value = plan.planId;
         const instSelect = document.getElementById('execInstrument');
         if (instSelect) instSelect.value = plan.instrument;
-        const dirSelect = document.getElementById('execDirection');
-        if (dirSelect) dirSelect.value = plan.direction || 'Long';
         const stratSelect = document.getElementById('execStrategy');
         if (stratSelect) stratSelect.value = plan.strategy;
         const lotInput = document.getElementById('execLotSize');
         if (lotInput) lotInput.value = plan.lotSize || 1.0;
         const entryInput = document.getElementById('execEntry');
         if (entryInput) entryInput.value = plan.plannedEntry;
-        if (typeof calculateExecutionPnL === 'function') calculateExecutionPnL();
       }
     }
 
     function deletePlan(id) {
       dismissedPlanIds.add(id);
       localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
-      // Deliberately remove only from the active view. The permanent archive remains for insights/notebooks.
       plansStore = plansStore.filter(p => p.planId !== id);
       localStorage.setItem('plansStore', JSON.stringify(plansStore));
-      renderTodaysPlans(); renderNotebooks(); updateDashboard(); renderExecutionInsights(); initIds();
+      renderTodaysPlans();
+      initIds();
     }
 
     function clearTodaysPlans() {
-      if (confirm("Hide all plans from Today's Plans? Historical plan data will remain stored for notebooks and insights.")) {
+      if (confirm("Clear all planned trades from this view? Your Google Sheet history will not be affected.")) {
         plansStore.forEach(p => dismissedPlanIds.add(p.planId));
         localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
         plansStore = [];
         localStorage.setItem('plansStore', JSON.stringify([]));
-        renderTodaysPlans(); renderNotebooks(); updateDashboard(); renderExecutionInsights(); initIds();
+        renderTodaysPlans();
+        initIds();
       }
     }
 
@@ -1631,162 +1637,69 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
     }
 
     function renderExecutionInsights() {
-      let plannedPnL = 0, plannedCount = 0, impulsePnL = 0, impulseCount = 0;
+      let plannedPnL = 0, plannedCount = 0;
+      let impulsePnL = 0, impulseCount = 0;
       let totalDeviations = 0, deviationCount = 0;
-      const archivedPlans = Array.isArray(allPlansStore) ? allPlansStore : plansStore;
-      const planIds = new Set(archivedPlans.map(p => p.planId));
 
       executionsStore.forEach(x => {
         const pnl = Number(x.netPnL) || 0;
-        if (x.planId && x.planId !== 'UNPLANNED' && planIds.has(x.planId)) {
-          plannedPnL += pnl; plannedCount++;
-          const linkedPlan = archivedPlans.find(p => p.planId === x.planId);
-          const plannedEntry = x.plannedEntrySnapshot || linkedPlan?.plannedEntry;
-          if (plannedEntry) {
-            totalDeviations += Math.abs((Number(x.entryPrice) || 0) - Number(plannedEntry));
+        if (x.planId && x.planId !== 'UNPLANNED') {
+          plannedPnL += pnl;
+          plannedCount++;
+
+          const linkedPlan = plansStore.find(p => p.planId === x.planId);
+          if (linkedPlan && linkedPlan.plannedEntry) {
+            const dev = Math.abs((Number(x.entryPrice) || 0) - (Number(linkedPlan.plannedEntry) || 0));
+            totalDeviations += dev;
             deviationCount++;
           }
-        } else if (!x.planId || x.planId === 'UNPLANNED') {
-          impulsePnL += pnl; impulseCount++;
+        } else {
+          impulsePnL += pnl;
+          impulseCount++;
         }
       });
 
-      const totalPlans = archivedPlans.length;
-      const executedPlanIds = new Set(executionsStore.filter(x => x.planId && x.planId !== 'UNPLANNED' && planIds.has(x.planId)).map(x => x.planId));
-      const execRate = totalPlans > 0 ? ((executedPlanIds.size / totalPlans) * 100).toFixed(1) : '0';
+      const totalPlans = plansStore.length;
+      const execRate = totalPlans > 0 ? ((plannedCount / totalPlans) * 100).toFixed(1) : '0';
       const avgDev = deviationCount > 0 ? (totalDeviations / deviationCount).toFixed(2) : '0.00';
 
-      const pPnLEl = document.getElementById('ansPlannedPnL'); if (pPnLEl) { pPnLEl.innerText = `${plannedPnL >= 0 ? '+' : ''}$${plannedPnL.toFixed(2)}`; pPnLEl.className = `text-2xl font-black ${plannedPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`; }
-      const pCntEl = document.getElementById('ansPlannedCount'); if (pCntEl) pCntEl.innerText = `${plannedCount} executed planned entries`;
-      const iPnLEl = document.getElementById('ansImpulsePnL'); if (iPnLEl) { iPnLEl.innerText = `${impulsePnL >= 0 ? '+' : ''}$${impulsePnL.toFixed(2)}`; iPnLEl.className = `text-2xl font-black ${impulsePnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`; }
-      const iCntEl = document.getElementById('ansImpulseCount'); if (iCntEl) iCntEl.innerText = `${impulseCount} impulse / unplanned trades`;
-      const exRateEl = document.getElementById('ansExecRate'); if (exRateEl) exRateEl.innerText = `${execRate}%`;
-      const totPlansEl = document.getElementById('ansTotalPlans'); if (totPlansEl) totPlansEl.innerText = totalPlans;
-      const exPlansEl = document.getElementById('ansExecutedPlans'); if (exPlansEl) exPlansEl.innerText = executedPlanIds.size;
-      const devEl = document.getElementById('ansAvgDeviation'); if (devEl) devEl.innerText = `${avgDev} pts`;
+      const pPnLEl = document.getElementById('ansPlannedPnL');
+      if (pPnLEl) {
+        pPnLEl.innerText = `${plannedPnL >= 0 ? '+' : ''}$${plannedPnL.toFixed(2)}`;
+        pPnLEl.className = `text-2xl font-black ${plannedPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const pCntEl = document.getElementById('ansPlannedCount');
+      if (pCntEl) pCntEl.innerText = `${plannedCount} executed planned trades`;
+
+      const iPnLEl = document.getElementById('ansImpulsePnL');
+      if (iPnLEl) {
+        iPnLEl.innerText = `${impulsePnL >= 0 ? '+' : ''}$${impulsePnL.toFixed(2)}`;
+        iPnLEl.className = `text-2xl font-black ${impulsePnL >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const iCntEl = document.getElementById('ansImpulseCount');
+      if (iCntEl) iCntEl.innerText = `${impulseCount} impulse / unplanned trades`;
+
+      const exRateEl = document.getElementById('ansExecRate');
+      if (exRateEl) exRateEl.innerText = `${execRate}%`;
+      const totPlansEl = document.getElementById('ansTotalPlans');
+      if (totPlansEl) totPlansEl.innerText = totalPlans;
+      const exPlansEl = document.getElementById('ansExecutedPlans');
+      if (exPlansEl) exPlansEl.innerText = plannedCount;
+
+      const devEl = document.getElementById('ansAvgDeviation');
+      if (devEl) devEl.innerText = `${avgDev} pts`;
       const statusEl = document.getElementById('ansEntryStatus');
       if (statusEl) {
-        const disciplined = parseFloat(avgDev) < 1.0;
-        statusEl.innerText = disciplined ? 'Disciplined Entry Execution' : 'Chasing Price / Late Entries Detected';
-        statusEl.className = disciplined ? 'text-sm font-bold text-emerald-600' : 'text-sm font-bold text-red-500';
+        if (parseFloat(avgDev) < 1.0) {
+          statusEl.innerText = "Disciplined Entry Execution";
+          statusEl.className = "text-sm font-bold text-emerald-600";
+        } else {
+          statusEl.innerText = "Chasing Price / Late Entries Detected";
+          statusEl.className = "text-sm font-bold text-red-500";
+        }
       }
     }
 
-    function createNotebookForToday() {
-      selectedNotebookDate = new Date().toISOString().slice(0,10);
-      localStorage.setItem('selectedNotebookDate', selectedNotebookDate);
-      switchTab('notebooks'); renderNotebooks();
-    }
-
-    function selectNotebookDate(date) {
-      if (!date) return;
-      selectedNotebookDate = date;
-      localStorage.setItem('selectedNotebookDate', date);
-      renderNotebooks();
-    }
-
-    function newPlanForNotebookDate() {
-      resetPlannerForm();
-      const dateEl = document.getElementById('planDate'); if (dateEl) dateEl.value = selectedNotebookDate;
-      switchTab('planner');
-    }
-
-    function getNotebookDates() {
-      const dates = new Set();
-      allPlansStore.forEach(p => { if (p.date) dates.add(normalizeDateField(p.date)); });
-      executionsStore.forEach(x => { if (x.date) dates.add(normalizeDateField(x.date)); });
-      dates.add(new Date().toISOString().slice(0,10));
-      return [...dates].sort((a,b) => b.localeCompare(a));
-    }
-
-    function formatNotebookDate(date) {
-      const d = new Date(date + 'T00:00:00');
-      return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'2-digit', year:'numeric' });
-    }
-
-    function renderNotebookDates() {
-      const box = document.getElementById('notebookDateList'); if (!box) return;
-      const q = (document.getElementById('notebookSearch')?.value || '').toLowerCase();
-      const dates = getNotebookDates().filter(d => !q || formatNotebookDate(d).toLowerCase().includes(q) || d.includes(q));
-      box.innerHTML = dates.map(d => {
-        const plans = allPlansStore.filter(p => normalizeDateField(p.date) === d);
-        const ex = executionsStore.filter(x => normalizeDateField(x.date) === d);
-        const pnl = ex.reduce((s,x) => s + (Number(x.netPnL)||0), 0);
-        return `<button onclick="selectNotebookDate('${d}')" class="w-full text-left p-3 rounded-xl mb-1.5 ${selectedNotebookDate === d ? 'bg-purple-50 border border-purple-200' : 'hover:bg-slate-50 border border-transparent'}">
-          <div class="flex justify-between items-center"><span class="text-xs font-bold ${selectedNotebookDate === d ? 'text-purple-800' : 'text-slate-700'}">${formatNotebookDate(d)}</span><span class="text-[9px] text-slate-400">${plans.length} plan${plans.length!==1?'s':''}</span></div>
-          <div class="flex justify-between mt-1"><span class="text-[9px] text-slate-400">${ex.length} execution${ex.length!==1?'s':''}</span><span class="text-[10px] font-bold ${pnl >= 0 ? 'text-emerald-600':'text-red-500'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</span></div>
-        </button>`;
-      }).join('') || `<div class="p-4 text-[10px] text-slate-400">No notebook entries.</div>`;
-    }
-
-    function renderNotebooks() {
-      const picker = document.getElementById('notebookDatePicker'); if (picker) picker.value = selectedNotebookDate;
-      const title = document.getElementById('notebookTitle'); if (title) title.innerText = formatNotebookDate(selectedNotebookDate);
-      const meta = document.getElementById('notebookMeta');
-      const plans = allPlansStore.filter(p => normalizeDateField(p.date) === selectedNotebookDate);
-      const executions = executionsStore.filter(x => normalizeDateField(x.date) === selectedNotebookDate);
-      const dayPnL = executions.reduce((s,x) => s + (Number(x.netPnL)||0), 0);
-      if (meta) meta.innerText = `${plans.length} planned idea${plans.length!==1?'s':''} • ${executions.length} execution leg${executions.length!==1?'s':''} • ${dayPnL>=0?'+':''}$${dayPnL.toFixed(2)} Net P&L`;
-      renderNotebookDates();
-      const box = document.getElementById('notebookContent'); if (!box) return;
-      if (!plans.length && !executions.length) {
-        box.innerHTML = `<div class="card p-12 text-center"><i data-lucide="notebook-pen" class="w-8 h-8 text-purple-300 mx-auto mb-3"></i><h3 class="font-bold text-slate-700">Start today's notebook</h3><p class="text-xs text-slate-400 mt-1">Create a planned trade. You can then add multiple execution legs for pyramiding.</p><button onclick="newPlanForNotebookDate()" class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Create Plan</button></div>`;
-        safeLucide(); return;
-      }
-      box.innerHTML = plans.map(p => renderNotebookPlanCard(p)).join('');
-      const unplanned = executions.filter(x => !x.planId || x.planId === 'UNPLANNED');
-      if (unplanned.length) box.innerHTML += `<div class="card p-4 border-amber-200"><div class="font-bold text-sm text-slate-800 mb-3">Unplanned / Impulse Entries</div>${unplanned.map(x => renderNotebookExecutionRow(x, null)).join('')}</div>`;
-      safeLucide();
-    }
-
-    function renderNotebookPlanCard(p) {
-      const legs = executionsStore.filter(x => x.planId === p.planId);
-      const pnl = legs.reduce((s,x) => s + (Number(x.netPnL)||0), 0);
-      return `<div class="card overflow-hidden">
-        <div class="p-4 bg-white border-b border-slate-100 flex justify-between items-start gap-3">
-          <div><div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded">${p.planId}</span><span class="font-bold text-slate-800">${p.instrument}</span><span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.direction==='Long'?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}">${p.direction}</span><span class="text-[10px] text-slate-500">${p.strategy}</span></div><div class="text-[10px] text-slate-400 mt-2">Plan: ${p.plannedEntry} → ${p.plannedTP} • SL ${p.plannedSL} • Score ${p.qualityScore}/100</div></div>
-          <div class="text-right"><div class="text-xs font-extrabold ${pnl>=0?'text-emerald-600':'text-red-500'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</div><div class="text-[9px] text-slate-400">${legs.length} leg${legs.length!==1?'s':''}</div></div>
-        </div>
-        <div class="p-4 bg-slate-50/50 space-y-3">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs"><div class="bg-white p-2.5 rounded-lg border"><span class="text-[9px] text-slate-400 block">Market Story</span><span class="font-medium text-slate-700">${p.marketStory || '—'}</span></div><div class="bg-white p-2.5 rounded-lg border"><span class="text-[9px] text-slate-400 block">Invalidation</span><span class="font-medium text-slate-700">${p.invalidation || '—'}</span></div><div class="bg-white p-2.5 rounded-lg border"><span class="text-[9px] text-slate-400 block">Session</span><span class="font-medium text-slate-700">${p.session || '—'}</span></div><div class="bg-white p-2.5 rounded-lg border"><span class="text-[9px] text-slate-400 block">Confidence</span><span class="font-medium text-slate-700">${p.confidence || '—'}</span></div></div>
-          <div class="flex justify-between items-center"><h4 class="text-xs font-extrabold text-slate-700">Execution Legs / Pyramiding</h4><div class="flex gap-2"><button onclick="editPlan('${p.planId}')" class="border border-purple-200 text-purple-700 px-2.5 py-1.5 rounded-lg text-[10px] font-bold">Edit Plan</button><button onclick="openNotebookLegForm('${p.planId}')" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-[10px] font-bold">+ Add Entry Leg</button></div></div>
-          <div id="legForm-${p.planId.replace(/[^a-zA-Z0-9_-]/g,'_')}" class="hidden"></div>
-          ${legs.length ? legs.map((x,i) => renderNotebookExecutionRow(x, p, i+1)).join('') : `<div class="bg-white border border-dashed border-slate-200 rounded-lg p-4 text-center text-[10px] text-slate-400">No execution legs yet. Add one for the first entry; add more for pyramiding.</div>`}
-        </div>
-      </div>`;
-    }
-
-    function renderNotebookExecutionRow(x, p, index='') {
-      const pnl = Number(x.netPnL)||0;
-      return `<div class="bg-white border border-slate-200 rounded-lg p-3 mb-2"><div class="grid grid-cols-2 md:grid-cols-7 gap-2 items-center text-[10px]"><div><span class="text-slate-400 block">Leg</span><b>${index || 'Impulse'}</b></div><div><span class="text-slate-400 block">Entry</span><b>${x.entryPrice || '—'}</b></div><div><span class="text-slate-400 block">Exit</span><b>${x.exitPrice || '—'}</b></div><div><span class="text-slate-400 block">Lots</span><b>${x.lotSize || 1}</b></div><div><span class="text-slate-400 block">P&L</span><b class="${pnl>=0?'text-emerald-600':'text-red-500'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</b></div><div><span class="text-slate-400 block">Exit</span><b>${x.exitReason || '—'}</b></div><div class="text-right"><button onclick="editNotebookExecution('${x.executionId}')" class="text-purple-600 font-bold mr-2">Edit</button><button onclick="deleteExecutedTrade('${x.executionId}')" class="text-red-500 font-bold">Delete</button></div></div>${x.notes?`<div class="text-[10px] text-slate-500 mt-2 pt-2 border-t">${x.notes}</div>`:''}</div>`;
-    }
-
-    function openNotebookLegForm(planId, existingId=null) {
-      const p = allPlansStore.find(x => x.planId === planId); if (!p) return;
-      const safeId = planId.replace(/[^a-zA-Z0-9_-]/g,'_'); const box = document.getElementById(`legForm-${safeId}`); if (!box) return;
-      const x = existingId ? executionsStore.find(e => e.executionId === existingId) : null;
-      box.classList.remove('hidden');
-      box.innerHTML = `<div class="bg-white border border-emerald-200 rounded-xl p-4"><div class="flex justify-between items-center mb-3"><b class="text-xs text-slate-800">${x?'Edit':'Add'} execution leg ${x?'':'for pyramiding'}</b><button onclick="closeNotebookLegForm('${planId}')" class="text-slate-400">✕</button></div><div class="grid grid-cols-2 md:grid-cols-6 gap-2"><input id="nbLegLots-${safeId}" type="number" step="0.01" value="${x?.lotSize ?? p.lotSize ?? 1}" placeholder="Lots" class="border rounded-lg p-2 text-xs"><input id="nbLegEntry-${safeId}" type="number" step="any" value="${x?.entryPrice ?? p.plannedEntry ?? ''}" placeholder="Entry" class="border rounded-lg p-2 text-xs"><input id="nbLegExit-${safeId}" type="number" step="any" value="${x?.exitPrice ?? ''}" placeholder="Exit" class="border rounded-lg p-2 text-xs"><input id="nbLegPnl-${safeId}" type="number" step="any" value="${x?.netPnL ?? ''}" placeholder="Net P&L" class="border rounded-lg p-2 text-xs"><select id="nbLegReason-${safeId}" class="border rounded-lg p-2 text-xs">${exitReasons.map(r=>`<option ${x?.exitReason===r?'selected':''}>${r}</option>`).join('')}</select><input id="nbLegNotes-${safeId}" value="${x?.notes ?? ''}" placeholder="Notes" class="border rounded-lg p-2 text-xs"></div><div class="flex justify-end mt-3"><button onclick="saveNotebookLeg('${planId}', ${x?`'${existingId}'`:'null'})" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Save Entry Leg</button></div></div>`;
-    }
-
-    function closeNotebookLegForm(planId) { const box = document.getElementById(`legForm-${planId.replace(/[^a-zA-Z0-9_-]/g,'_')}`); if (box) { box.classList.add('hidden'); box.innerHTML=''; } }
-
-    async function saveNotebookLeg(planId, existingId=null) {
-      const p = allPlansStore.find(x => x.planId === planId); if (!p) return;
-      const safeId = planId.replace(/[^a-zA-Z0-9_-]/g,'_');
-      const val = id => document.getElementById(`${id}-${safeId}`)?.value || '';
-      const data = { executionId: existingId || `EXC-${Date.now()}`, planId, planDate:p.date, date: existingId ? (executionsStore.find(e => e.executionId === existingId)?.date || new Date().toISOString().slice(0,10)) : new Date().toISOString().slice(0,10), instrument:p.instrument, direction:p.direction, strategy:p.strategy, lotSize:parseFloat(val('nbLegLots')||1), entryPrice:val('nbLegEntry'), exitPrice:val('nbLegExit'), netPnL:parseFloat(val('nbLegPnl')||0), session:p.session || 'London', notes:val('nbLegNotes'), exitReason:val('nbLegReason'), beforeImageUrl:'', afterImageUrl:'', plannedEntrySnapshot:p.plannedEntry || '', plannedSL:p.plannedSL || '', plannedTP:p.plannedTP || '', planQualityScore:p.qualityScore || '' };
-      const idx = executionsStore.findIndex(x => x.executionId === data.executionId);
-      if (idx >= 0) executionsStore[idx] = { ...executionsStore[idx], ...data }; else executionsStore.push(data);
-      localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
-      if (gsUrl) await syncToGS(idx >= 0 ? 'UPDATE_EXECUTION' : 'LOG_EXECUTION', data);
-      renderNotebooks(); updateDashboard(); renderExecutionInsights();
-    }
-
-    function editNotebookExecution(execId) {
-      const x = executionsStore.find(e => e.executionId === execId); if (!x) return;
-      if (x.planId && x.planId !== 'UNPLANNED') openNotebookLegForm(x.planId, execId);
-    }
     function renderCalendar() {
       const monthInput = document.getElementById('calendarMonthSelect');
       if (!monthInput) return;
@@ -2115,19 +2028,51 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
 
     async function handleLogExecution(e) {
       e.preventDefault();
-      const entryPriceVal=document.getElementById('execEntry')?.value||'', exitPriceVal=document.getElementById('execExit')?.value||'', netPnLVal=parseFloat(document.getElementById('execPnL')?.value||0);
-      const entryNum=parseFloat(entryPriceVal),exitNum=parseFloat(exitPriceVal),linkedPlanId=document.getElementById('execPlanId')?.value||'UNPLANNED';
-      const linkedPlan=allPlansStore.find(p=>p.planId===linkedPlanId)||plansStore.find(p=>p.planId===linkedPlanId);
-      const slVal=parseFloat(document.getElementById('execSL')?.value||linkedPlan?.plannedSL||''); const lotSize=parseFloat(document.getElementById('execLotSize')?.value||1);
-      const instrument=document.getElementById('execInstrument')?.value||'',direction=document.getElementById('execDirection')?.value||linkedPlan?.direction||'Long'; const riskVal=parseFloat(document.getElementById('execRisk')?.value||0);
-      const mistakes=[...document.querySelectorAll('input[name="tradeMistake"]:checked')].map(x=>x.value); const plannedQuality=Number(linkedPlan?.qualityScore||0); const riskLimit=70;
-      const riskScore=!riskVal?60:(riskVal<=riskLimit?100:Math.max(0,100-(riskVal-riskLimit)*2)); const plannedScore=linkedPlan?(plannedQuality||70):50;
-      let entryScore=80;if(linkedPlan?.plannedEntry&&entryNum===entryNum){const dev=Math.abs(entryNum-Number(linkedPlan.plannedEntry)),base=Math.abs(Number(linkedPlan.plannedEntry))||1;entryScore=Math.max(20,100-Math.min(80,(dev/base)*100*10));}
-      const ruleScore=Math.max(0,100-Math.min(50,mistakes.length*10)); const quality=Math.round(Math.max(0,Math.min(100,plannedScore*.35+entryScore*.2+riskScore*.25+ruleScore*.2)));
-      const execData={executionId:document.getElementById('execId')?.value||`EXC-${Date.now()}`,planId:linkedPlanId,planDate:linkedPlan?.date||'',plannedEntrySnapshot:linkedPlan?.plannedEntry||'',plannedSL:slVal||linkedPlan?.plannedSL||'',plannedTP:linkedPlan?.plannedTP||'',planQualityScore:linkedPlan?.qualityScore||'',date:document.getElementById('execDate')?.value||'',instrument,direction,strategy:document.getElementById('execStrategy')?.value||'',lotSize,entryPrice:entryPriceVal,exitPrice:exitPriceVal,netPnL:netPnLVal,riskAmount:isFinite(riskVal)?riskVal:0,tradeQualityScore:quality,mistakes,session:document.getElementById('execSession')?.value||'London',beforeImageUrl:document.getElementById('execBeforeImage')?.value||'',afterImageUrl:document.getElementById('execAfterImage')?.value||'',notes:document.getElementById('execNotes')?.value||'',exitReason:document.getElementById('execExitReason')?.value||''};
-      if(entryNum===entryNum&&exitNum===exitNum){const diff=Math.abs(exitNum-entryNum);execData.profitPoints=netPnLVal>=0?diff:0;execData.lossPoints=netPnLVal<0?diff:0;}
-      executionsStore.push(execData);localStorage.setItem('executionsStore',JSON.stringify(executionsStore));if(gsUrl)await syncToGS('LOG_EXECUTION',execData);
-      alert(`Trade logged • Quality ${quality}/100`);const form=document.getElementById('executionForm');if(form)form.reset();const preview=document.getElementById('execImagePreview');if(preview)preview.innerHTML='';initIds();updateDashboard();renderExecutionInsights();switchTab('history');
+      const entryPriceVal = document.getElementById('execEntry')?.value || '';
+      const exitPriceVal = document.getElementById('execExit')?.value || '';
+      const netPnLVal = parseFloat(document.getElementById('execPnL')?.value || 0);
+
+      // Backend-only calculation: not shown in the UI, used for future analytics/export.
+      const entryNum = parseFloat(entryPriceVal);
+      const exitNum = parseFloat(exitPriceVal);
+      let profitPoints = 0, lossPoints = 0;
+      if (!isNaN(entryNum) && !isNaN(exitNum)) {
+        const pointsDiff = Math.abs(exitNum - entryNum);
+        if (netPnLVal >= 0) profitPoints = pointsDiff;
+        else lossPoints = pointsDiff;
+      }
+
+      const execData = {
+        executionId: document.getElementById('execId')?.value || '',
+        planId: document.getElementById('execPlanId')?.value || 'UNPLANNED',
+        date: document.getElementById('execDate')?.value || '',
+        instrument: document.getElementById('execInstrument')?.value || '',
+        strategy: document.getElementById('execStrategy')?.value || '',
+        lotSize: parseFloat(document.getElementById('execLotSize')?.value || 1.0),
+        entryPrice: entryPriceVal,
+        exitPrice: exitPriceVal,
+        netPnL: netPnLVal,
+        session: document.getElementById('execSession')?.value || 'London',
+        beforeImageUrl: document.getElementById('execBeforeImage')?.value || '',
+        afterImageUrl: document.getElementById('execAfterImage')?.value || '',
+        notes: document.getElementById('execNotes')?.value || '',
+        exitReason: document.getElementById('execExitReason')?.value || '',
+        profitPoints: profitPoints,
+        lossPoints: lossPoints
+      };
+
+      executionsStore.push(execData);
+      localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+      if (gsUrl) await syncToGS('LOG_EXECUTION', execData);
+
+      alert('Trade Execution Logged!');
+      const form = document.getElementById('executionForm');
+      if (form) form.reset();
+      const preview = document.getElementById('execImagePreview');
+      if (preview) preview.innerHTML = '';
+      initIds();
+      updateDashboard();
+      switchTab('history');
     }
 
     async function syncToGS(action, payload) {
@@ -2187,53 +2132,13 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
       try {
         const res = await fetch(gsUrl);
         const data = await res.json();
-        if (data.planned) {
-          allPlansStore = data.planned.map(x => ({ ...x, date: normalizeDateField(x.date) }));
-          plansStore = allPlansStore.filter(p => !dismissedPlanIds.has(p.planId));
-        }
-        if (data.executed) executionsStore = data.executed.map(x => ({
-          ...x,
-          date: normalizeDateField(x.date),
-          planDate: normalizeDateField(x.planDate),
-          netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0),
-          riskAmount: Number(x.riskAmount ?? x.riskMoney ?? 0) || 0,
-          riskMoney: Number(x.riskMoney ?? x.riskAmount ?? 0) || 0,
-          realizedR: (x.realizedR === '' || x.realizedR == null) ? null : Number(x.realizedR),
-          mistakes: Array.isArray(x.mistakes) ? x.mistakes : (typeof x.mistakes === 'string' && x.mistakes.trim().startsWith('[') ? (()=>{ try{return JSON.parse(x.mistakes)}catch(e){return x.mistakes?x.mistakes.split(',').map(v=>v.trim()).filter(Boolean):[]} })() : (x.mistakes ? String(x.mistakes).split(',').map(v=>v.trim()).filter(Boolean) : []))
-        }));
-        if (data.notebookNotes) {
-          const remoteNotes = Array.isArray(data.notebookNotes) ? data.notebookNotes : [];
-          const localNotes = (()=>{ try { const n=JSON.parse(localStorage.getItem('notebookNotesStore')||'[]'); return Array.isArray(n)?n:[]; } catch(e){ return []; } })();
-          const byId = new Map(localNotes.map(n => [n.id,n]));
-          remoteNotes.forEach(n => {
-            let images = n.images;
-            if (typeof images === 'string') { try { images = JSON.parse(images); } catch(e) { images = images ? [images] : []; } }
-            if (!Array.isArray(images)) images = [];
-            let refs = n.tradeReferences;
-            if (typeof refs === 'string') { try { refs = JSON.parse(refs); } catch(e) { refs = []; } }
-            if (!Array.isArray(refs)) refs = [];
-            byId.set(n.id, {...n, date: normalizeDateField(n.date), images, tradeReferences: refs});
-          });
-          localStorage.setItem('notebookNotesStore', JSON.stringify([...byId.values()]));
-          window.__lastRemoteNotebookNotes = remoteNotes;
-        }
-        if (data.notebookFolders) {
-          const remoteFolders = Array.isArray(data.notebookFolders) ? data.notebookFolders : [];
-          const localFolders = (()=>{ try { const f=JSON.parse(localStorage.getItem('notebookFoldersStore')||'[]'); return Array.isArray(f)?f:[]; } catch(e){ return []; } })();
-          const byId = new Map(localFolders.map(f => [f.id,f]));
-          remoteFolders.forEach(f => byId.set(f.id, {...f, collapsed: String(f.collapsed).toLowerCase()==='true' || f.collapsed===true}));
-          if (!byId.has('root')) byId.set('root',{id:'root',name:'Trading Journals',parentId:null,collapsed:false,createdAt:new Date().toISOString()});
-          localStorage.setItem('notebookFoldersStore', JSON.stringify([...byId.values()]));
-          window.__lastRemoteNotebookFolders = remoteFolders;
-        }
+        if (data.planned) plansStore = data.planned.map(x => ({ ...x, date: normalizeDateField(x.date) })).filter(p => !dismissedPlanIds.has(p.planId));
+        if (data.executed) executionsStore = data.executed.map(x => ({ ...x, date: normalizeDateField(x.date), netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0) }));
         if (data.config) applyRemoteConfig(data.config);
-        localStorage.setItem('allPlansStore', JSON.stringify(allPlansStore));
         localStorage.setItem('plansStore', JSON.stringify(plansStore));
         localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
         updateDashboard();
         renderTodaysPlans();
-        renderNotebooks();
-        renderExecutionInsights();
       } catch(err) { console.error("Fetch GS Error:", err); }
     }
 
@@ -2245,8 +2150,6 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
         if (gsUrl) await syncToGS('DELETE_EXECUTION', { executionId: execId });
         updateDashboard();
         renderExecutedLogsTable();
-        renderNotebooks();
-        renderExecutionInsights();
       }
     }
 
@@ -2278,7 +2181,7 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
 
         if (x.planId && x.planId !== 'UNPLANNED') {
           plannedExecutedCount++;
-          const lPlan = allPlansStore.find(p => p.planId === x.planId) || plansStore.find(p => p.planId === x.planId);
+          const lPlan = plansStore.find(p => p.planId === x.planId);
           if (lPlan) {
             if (lPlan.plannedEntry) {
               totalDev += Math.abs((Number(x.entryPrice) || 0) - (Number(lPlan.plannedEntry) || 0));
@@ -2581,14 +2484,11 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
             <td class="p-2">${x.date}</td>
             <td class="p-2 font-bold">${x.instrument}</td>
             <td class="p-2 font-bold text-slate-800">${x.lotSize || 1.0}</td>
-            <td class="p-2 font-bold text-amber-700">${(x.riskMoney!=null?Number(x.riskMoney):Number(x.riskAmount||0))>0?money(Number(x.riskMoney!=null?x.riskMoney:x.riskAmount)):'—'}</td>
             <td class="p-2">${x.strategy || 'Scalper'}</td>
             <td class="p-2">${x.session || 'London'}</td>
             <td class="p-2 font-mono">${x.entryPrice}</td>
             <td class="p-2 font-mono">${x.exitPrice}</td>
             <td class="p-2 font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
-            <td class="p-2 font-bold text-purple-700">${tradeQuality(x)}/100</td>
-            <td class="p-2 text-[10px] text-slate-500">${(x.mistakes||[]).join(', ') || '—'}</td>
             <td class="p-2 text-slate-500">${x.exitReason || '—'}</td>
             <td class="p-2 text-center space-x-1">
               ${x.beforeImageUrl ? `<a href="${x.beforeImageUrl}" target="_blank" title="Before Entry" class="text-purple-600 hover:underline font-semibold">Before</a>` : ''}
@@ -2688,356 +2588,5 @@ if (window.Chart) { Chart.defaults.scale.grid.display = false; }
       fetchFromGS();
     }
   </script>
-
-<script>
-/* ================================================================
-   CORRECTED ANALYTICS + NOTEBOOK ENGINE
-   ================================================================ */
-(function(){
-  const NB_KEY='notebookFoldersStore', NOTE_KEY='notebookNotesStore';
-  const canonicalMap={
-    'BTCUSD.X':'BTCUSD','BTCUSD.XM':'BTCUSD','BTCUSD':'BTCUSD',
-    'XAUUSD.X':'XAUUSD','XAUUSD':'XAUUSD',
-    'NAS100.X':'NAS100','NAS100':'NAS100','USTEC':'NAS100',
-    'JAP.X':'JAP225','JAP225.X':'JAP225','JAP225':'JAP225',
-    'US30.X':'US30','US30':'US30'
-  };
-  window.instrumentAliases=canonicalMap;
-  window.instrumentMultipliers=JSON.parse(localStorage.getItem('instrumentMultipliersStore')||'null') || {
-    BTCUSD:1, XAUUSD:100, NAS100:1, JAP225:1, US30:1, EURUSD:100000, NZDCHF:100000
-  };
-  function canon(v){ if(!v) return v; const u=String(v).trim().toUpperCase(); return canonicalMap[u] || u.replace(/\.X$/,''); }
-  window.canonicalInstrument=canon;
-  function esc(v){ return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  window.nbEscape=esc;
-  function money(n){n=Number(n)||0;return `${n>=0?'+':''}$${n.toFixed(2)}`;}
-  function normalizeAll(){
-    instruments=[...new Set((instruments||[]).map(canon).filter(Boolean))];
-    if(!instruments.length) instruments=['BTCUSD'];
-    allPlansStore=(allPlansStore||[]).map(p=>({...p,instrument:canon(p.instrument),date:normalizeDateField(p.date)}));
-    plansStore=(plansStore||[]).map(p=>({...p,instrument:canon(p.instrument),date:normalizeDateField(p.date)}));
-    executionsStore=(executionsStore||[]).map(x=>({...x,instrument:canon(x.instrument),date:normalizeDateField(x.date)}));
-    localStorage.setItem('instrumentsStore',JSON.stringify(instruments));
-    localStorage.setItem('allPlansStore',JSON.stringify(allPlansStore));
-    localStorage.setItem('plansStore',JSON.stringify(plansStore));
-    localStorage.setItem('executionsStore',JSON.stringify(executionsStore));
-  }
-  normalizeAll();
-
-  window.getFilteredExecutions=function(){
-    const fInst=document.getElementById('filterInstrument')?.value||'ALL', fDir=document.getElementById('filterDirection')?.value||'ALL', fStrat=document.getElementById('filterStrategy')?.value||'ALL', fSess=document.getElementById('filterSession')?.value||'ALL', fPlanned=document.getElementById('filterPlanned')?.value||'ALL', fOutcome=document.getElementById('filterOutcome')?.value||'ALL';
-    return executionsStore.filter(x=>{
-      const inst=canon(x.instrument), pnl=Number(x.netPnL)||0;
-      if(fInst!=='ALL' && inst!==canon(fInst)) return false;
-      if(fDir!=='ALL' && x.direction!==fDir) return false;
-      if(fStrat!=='ALL' && x.strategy!==fStrat) return false;
-      if(fSess!=='ALL' && x.session!==fSess) return false;
-      if(fPlanned==='PLANNED' && (!x.planId||x.planId==='UNPLANNED')) return false;
-      if(fPlanned==='UNPLANNED' && x.planId && x.planId!=='UNPLANNED') return false;
-      if(fOutcome==='WIN' && pnl<=0) return false;
-      if(fOutcome==='LOSS' && pnl>=0) return false;
-      return true;
-    });
-  };
-
-  function riskMoney(x){
-    const entry=Number(x.entryPrice), sl=Number(x.plannedSLSnapshot ?? x.plannedSL);
-    const lots=Number(x.lotSize)||1, mult=Number(window.instrumentMultipliers[canon(x.instrument)])||1;
-    if(!Number.isFinite(entry)||!Number.isFinite(sl)||entry===sl) return null;
-    return Math.abs(entry-sl)*lots*mult;
-  }
-  window.getRealizedR=function(x){ const r=riskMoney(x); const pnl=Number(x.netPnL); return r&&Number.isFinite(pnl)?pnl/r:null; };
-
-  window.calculateExecutionPnL=function(){
-    const entry=Number(document.getElementById('execEntry')?.value), exit=Number(document.getElementById('execExit')?.value), slInput=document.getElementById('execSL'), riskEl=document.getElementById('execRisk');
-    const lots=Number(document.getElementById('execLotSize')?.value)||0, dir=document.getElementById('execDirection')?.value || null, instrument=canon(document.getElementById('execInstrument')?.value), el=document.getElementById('execPnL'), hint=document.getElementById('execPnlHint'), riskHint=document.getElementById('execRiskHint');
-    const planId=document.getElementById('execPlanId')?.value||'UNPLANNED'; const linked=allPlansStore.find(p=>p.planId===planId)||plansStore.find(p=>p.planId===planId); const direction=dir||linked?.direction||'Long'; const mult=Number(window.instrumentMultipliers[instrument])||1;
-    if(slInput && linked?.plannedSL && !slInput.value) slInput.value=linked.plannedSL;
-    const sl=Number(slInput?.value); let risk=null; if(Number.isFinite(entry)&&Number.isFinite(sl)&&entry!==sl&&lots>0) risk=Math.abs(entry-sl)*lots*mult;
-    if(riskEl) riskEl.value=risk!==null?risk.toFixed(2):''; if(riskHint) riskHint.textContent=risk!==null?`Initial risk • ${money(risk)} • ${direction}`:'Enter a valid SL to calculate initial risk.';
-    if(Number.isFinite(entry)&&Number.isFinite(exit)&&lots>0){const diff=direction==='Short'?entry-exit:exit-entry;const pnl=diff*lots*mult;if(el){el.value=pnl.toFixed(2);el.classList.toggle('text-emerald-700',pnl>=0);el.classList.toggle('text-red-500',pnl<0);}if(hint)hint.innerHTML=`Auto: ${direction} • ${instrument} • ${lots} lot × ${mult} multiplier • Gross P&L <b>${money(pnl)}</b> <button type="button" onclick="promptSetInstrumentMultiplier()" class="text-purple-600 underline ml-1">change multiplier</button>`;return pnl;}
-    if(el)el.value='';if(hint)hint.innerHTML='Enter entry + exit; P&L is calculated from direction, lots and instrument multiplier. <button type="button" onclick="promptSetInstrumentMultiplier()" class="text-purple-600 underline">Set multiplier</button>';return null;
-  };
-  // Add direction selector to execution form without breaking existing plans.
-  window.promptSetInstrumentMultiplier=function(){
-    const inst=canon(document.getElementById('execInstrument')?.value||''); if(!inst)return;
-    const current=Number(window.instrumentMultipliers[inst])||1; const val=prompt(`P&L multiplier for ${inst}.\nFormula: (price movement × lots × multiplier).\nCurrent: ${current}`,current);
-    if(val!==null && Number.isFinite(Number(val)) && Number(val)>0){window.instrumentMultipliers[inst]=Number(val);localStorage.setItem('instrumentMultipliersStore',JSON.stringify(window.instrumentMultipliers));calculateExecutionPnL();}
-  };
-
-  function ensureExecDirection(){
-    const inst=document.getElementById('execInstrument'); if(!inst || document.getElementById('execDirection')) return;
-    const row=inst.closest('.grid') || inst.parentElement?.parentElement; if(!row) return;
-    const d=document.createElement('div'); d.innerHTML='<label class="block text-xs font-semibold text-slate-600 mb-1">Direction</label><select id="execDirection" onchange="calculateExecutionPnL()" class="w-full border border-slate-200 rounded-lg p-2 text-xs"><option value="Long">Long</option><option value="Short">Short</option></select>';
-    row.insertBefore(d,row.children[4]||null);
-  }
-
-  // Capture a timestamp and guarantee auto P&L before the legacy save routine runs.
-  const legacyHandle=window.handleLogExecution;
-  if(legacyHandle){
-    window.handleLogExecution=async function(e){
-      calculateExecutionPnL();
-      const capturedSL=document.getElementById('execSL')?.value||'';
-      const capturedRisk=document.getElementById('execRisk')?.value||'';
-      await legacyHandle(e);
-      const latest=executionsStore[executionsStore.length-1];
-      if(latest){ latest.createdAt=latest.createdAt||new Date().toISOString(); latest.instrument=canon(latest.instrument); const plan=allPlansStore.find(p=>p.planId===latest.planId); const enteredSL=Number(capturedSL); if(plan){latest.direction=plan.direction; latest.plannedSLSnapshot=Number.isFinite(enteredSL)&&enteredSL!==0?enteredSL:plan.plannedSL; latest.plannedEntrySnapshot=plan.plannedEntry;} else if(Number.isFinite(enteredSL)){latest.plannedSLSnapshot=enteredSL;} const rm=riskMoney(latest); latest.riskMoney=rm!==null?rm:(Number(capturedRisk)||null); latest.realizedR=(latest.riskMoney&&Number.isFinite(Number(latest.netPnL)))?Number(latest.netPnL)/latest.riskMoney:null; localStorage.setItem('executionsStore',JSON.stringify(executionsStore)); if(gsUrl) await syncToGS('UPDATE_EXECUTION',latest); }
-      updateDashboard(); renderExecutionInsights();
-    };
-  }
-
-  function calcMetrics(trades){
-    const arr=trades||[]; let net=0,gp=0,gl=0,wins=0,losses=0,flat=0,rSum=0,rCount=0;
-    arr.forEach(x=>{const pnl=Number(x.netPnL)||0;net+=pnl;if(pnl>0){wins++;gp+=pnl}else if(pnl<0){losses++;gl+=Math.abs(pnl)}else flat++; const r=getRealizedR(x);if(r!==null&&Number.isFinite(r)){rSum+=r;rCount++;}});
-    let equity=Number(equityStartingBalance)||0, peak=equity, maxDD=0;
-    const ordered=arr.slice().sort((a,b)=>{const ad=a.createdAt||a.date||'';const bd=b.createdAt||b.date||'';return String(ad).localeCompare(String(bd));});
-    ordered.forEach(x=>{equity+=Number(x.netPnL)||0;if(equity>peak)peak=equity;maxDD=Math.max(maxDD,peak-equity);});
-    const streaks={win:0,loss:0,maxWin:0,maxLoss:0}; ordered.forEach(x=>{const p=Number(x.netPnL)||0;if(p>0){streaks.win++;streaks.loss=0;streaks.maxWin=Math.max(streaks.maxWin,streaks.win)}else if(p<0){streaks.loss++;streaks.win=0;streaks.maxLoss=Math.max(streaks.maxLoss,streaks.loss)}else{streaks.win=0;streaks.loss=0;}});
-    return {trades:arr.length,net,gp,gl,wins,losses,flat,winRate:arr.length?wins/arr.length*100:0,pf:gl?gp/gl:(gp?Infinity:0),expectancy:arr.length?net/arr.length:0,avgWin:wins?gp/wins:0,avgLoss:losses?gl/losses:0,avgR:rCount?rSum/rCount:null,rCount,maxDD,streaks};
-  }
-  window.calcMetrics=calcMetrics;
-
-  function groupBy(trades,keyFn){const out={};trades.forEach(x=>{const k=keyFn(x);if(!out[k])out[k]=[];out[k].push(x)});return out;}
-  function weekdayStats(trades){
-    const names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];const g={};names.forEach(n=>g[n]=[]);trades.forEach(x=>{if(x.date){const d=new Date(normalizeDateField(x.date)+'T00:00:00');g[names[d.getDay()]].push(x)}});return Object.entries(g).map(([day,ts])=>{const m=calcMetrics(ts);return {day,trades:ts.length,net:m.net,avg:ts.length?m.net/ts.length:0,wr:m.winRate,wins:m.wins,losses:m.losses}});
-  }
-  function sessionStats(trades){const keys=['London','New York','Asia','Outside'];return keys.map(s=>{const m=calcMetrics(trades.filter(x=>(x.session||'Outside')===s));return {session:s,...m}});}
-  function bestOf(rows,field='avg'){return rows.filter(r=>r.trades>0).sort((a,b)=>b[field]-a[field])[0]||null;}
-
-  window.updateDashboard=function(){
-    normalizeAll(); const filtered=getFilteredExecutions(), m=calcMetrics(filtered), days=[...new Set(filtered.map(x=>normalizeDateField(x.date)).filter(Boolean))];
-    const set=(id,v,cls)=>{const e=document.getElementById(id);if(e){e.innerText=v;if(cls)e.className=cls}};
-    set('kpi-net-pnl',money(m.net),`text-xl font-bold mt-0.5 ${m.net>=0?'text-emerald-600':'text-red-500'}`); set('kpi-pnl-sub',`${m.trades} trades`);
-    set('kpi-profit-factor',m.pf===Infinity?'INF':m.pf.toFixed(2)); set('kpi-win-rate',`${m.winRate.toFixed(1)}%`); set('kpi-wr-sub',`${m.wins}W / ${m.losses}L`);
-    set('kpi-avg-r',m.avgR===null?'N/A':`${m.avgR.toFixed(2)} R`); set('kpi-max-dd',`-${m.maxDD.toFixed(2)}`); set('kpi-best-trade',`+$${Math.max(0,...filtered.map(x=>Number(x.netPnL)||0)).toFixed(2)}`); set('kpi-worst-trade',`-$${Math.abs(Math.min(0,...filtered.map(x=>Number(x.netPnL)||0))).toFixed(2)}`);
-    const asset={};filtered.forEach(x=>asset[canon(x.instrument)]=(asset[canon(x.instrument)]||0)+(Number(x.netPnL)||0)); const entries=Object.entries(asset); const star=entries.sort((a,b)=>b[1]-a[1])[0]; const loser=entries.slice().sort((a,b)=>a[1]-b[1])[0]; set('kpi-star-pair',star?.[0]||'None');set('kpi-star-pnl',star?money(star[1]):'$0.00');set('kpi-losing-pair',loser&&loser[1]<0?loser[0]:'None');set('kpi-losing-pnl',loser&&loser[1]<0?money(loser[1]):'$0.00');
-    const wd=weekdayStats(filtered), best=bestOf(wd,'avg'); set('row3BestDay',best?`${best.day} (${money(best.avg)}/trade)`:'—'); set('kpi-best-day',best?best.day:'—'); set('kpi-best-day-sub',best?`${money(best.avg)} avg / trade`:'No data'); set('row3BestInst',star?.[0]||'None');
-    const sess=sessionStats(filtered), bs=bestOf(sess,'avg');set('row3BestSess',bs?`${bs.session} (${money(bs.avg)}/trade)`:'—');
-    set('row7AvgWinner',`+$${m.avgWin.toFixed(2)}`);set('row7AvgLoser',`-$${m.avgLoss.toFixed(2)}`);
-    const planned=filtered.filter(x=>x.planId&&x.planId!=='UNPLANNED'), impulse=filtered.filter(x=>!x.planId||x.planId==='UNPLANNED'); const adh=filtered.length?planned.length/filtered.length*100:0;set('row2AdherenceBadge',`Plan Adherence: ${adh.toFixed(0)}%`);set('row2PlannedCnt',planned.length);set('row2ImpulseCnt',impulse.length);
-    const bp=document.getElementById('barPlannedRate'),bi=document.getElementById('barImpulseRate');if(bp)bp.style.width=`${adh}%`;if(bi)bi.style.width=`${100-adh}%`;
-    const high=filtered.filter(x=>Number(x.planQualityScore||allPlansStore.find(p=>p.planId===x.planId)?.qualityScore||0)>=80).reduce((s,x)=>s+(Number(x.netPnL)||0),0); const low=filtered.filter(x=>{const q=Number(x.planQualityScore||allPlansStore.find(p=>p.planId===x.planId)?.qualityScore||0);return q>0&&q<70}).reduce((s,x)=>s+(Number(x.netPnL)||0),0);set('row4HighQualPnL',money(high));set('row4LowQualPnL',money(low));
-    const devs=filtered.map(x=>{const p=allPlansStore.find(p=>p.planId===x.planId);const pe=x.plannedEntrySnapshot??p?.plannedEntry;return pe!==undefined&&pe!==''?Math.abs(Number(x.entryPrice)-Number(pe)):null}).filter(v=>Number.isFinite(v)); const avgDev=devs.length?devs.reduce((a,b)=>a+b,0)/devs.length:0;set('row6AvgDev',`${avgDev.toFixed(2)} pts`);
-    renderDynamicCharts(asset,Object.fromEntries(wd.map(r=>[r.day.slice(0,3),r.net])));renderDynamicTables(sess,wd);renderExecutedLogsTable();renderEquityCurve();
-  };
-
-  window.renderDynamicTables=function(sessionRows,weekdayRows){
-    const w=document.getElementById('summaryWeekTbody'); if(w){w.innerHTML=weekdayRows.map(r=>`<tr><td class="p-2 font-medium">${r.day}</td><td class="p-2 font-bold ${r.net>=0?'text-emerald-600':'text-red-500'}">${money(r.net)}</td><td class="p-2">$${r.net>0?r.net.toFixed(2):'0.00'}</td><td class="p-2">$${r.net<0?Math.abs(r.net).toFixed(2):'0.00'}</td><td class="p-2 text-right font-bold">${r.trades}</td></tr>`).join('') || '<tr><td colspan="5" class="p-4 text-center text-slate-400">No trades</td></tr>'}
-    const s=document.getElementById('summarySessionTbody');if(s){s.innerHTML=sessionRows.map(r=>`<tr><td class="p-2 font-medium">${r.session}</td><td class="p-2 font-bold ${r.net>=0?'text-emerald-600':'text-red-500'}">${money(r.net)}</td><td class="p-2">$${r.gp.toFixed(2)}</td><td class="p-2">$${r.gl.toFixed(2)}</td><td class="p-2 text-right font-bold">${r.trades}</td></tr>`).join('')}
-  };
-
-  window.renderStrategyAnalytics=function(){
-    const trades=getFilteredExecutions(), map={};
-    trades.forEach(x=>{const k=x.strategy||'Unassigned';(map[k]??=[]).push(x)});
-    const rows=Object.entries(map).map(([strategy,ts])=>{
-      const m=calcMetrics(ts);
-      const scored=ts.filter(x=>Number(x.planQualityScore||allPlansStore.find(p=>p.planId===x.planId)?.qualityScore||0)>0);
-      const adhered=scored.filter(x=>Number(x.planQualityScore||allPlansStore.find(p=>p.planId===x.planId)?.qualityScore||0)>=80);
-      return {strategy,ts,m,adherence:scored.length?adhered.length/scored.length*100:0};
-    }).sort((a,b)=>b.m.net-a.m.net);
-
-    const labels=rows.map(r=>r.strategy), nets=rows.map(r=>r.m.net);
-    const c=document.getElementById('strategyBarChart');
-    if(c){
-      if(window.strategyChartInstance) strategyChartInstance.destroy();
-      strategyChartInstance=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Net P&L',data:nets,backgroundColor:nets.map(v=>v>=0?'rgba(16,185,129,.82)':'rgba(239,68,68,.78)'),borderRadius:9,borderSkipped:false,maxBarThickness:34}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:650,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',padding:10,cornerRadius:9,displayColors:false,callbacks:{label:ctx=>`Net P&L: ${ctx.parsed.x>=0?'+':''}$${ctx.parsed.x.toFixed(2)}`}}},scales:{x:{grid:{color:'#eef2f7'},ticks:{color:'#94a3b8',font:{size:10},callback:v=>`$${v}`}},y:{grid:{display:false},ticks:{color:'#475569',font:{size:10,weight:'600'}}}}}});
-    }
-
-
-
-    const box=document.getElementById('strategyDiagnostics');
-    if(box) box.innerHTML=rows.map(r=>{
-      const status=r.m.net>0?'Profitable':r.m.net<0?'Underperforming':'Flat';
-      return `<div class="card p-4"><div class="flex justify-between gap-2"><b>${esc(r.strategy)}</b><span class="text-[10px] font-bold ${r.m.net>=0?'text-emerald-600':'text-red-500'}">${status}</span></div><div class="grid grid-cols-2 gap-2 mt-3 text-xs"><div>Trades <b class="block">${r.m.trades}</b></div><div>Win Rate <b class="block">${r.m.winRate.toFixed(1)}%</b></div><div>Net P&L <b class="block">${money(r.m.net)}</b></div><div>Profit Factor <b class="block">${r.m.pf===Infinity?'INF':r.m.pf.toFixed(2)}</b></div><div>Average R <b class="block">${r.m.avgR===null?'N/A':r.m.avgR.toFixed(2)+'R'}</b></div><div>Rule Adherence <b class="block">${r.adherence.toFixed(0)}%</b></div></div></div>`;
-    }).join('')||'<div class="text-sm text-slate-400">No executions yet.</div>';
-  };
-
-  window.renderInstrumentAnalytics=function(){
-    const trades=getFilteredExecutions(), map={};
-    trades.forEach(x=>{const k=canon(x.instrument)||'Unassigned';(map[k]??=[]).push(x)});
-    const rows=Object.entries(map).map(([inst,ts])=>({inst,m:calcMetrics(ts)})).sort((a,b)=>b.m.net-a.m.net);
-    const labels=rows.map(r=>r.inst), wr=rows.map(r=>r.m.winRate), net=rows.map(r=>r.m.net), avg=rows.map(r=>r.m.trades?r.m.net/r.m.trades:0), pf=rows.map(r=>r.m.pf===Infinity?Math.max(5,Math.max(...rows.map(q=>q.m.pf===Infinity?0:q.m.pf))+1):r.m.pf);
-    const common={responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',padding:10,cornerRadius:9,displayColors:false}},scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:10,weight:'600'}}},y:{grid:{color:'#eef2f7'},ticks:{color:'#94a3b8',font:{size:10}}}}};
-    const c=document.getElementById('instrumentWinRateChart');
-    if(c){if(window.instrumentWinRateChartInstance)instrumentWinRateChartInstance.destroy();instrumentWinRateChartInstance=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Win Rate',data:wr,backgroundColor:'rgba(124,58,237,.82)',borderRadius:9,borderSkipped:false,maxBarThickness:30}]},options:{...common,indexAxis:'y',scales:{x:{beginAtZero:true,max:100,grid:{color:'#eef2f7'},ticks:{color:'#94a3b8',font:{size:10},callback:v=>`${v}%`}},y:common.scales.y},plugins:{...common.plugins,tooltip:{...common.plugins.tooltip,callbacks:{label:ctx=>`Win Rate: ${ctx.parsed.x.toFixed(1)}%`}}}}});}
-    const c2=document.getElementById('instrumentPnLChart');
-    if(c2){if(window.instrumentPnLChartInstance)instrumentPnLChartInstance.destroy();instrumentPnLChartInstance=new Chart(c2,{type:'bar',data:{labels,datasets:[{label:'Net P&L',data:net,backgroundColor:net.map(v=>v>=0?'rgba(16,185,129,.82)':'rgba(239,68,68,.78)'),borderRadius:9,borderSkipped:false,maxBarThickness:30}]},options:{...common,indexAxis:'y',plugins:{...common.plugins,tooltip:{...common.plugins.tooltip,callbacks:{label:ctx=>`Net P&L: ${ctx.parsed.x>=0?'+':''}$${ctx.parsed.x.toFixed(2)}`}}}}});}
-    const c3=document.getElementById('instrumentAvgPnLChart');
-    if(c3){if(window.instrumentAvgPnLChartInstance)instrumentAvgPnLChartInstance.destroy();instrumentAvgPnLChartInstance=new Chart(c3,{type:'bar',data:{labels,datasets:[{label:'Avg P&L / Trade',data:avg,backgroundColor:avg.map(v=>v>=0?'rgba(59,130,246,.82)':'rgba(245,158,11,.82)'),borderRadius:9,borderSkipped:false,maxBarThickness:30}]},options:{...common,indexAxis:'y',plugins:{...common.plugins,tooltip:{...common.plugins.tooltip,callbacks:{label:ctx=>`Avg P&L / trade: ${ctx.parsed.x>=0?'+':''}$${ctx.parsed.x.toFixed(2)}`}}}}});}
-    const c4=document.getElementById('instrumentPFChart');
-    if(c4){if(window.instrumentPFChartInstance)instrumentPFChartInstance.destroy();instrumentPFChartInstance=new Chart(c4,{type:'bar',data:{labels,datasets:[{label:'Profit Factor',data:pf,backgroundColor:'rgba(14,165,233,.82)',borderRadius:9,borderSkipped:false,maxBarThickness:30}]},options:{...common,indexAxis:'y',scales:{x:{beginAtZero:true,grid:{color:'#eef2f7'},ticks:{color:'#94a3b8',font:{size:10}}},y:common.scales.y},plugins:{...common.plugins,tooltip:{...common.plugins.tooltip,callbacks:{label:ctx=>`Profit Factor: ${ctx.parsed.x>=5?'INF':ctx.parsed.x.toFixed(2)}`}}}}});}
-  };
-
-  window.renderExecutionInsights=function(){
-    const trades=getFilteredExecutions(),m=calcMetrics(trades),plans=allPlansStore||[],executedPlans=new Set(trades.filter(x=>x.planId&&x.planId!=='UNPLANNED').map(x=>x.planId));
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.innerText=v};set('insAvgR',m.avgR===null?'N/A':m.avgR.toFixed(2)+'R');set('insPF',m.pf===Infinity?'INF':m.pf.toFixed(2));set('insDD','-$'+m.maxDD.toFixed(2));set('insWinStreak',m.streaks.maxWin);set('insLossStreak',m.streaks.maxLoss);set('ansPlannedPnL',money(trades.filter(x=>x.planId&&x.planId!=='UNPLANNED').reduce((s,x)=>s+(Number(x.netPnL)||0),0)));set('ansPlannedCount',`${trades.filter(x=>x.planId&&x.planId!=='UNPLANNED').length} trades`);set('ansImpulsePnL',money(trades.filter(x=>!x.planId||x.planId==='UNPLANNED').reduce((s,x)=>s+(Number(x.netPnL)||0),0)));set('ansImpulseCount',`${trades.filter(x=>!x.planId||x.planId==='UNPLANNED').length} trades`);set('ansExecRate',plans.length?`${(executedPlans.size/plans.length*100).toFixed(1)}%`:'0%');set('ansTotalPlans',plans.length);set('ansExecutedPlans',executedPlans.size);
-    const devs=trades.map(x=>{const p=allPlansStore.find(p=>p.planId===x.planId);const pe=x.plannedEntrySnapshot??p?.plannedEntry;return pe!==undefined&&pe!==''?Math.abs(Number(x.entryPrice)-Number(pe)):null}).filter(Number.isFinite);const avgDev=devs.length?devs.reduce((a,b)=>a+b,0)/devs.length:0;set('ansAvgDeviation',avgDev.toFixed(2)+' pts');set('ansEntryStatus',devs.length?(avgDev<=1?'Disciplined entry execution':'Average deviation is high'):'No planned-entry comparison data');
-    const wd=weekdayStats(trades),ss=sessionStats(trades),bestD=bestOf(wd,'avg'),bestS=bestOf(ss,'avg');let stratMap={};trades.forEach(x=>{const k=x.strategy||'Unassigned';(stratMap[k]??=[]).push(x)});const stratRows=Object.entries(stratMap).map(([strategy,ts])=>({strategy,m:calcMetrics(ts)}));const bestStrat=stratRows.filter(r=>r.m.trades).sort((a,b)=>b.m.expectancy-a.m.expectancy)[0];set('insBestTradingDay',bestD?`${bestD.day}`:'—'); set('insBestWeekday',bestD?`${bestD.day} • ${money(bestD.avg)}/trade`:'—');set('insBestSession',bestS?`${bestS.session} • ${money(bestS.avg)}/trade`:'—');set('insBestStrategy',bestStrat?`${bestStrat.strategy} • ${money(bestStrat.m.expectancy)} expectancy`:'—');
-    const actions=[];if(m.avgR!==null&&m.avgR<0)actions.push('Your realized R is negative. Review exits and risk before increasing size.');if(m.streaks.maxLoss>=3)actions.push(`You had a ${m.streaks.maxLoss}-loss streak. Review the common setup/session before the next similar trade.`);if(m.winRate<45&&m.trades>=10)actions.push('Win rate is low. Focus on expectancy and payoff, not just trade frequency.');if(bestS&&bestS.net<0)actions.push(`${bestS.session} is currently your weakest session by average P&L/trade.`);if(!actions.length)actions.push('Keep collecting clean data. The diagnostics become more reliable as sample size grows.');const ab=document.getElementById('insActionList');if(ab)ab.innerHTML=actions.slice(0,3).map(a=>`<div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600">${esc(a)}</div>`).join('');
-  };
-
-  window.renderCalendar=function(){
-    const sel=document.getElementById('calendarViewSelect'), month=document.getElementById('calendarMonthSelect');if(!sel)return;
-    const previous=sel.value||'ALL'; const trades=getFilteredExecutions();
-    const months=[...new Set(trades.map(x=>normalizeDateField(x.date)?.slice(0,7)).filter(Boolean))].sort().reverse();
-    sel.innerHTML='<option value="ALL">All Months</option>'+months.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})}</option>`).join('');
-    sel.value=(previous==='ALL'||months.includes(previous))?previous:(months[0]||'ALL');
-    const chosen=sel.value;
-    const allBox=document.getElementById('allMonthsContainer'),single=document.getElementById('singleMonthContainer');
-    if(chosen==='ALL'){
-      single?.classList.add('hidden');allBox?.classList.remove('hidden');if(!allBox)return;
-      const groups={};trades.forEach(x=>{const m=normalizeDateField(x.date)?.slice(0,7);if(m)(groups[m]??=[]).push(x)});
-      allBox.innerHTML=Object.entries(groups).sort((a,b)=>b[0].localeCompare(a[0])).map(([mk,ts])=>{
-        const daily=groupBy(ts,x=>normalizeDateField(x.date)),mm=calcMetrics(ts),days=Object.entries(daily).sort((a,b)=>b[0].localeCompare(a[0]));
-        return `<div class="card p-5"><div class="flex justify-between items-center mb-4"><div><h3 class="font-extrabold text-slate-800">${new Date(mk+'-01T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h3><span class="text-[10px] text-slate-400">${mm.trades} trades • ${money(mm.net)} net • ${mm.winRate.toFixed(1)}% trade win rate</span></div><span class="text-lg font-black ${mm.net>=0?'text-emerald-600':'text-red-500'}">${money(mm.net)}</span></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">${days.map(([d,ds])=>{const dm=calcMetrics(ds);return `<div class="border rounded-xl p-3 ${dm.net>=0?'bg-emerald-50/40 border-emerald-100':'bg-red-50/40 border-red-100'}"><div class="text-[10px] text-slate-400">${new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div><b class="block mt-1 ${dm.net>=0?'text-emerald-700':'text-red-600'}">${money(dm.net)}</b><span class="text-[9px] text-slate-400">${dm.trades} trades • ${dm.wins}W / ${dm.losses}L</span></div>`}).join('')}</div></div>`;
-      }).join('')||'<div class="card p-10 text-center text-slate-400">No trades yet.</div>';
-    }else{
-      allBox?.classList.add('hidden');single?.classList.remove('hidden');if(month)month.value=chosen;const [y,mo]=chosen.split('-').map(Number),grid=document.getElementById('calendarGrid');if(!grid)return;grid.innerHTML='';
-      const first=new Date(y,mo-1,1).getDay(),offset=first===0?6:first-1,daysIn=new Date(y,mo,0).getDate();for(let i=0;i<offset;i++)grid.innerHTML+='<div class="h-24 bg-slate-50 rounded-xl opacity-30"></div>';
-      let mp=0,wd=0,ld=0;for(let day=1;day<=daysIn;day++){const dk=`${y}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`,ts=trades.filter(x=>normalizeDateField(x.date)===dk),dm=calcMetrics(ts);mp+=dm.net;if(dm.net>0)wd++;else if(dm.net<0)ld++;grid.innerHTML+=`<div class="h-24 card p-2 flex flex-col justify-between ${ts.length?'cursor-pointer':''}" ${ts.length?`onclick="showDayDetail('${dk}')"`:''}><span class="text-xs font-bold text-slate-400">${day}</span>${ts.length?`<div class="${dm.net>=0?'bg-emerald-100 text-emerald-800':'bg-red-100 text-red-800'} p-1.5 rounded-lg text-center text-xs"><div>${money(dm.net)}</div><div class="text-[9px] opacity-75">${ts.length} trades</div></div>`:'<span class="text-[10px] text-slate-300 text-center">—</span>'}</div>`}
-      document.getElementById('calMonthlyPnL').innerText=money(mp);document.getElementById('calWinDays').innerText=wd;document.getElementById('calLossDays').innerText=ld;document.getElementById('calWinRate').innerText=`${wd+ld?(wd/(wd+ld)*100).toFixed(1):0}%`;
-    }
-  };
-
-  window.renderTodaysPlans=function(){
-    const c=document.getElementById('todaysPlansContainer');if(!c)return;c.innerHTML='';const groups={};plansStore.forEach(p=>{const d=normalizeDateField(p.date)||'No Date';(groups[d]??=[]).push(p)});const dates=Object.keys(groups).sort((a,b)=>b.localeCompare(a));if(!dates.length){c.innerHTML='<div class="card p-12 text-center text-slate-400 font-semibold">No planned trades yet.</div>';return;}c.innerHTML=dates.map(d=>`<section><div class="flex items-center justify-between px-2 py-2"><div><h3 class="text-sm font-extrabold text-slate-700">${d==='No Date'?'No Date':new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</h3><span class="text-[10px] text-slate-400">${groups[d].length} planned idea${groups[d].length!==1?'s':''}</span></div><button onclick="switchTab('planner');document.getElementById('planDate').value='${d==='No Date'?'':d}'" class="text-[10px] text-purple-600 font-bold">+ Add Plan</button></div>${groups[d].map(p=>{const ex=executionsStore.filter(x=>x.planId===p.planId),pnl=ex.reduce((a,x)=>a+(Number(x.netPnL)||0),0),expanded=expandedPlans.has(p.planId);return `<div class="card overflow-hidden mb-3"><div onclick="togglePlanAccordion('${p.planId}')" class="p-4 flex justify-between cursor-pointer hover:bg-slate-50"><div class="flex gap-2 flex-wrap"><b class="font-mono text-xs text-purple-700">${esc(p.planId)}</b><b>${esc(canon(p.instrument))}</b><span class="text-xs">${esc(p.direction)}</span><span class="text-xs text-slate-500">${esc(p.strategy)}</span></div><div class="flex gap-3"><b class="text-xs ${pnl>=0?'text-emerald-600':'text-red-500'}">${money(pnl)}</b><span>${expanded?'▲':'▼'}</span></div></div>${expanded?`<div class="p-5 bg-slate-50/50 border-t space-y-4 text-xs"><div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-slate-200"><div><span class="text-[9px] text-slate-400 block">Entry</span><b class="block">${esc(p.plannedEntry)}</b></div><div><span class="text-[9px] text-slate-400 block">SL</span><b class="block text-red-500">${esc(p.plannedSL)}</b></div><div><span class="text-[9px] text-slate-400 block">TP</span><b class="block text-emerald-600">${esc(p.plannedTP)}</b></div><div><span class="text-[9px] text-slate-400 block">Planned R:R</span><b class="block text-purple-700">${esc(p.plannedRR||'N/A')}</b></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="bg-white p-3 rounded-xl border"><span class="text-[9px] text-slate-400 block">Timeframe</span><b>${esc(p.entryTimeframe||'—')}</b></div><div class="bg-white p-3 rounded-xl border"><span class="text-[9px] text-slate-400 block">HTF Structure</span><b>${esc(p.htfStructure||'—')}</b></div><div class="bg-white p-3 rounded-xl border"><span class="text-[9px] text-slate-400 block">Session</span><b>${esc(p.session||'—')}</b></div><div class="bg-white p-3 rounded-xl border"><span class="text-[9px] text-slate-400 block">Confidence</span><b>${esc(p.confidence||'—')}</b></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div class="bg-white p-4 rounded-xl border border-purple-100"><div class="flex justify-between items-center mb-2"><span class="font-extrabold text-slate-700">Market Story / Written Thesis</span>${p.tags?`<span class="text-[9px] text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">${esc(p.tags)}</span>`:''}</div><p class="whitespace-pre-wrap leading-relaxed text-slate-700">${esc(p.marketStory||'No written thesis recorded.')}</p></div><div class="bg-white p-4 rounded-xl border border-red-100"><span class="font-extrabold text-slate-700 block mb-2">Invalidation Condition</span><p class="whitespace-pre-wrap leading-relaxed text-slate-700">${esc(p.invalidation||'No invalidation condition recorded.')}</p></div></div><div class="flex flex-wrap items-center justify-between gap-2"><div class="text-[10px] text-slate-500">${p.noNews?'✓ No high-impact news scheduled':''}${p.chartUrl?` ${p.noNews?'• ':''}<a href="${esc(p.chartUrl)}" target="_blank" class="text-purple-600 font-semibold hover:underline">Open Chart</a>`:''}</div><div class="flex justify-end gap-2"><button onclick="executePlanDirectly('${p.planId}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold">Log Execution</button><button onclick="editPlan('${p.planId}')" class="border border-purple-200 text-purple-700 px-3 py-1.5 rounded-lg font-semibold">Edit</button><button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Hide</button></div></div></div>`:''}</div>`}).join('')}</section>`).join('');safeLucide();
-  };
-
-  // Custom notebook folders/notes
-  function loadFolders(){let f=JSON.parse(localStorage.getItem(NB_KEY)||'null');if(!Array.isArray(f)||!f.length)f=[{id:'root',name:'Trading Journals',parentId:null,collapsed:false,createdAt:new Date().toISOString()}];if(!f.some(x=>x.id==='root'))f.unshift({id:'root',name:'Trading Journals',parentId:null,collapsed:false});localStorage.setItem(NB_KEY,JSON.stringify(f));return f}
-  function loadNotes(){const n=JSON.parse(localStorage.getItem(NOTE_KEY)||'[]');return Array.isArray(n)?n:[]}
-  window.createNotebookFolder=function(){const folders=loadFolders();const parent=window.nbSelectedFolder||'root';const name=prompt('Folder name:');if(!name||!name.trim())return;const f={id:'F-'+Date.now(),name:name.trim(),parentId:parent==='root'?'root':parent,collapsed:false,createdAt:new Date().toISOString()};folders.push(f);localStorage.setItem(NB_KEY,JSON.stringify(folders));window.nbSelectedFolder=f.id;if(gsUrl)syncToGS('SAVE_NOTEBOOK_FOLDER',f);renderNotebooks();}
-  window.selectNotebookFolder=function(id){window.nbSelectedFolder=id||'root';renderNotebooks();}
-  window.toggleNotebookFolder=function(id){const folders=loadFolders(),f=folders.find(x=>x.id===id);if(f){f.collapsed=!f.collapsed;localStorage.setItem(NB_KEY,JSON.stringify(folders));renderNotebookTree();}}
-  window.deleteNotebookFolder=async function(id){if(!id||id==='root')return;const folders=loadFolders(),notes=loadNotes();const target=folders.find(f=>f.id===id);if(!target)return;const ids=new Set([id]);let changed=true;while(changed){changed=false;folders.forEach(f=>{if(f.parentId&&ids.has(f.parentId)&&!ids.has(f.id)){ids.add(f.id);changed=true;}})}const noteIds=notes.filter(n=>ids.has(n.folderId)).map(n=>n.id);if(!confirm(`Delete folder "${target.name}" and all subfolders and notes inside it?`))return;const remainingFolders=folders.filter(f=>!ids.has(f.id));const remainingNotes=notes.filter(n=>!ids.has(n.folderId));localStorage.setItem(NB_KEY,JSON.stringify(remainingFolders));localStorage.setItem(NOTE_KEY,JSON.stringify(remainingNotes));window.nbSelectedFolder=target.parentId&&remainingFolders.some(f=>f.id===target.parentId)?target.parentId:'root';if(gsUrl){await syncToGS('DELETE_NOTEBOOK_FOLDER',{id,folderIds:[...ids],noteIds});for(const nid of noteIds)await syncToGS('DELETE_NOTEBOOK_NOTE',{id:nid});}renderNotebooks();}
-  window.newNotebookNote=function(editId=null,dateOverride=null){
-    const folder=loadFolders().find(x=>x.id===window.nbSelectedFolder)||loadFolders().find(x=>x.id==='root');
-    const old=editId?loadNotes().find(n=>n.id===editId):null; window.nbEditingNote=editId||null; window.nbPendingImages=[];
-    const d=old?.date||dateOverride||selectedNotebookDate,box=document.getElementById('notebookContent'); if(!box)return;
-    window.nbPendingRefs=Array.isArray(old?.tradeReferences)?old.tradeReferences.map(r=>({...r})):[];
-    const refOptions=[...allPlansStore.map(p=>({type:'planned',id:p.planId,label:`📋 ${p.planId} • ${canon(p.instrument)} ${p.direction}`,meta:p.date||''})),...executionsStore.map(x=>({type:'executed',id:x.executionId,label:`📈 ${x.executionId} • ${canon(x.instrument)} ${x.direction} • ${money(Number(x.netPnL)||0)}`,meta:x.date||''}))];
-    box.innerHTML=`<div class="card p-5 max-w-4xl mx-auto"><div class="flex justify-between mb-4"><div><h3 class="font-extrabold">${old?'Edit Journal Day':'Log Day'}</h3><p class="text-[10px] text-slate-400">${esc(folder.name)} • ${d}</p></div><button onclick="renderNotebooks()" class="border px-3 py-1.5 rounded-lg text-xs">← Back</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><input id="nbNoteTitle" class="border rounded-lg p-2 text-xs" value="${esc(old?.title||'Daily Journal')}" placeholder="Title"><input id="nbNoteDate" type="date" class="border rounded-lg p-2 text-xs" value="${d}"><select id="nbNoteTemplate" onchange="applyNotebookTemplate(this.value)" class="border rounded-lg p-2 text-xs"><option value="">Freeform</option><option value="daily">Daily Journal</option><option value="premarket">Pre-Market Preparation</option><option value="recap">Session Recap</option><option value="trade">Trade Review</option></select></div><textarea id="nbNoteText" rows="16" class="w-full border rounded-xl p-4 text-sm mt-4" placeholder="Write your thoughts, decisions, psychology, lessons...">${esc(old?.text||'')}</textarea><div class="mt-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50/40"><div class="flex items-center justify-between mb-2"><div><b class="text-xs text-slate-800">Trade References</b><p class="text-[9px] text-slate-400">Link planned or executed trades to this note — works in every notebook folder.</p></div><span id="nbRefCount" class="text-[9px] font-bold text-indigo-600">0 linked</span></div><div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2"><select id="nbTradeReferenceSelect" class="border rounded-lg p-2 text-xs bg-white"><option value="">+ Select a planned or executed trade</option>${refOptions.map(r=>`<option value="${esc(r.type+':'+r.id)}">${esc(r.label)}${r.meta?` • ${esc(r.meta)}`:''}</option>`).join('')}</select><button type="button" onclick="addNotebookTradeReference()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Add Reference</button></div><div id="nbTradeReferenceList" class="space-y-2 mt-3"></div></div><div class="mt-4"><div class="flex justify-between mb-2"><b class="text-xs">Screenshots / Images</b><span class="text-[9px] text-slate-400">Multiple images supported</span></div><input id="nbNoteImageUrl" type="url" class="w-full border rounded-lg p-2 text-xs mb-2" value="${esc(old?.imageUrl||'')}" placeholder="Image URL (optional)"><input id="nbNoteImageFile" type="file" accept="image/*" multiple class="w-full border rounded-lg p-2 text-xs"><div id="nbImagePreview" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3"></div></div><div class="flex justify-end gap-2 mt-5"><button onclick="renderNotebooks()" class="border px-4 py-2 rounded-lg text-xs">Cancel</button><button onclick="saveNotebookNote()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-bold">${old?'Update Day':'Save Day & Sync'}</button></div></div>`;
-    renderNotebookTradeReferencePicker();
-    document.getElementById('nbNoteImageFile').onchange=function(){window.nbPendingImages=[];const pr=document.getElementById('nbImagePreview');pr.innerHTML='';[...(this.files||[])].forEach(f=>{const r=new FileReader();r.onload=e=>{window.nbPendingImages.push(e.target.result);pr.insertAdjacentHTML('beforeend',`<img src="${e.target.result}" class="w-full h-32 object-cover rounded-xl border">`)};r.readAsDataURL(f);});};
-  };
-  window.renderNotebookTradeReferencePicker=function(){const box=document.getElementById('nbTradeReferenceList');if(!box)return;const refs=Array.isArray(window.nbPendingRefs)?window.nbPendingRefs:[];box.innerHTML=refs.map((r,i)=>{const p=r.type==='planned'?allPlansStore.find(x=>x.planId===r.id):null;const x=r.type==='executed'?executionsStore.find(e=>e.executionId===r.id):null;const label=p?`📋 ${p.planId} • ${canon(p.instrument)} ${p.direction}`:x?`📈 ${x.executionId} • ${canon(x.instrument)} ${x.direction} • ${money(Number(x.netPnL)||0)}`:`${r.type==='planned'?'📋':'📈'} ${r.id}`;return `<div class="flex items-center justify-between gap-2 bg-white border rounded-lg p-2.5"><div><b class="text-[10px] text-slate-700">${esc(label)}</b><span class="text-[9px] text-slate-400 block">${r.type==='planned'?'Planned trade':'Executed trade'}</span></div><button type="button" onclick="removeNotebookTradeReference(${i})" class="text-red-500 text-[10px] font-bold">Remove</button></div>`}).join('')||'<div class="text-[9px] text-slate-400 bg-white border border-dashed rounded-lg p-3">No trades linked yet.</div>';const c=document.getElementById('nbRefCount');if(c)c.innerText=`${refs.length} linked`;};
-  window.addNotebookTradeReference=function(){const v=document.getElementById('nbTradeReferenceSelect')?.value;if(!v)return;const cut=v.indexOf(':');const type=v.slice(0,cut),id=v.slice(cut+1);window.nbPendingRefs=Array.isArray(window.nbPendingRefs)?window.nbPendingRefs:[];if(!window.nbPendingRefs.some(r=>r.type===type&&r.id===id))window.nbPendingRefs.push({type,id});document.getElementById('nbTradeReferenceSelect').value='';renderNotebookTradeReferencePicker();};
-  window.removeNotebookTradeReference=function(i){window.nbPendingRefs=(window.nbPendingRefs||[]).filter((_,idx)=>idx!==i);renderNotebookTradeReferencePicker();};
-  window.openNotebookTradeReference=function(type,id){if(type==='planned'){const p=allPlansStore.find(x=>x.planId===id)||plansStore.find(x=>x.planId===id);if(p){switchTab('todays-plans');setTimeout(()=>{expandedPlans.add(id);renderTodaysPlans();},50);}}else{const x=executionsStore.find(e=>e.executionId===id);if(x){switchTab('execution');setTimeout(()=>{alert(`Execution ${x.executionId}\n${canon(x.instrument)} ${x.direction}\nEntry: ${x.entryPrice||'—'}\nExit: ${x.exitPrice||'—'}\nP&L: ${money(Number(x.netPnL)||0)}`);},50);}}};
-  window.saveNotebookNote=async function(){const folder=loadFolders().find(x=>x.id===window.nbSelectedFolder)||loadFolders().find(x=>x.id==='root'),notes=loadNotes(),old=window.nbEditingNote?notes.find(n=>n.id===window.nbEditingNote):null;const note={id:old?.id||'N-'+Date.now(),folderId:folder.id,title:document.getElementById('nbNoteTitle')?.value||'Daily Journal',date:document.getElementById('nbNoteDate')?.value||selectedNotebookDate,text:document.getElementById('nbNoteText')?.value||'',imageUrl:document.getElementById('nbNoteImageUrl')?.value||old?.imageUrl||'',images:[...(old?.images||[]),...(window.nbPendingImages||[])],tradeReferences:[...(window.nbPendingRefs||[])],createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};const i=notes.findIndex(n=>n.id===note.id);if(i>=0)notes[i]=note;else notes.unshift(note);localStorage.setItem(NOTE_KEY,JSON.stringify(notes));selectedNotebookDate=note.date;window.nbPendingImages=[];window.nbEditingNote=null;if(gsUrl)await syncToGS(i>=0?'UPDATE_NOTEBOOK_NOTE':'SAVE_NOTEBOOK_NOTE',note);renderNotebooks();};
-  window.deleteNotebookNote=async function(id){if(!confirm('Delete this journal entry?'))return;localStorage.setItem(NOTE_KEY,JSON.stringify(loadNotes().filter(n=>n.id!==id)));if(gsUrl)await syncToGS('DELETE_NOTEBOOK_NOTE',{id});renderNotebooks();};
-  window.applyNotebookTemplate=function(type){const t=document.getElementById('nbNoteText'),h=document.getElementById('nbNoteTitle');const a={daily:['Daily Journal','Date:\nMarket context:\nWhat I did well:\nWhat I did poorly:\nPsychology:\nLessons:\nTomorrow:\n'],premarket:['Pre-Market Preparation','HTF bias:\nKey levels:\nSetups:\nAvoid:\nRisk limit:\nNews:\n'],recap:['Session Recap','Session:\nMarket behaviour:\nSetups:\nBest decision:\nWorst decision:\nExecution:\nLesson:\n'],trade:['Trade Review','Instrument:\nStrategy:\nEntry reason:\nExit reason:\nRules followed?\nR result:\nPsychology:\nLesson:']};if(a[type]){if(h&&!h.value)h.value=a[type][0];t.value=a[type][1];}};
-  function journalDays(folderId){const g={};loadNotes().filter(n=>n.folderId===folderId&&n.date).forEach(n=>(g[n.date]??=[]).push(n));return g;}
-  function notebookReferenceHtml(n){const refs=Array.isArray(n.tradeReferences)?n.tradeReferences:[];if(!refs.length)return '';return `<div class="mt-4 p-3 rounded-xl border border-indigo-100 bg-indigo-50/40"><div class="text-[9px] font-extrabold uppercase tracking-wider text-indigo-600 mb-2">Trade References</div><div class="flex flex-wrap gap-2">${refs.map(r=>{const p=r.type==='planned'?allPlansStore.find(x=>x.planId===r.id):null;const x=r.type==='executed'?executionsStore.find(e=>e.executionId===r.id):null;const label=p?`📋 ${p.planId} • ${canon(p.instrument)} ${p.direction}`:x?`📈 ${x.executionId} • ${canon(x.instrument)} ${x.direction} • ${money(Number(x.netPnL)||0)}`:`${r.type==='planned'?'📋':'📈'} ${r.id}`;return `<button onclick="openNotebookTradeReference('${esc(r.type)}','${esc(r.id)}')" class="px-2.5 py-1.5 rounded-lg bg-white border border-indigo-100 text-[9px] font-bold text-indigo-700 hover:bg-indigo-50">${esc(label)}</button>`}).join('')}</div></div>`;}
-  function noteCard(n){
-    return '<article class="card p-5 mt-3"><div class="flex justify-between"><div><b>'+esc(n.title)+'</b><div class="text-[9px] text-slate-400">'+esc(n.date||'')+'</div></div><div><button onclick="newNotebookNote(\''+n.id+'\')" class="text-purple-600 text-xs mr-2">Edit</button><button onclick="deleteNotebookNote(\''+n.id+'\')" class="text-red-500 text-xs">Delete</button></div></div><p class="text-sm whitespace-pre-wrap leading-7 mt-3 text-slate-700">'+esc(n.text)+'</p>'+notebookReferenceHtml(n)+(n.imageUrl?'<img src="'+esc(n.imageUrl)+'" class="mt-3 max-h-80 rounded-xl border">':'')+((n.images||[]).length?'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">'+n.images.map(x=>'<img src="'+esc(x)+'" class="w-full h-32 object-cover rounded-xl border">').join('')+'</div>':'')+'</article>';
-  }
-  function dayCard(n){
-    return '<article class="p-5 border-b last:border-b-0"><div class="flex justify-between"><div><h4 class="font-extrabold">'+esc(n.title)+'</h4><span class="text-[9px] text-slate-400">'+esc(n.updatedAt||'')+'</span></div><div><button onclick="newNotebookNote(\''+n.id+'\')" class="text-purple-600 text-xs mr-2">Edit</button><button onclick="deleteNotebookNote(\''+n.id+'\')" class="text-red-500 text-xs">Delete</button></div></div><div class="mt-4 text-sm leading-7 whitespace-pre-wrap text-slate-700">'+esc(n.text)+'</div>'+notebookReferenceHtml(n)+(n.imageUrl?'<img src="'+esc(n.imageUrl)+'" class="mt-4 max-h-96 rounded-xl border object-contain">':'')+((n.images||[]).length?'<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">'+n.images.map(x=>'<img src="'+esc(x)+'" class="w-full h-44 object-cover rounded-xl border">').join('')+'</div>':'')+'</article>';
-  }
-  window.renderNotebooks=function(){
-    loadFolders();if(!window.nbSelectedFolder)window.nbSelectedFolder='root';
-    const fs=loadFolders(),f=fs.find(x=>x.id===window.nbSelectedFolder)||fs.find(x=>x.id==='root')||fs[0];window.nbSelectedFolder=f.id;
-    document.getElementById('notebookTitle').innerText=f.name;document.getElementById('notebookDatePicker').value=selectedNotebookDate;renderNotebookTree();
-    const box=document.getElementById('notebookContent'),notes=loadNotes().filter(n=>n.folderId===f.id);
-    if(f.id!=='root'){
-      document.getElementById('notebookMeta').innerText=notes.length+' note'+(notes.length===1?'':'s')+' • '+f.name;
-      box.innerHTML='<div class="card p-4 bg-purple-50/50"><div class="flex justify-between"><div><b>'+esc(f.name)+'</b><p class="text-[10px] text-slate-400">Notes, thoughts and images</p></div><button onclick="newNotebookNote()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">+ Note</button></div></div>'+(notes.length?notes.sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt))).map(noteCard).join(''):'<div class="card p-10 text-center text-xs text-slate-400 mt-3">No notes yet.</div>');safeLucide();return;
-    }
-    const grouped={};notes.filter(n=>n.date).forEach(n=>(grouped[n.date]??=[]).push(n));const dates=Object.keys(grouped).sort().reverse(),day=grouped[selectedNotebookDate]||[];
-    const exec=executionsStore.filter(x=>normalizeDateField(x.date)===selectedNotebookDate),pnl=exec.reduce((a,x)=>a+(Number(x.netPnL)||0),0),wins=exec.filter(x=>(Number(x.netPnL)||0)>0).length;
-    document.getElementById('notebookMeta').innerText=dates.length+' logged day'+(dates.length===1?'':'s')+' • Daily journal archive';
-    const dayList=dates.length?dates.map(d=>'<button onclick="selectNotebookDate(\''+d+'\')" class="w-full text-left p-3 rounded-xl mb-2 border '+(d===selectedNotebookDate?'border-purple-200 bg-purple-50':'border-slate-100 hover:bg-slate-50')+'"><b class="text-xs">'+esc(new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}))+'</b><div class="text-[9px] text-slate-400 mt-1">'+grouped[d].length+' entr'+(grouped[d].length===1?'y':'ies')+'</div></button>').join(''):'<div class="text-[10px] text-slate-400 p-5 text-center">No days logged.</div>';
-    const content=day.length?day.map(dayCard).join(''):'<div class="h-full min-h-[500px] flex items-center justify-center text-center p-10"><div><div class="text-4xl mb-3">✍️</div><b class="text-slate-700">Nothing logged for this day</b><p class="text-xs text-slate-400 mt-1">Write your day and add trading screenshots.</p><button onclick="newNotebookNote(null,selectedNotebookDate)" class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Log '+selectedNotebookDate+'</button></div></div>';
-    box.innerHTML='<div class="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-4 h-full"><aside class="card p-3 bg-white"><div class="flex justify-between items-center mb-3"><div><b class="text-sm">Logged Days</b><p class="text-[9px] text-slate-400">Daily journal archive</p></div><button onclick="newNotebookNote(null,selectedNotebookDate)" class="bg-purple-600 text-white px-2.5 py-1.5 rounded-lg text-[10px] font-bold">+ Log day</button></div>'+dayList+'</aside><main class="card bg-white overflow-hidden"><div class="p-5 border-b flex justify-between"><div><h3 class="text-lg font-extrabold">'+esc(new Date(selectedNotebookDate+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}))+'</h3><p class="text-[10px] text-slate-400">'+exec.length+' trades • '+wins+' winners • '+money(pnl)+'</p></div><button onclick="newNotebookNote(null,selectedNotebookDate)" class="border border-purple-200 text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold">+ Add note</button></div>'+content+'</main></div>';
-    safeLucide();
-  };
-  window.selectNotebookDate=function(d){if(!d)return;selectedNotebookDate=d;localStorage.setItem('selectedNotebookDate',d);renderNotebooks();};
-  window.createNotebookForToday=function(){createNotebookFolder();}
-
-  const legacyFetch=window.fetchFromGS;
-  if(legacyFetch){
-    window.fetchFromGS=async function(){ await legacyFetch(); normalizeAll(); const remoteNotes=window.__lastRemoteNotebookNotes; if(Array.isArray(remoteNotes)){localStorage.setItem(NOTE_KEY,JSON.stringify(remoteNotes));} const remoteFolders=window.__lastRemoteNotebookFolders; if(Array.isArray(remoteFolders)&&remoteFolders.length){localStorage.setItem(NB_KEY,JSON.stringify(remoteFolders));} updateDashboard();renderExecutionInsights();renderTodaysPlans();renderNotebooks(); };
-  }
-
-  // Ensure the dashboard weekday chart is ordered Monday -> Sunday.
-  window.renderDynamicCharts=function(assetPnL,weekDaysPnL){
-    const a=document.getElementById('assetsDonutChart'); if(a){if(window.assetChartInstance)assetChartInstance.destroy();const labels=Object.keys(assetPnL),vals=Object.values(assetPnL);assetChartInstance=new Chart(a,{type:'doughnut',data:{labels:labels.length?labels:['No Trades'],datasets:[{data:vals.length?vals.map(v=>Math.abs(v)):[1],backgroundColor:['#7c3aed','#34d399','#60a5fa','#fbbf24','#f472b6','#22d3ee']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}})}
-    const b=document.getElementById('pairDailyChart');if(b){if(window.pairChartInstance)pairChartInstance.destroy();const order=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],vals=order.map(k=>Number(weekDaysPnL[k]||0));pairChartInstance=new Chart(b,{type:'bar',data:{labels:order,datasets:[{label:'Net P&L',data:vals,backgroundColor:vals.map(v=>v>=0?'rgba(16,185,129,.85)':'rgba(239,68,68,.85)'),borderRadius:7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}})}
-  };
-
-  function tradeQuality(x){
-    if(x.tradeQualityScore!==undefined&&x.tradeQualityScore!==''&&isFinite(Number(x.tradeQualityScore)))return Number(x.tradeQualityScore);
-    const p=allPlansStore.find(p=>p.planId===x.planId)||plansStore.find(p=>p.planId===x.planId),mistakes=Array.isArray(x.mistakes)?x.mistakes:[],risk=Number(x.riskAmount||0);
-    const planned=Number(x.planQualityScore||p?.qualityScore||0)||(x.planId&&x.planId!=='UNPLANNED'?70:50),riskScore=!risk?60:(risk<=70?100:Math.max(0,100-(risk-70)*2));
-    const entry=Number(x.entryPrice),pe=Number(x.plannedEntrySnapshot||p?.plannedEntry);let entryScore=80;if(isFinite(entry)&&isFinite(pe)&&pe!==0)entryScore=Math.max(20,100-Math.min(80,Math.abs(entry-pe)/Math.abs(pe)*100*10));
-    return Math.round(Math.max(0,Math.min(100,planned*.35+entryScore*.2+riskScore*.25+(100-Math.min(50,mistakes.length*10))*.2)));
-  }
-  function qualityBand(q){return q>=90?'A+':q>=80?'A':q>=70?'B':q>=60?'C':'D';}
-  function renderAdvancedJournalAnalytics(){
-    const trades=getFilteredExecutions().slice().sort((a,b)=>new Date(normalizeDateField(a.date))-new Date(normalizeDateField(b.date)));if(!trades.length){['weeklyPnL','weeklyTrades','weeklyWR','weeklyR','weeklyBestDay','weeklyBestStrategy'].forEach((id)=>{const e=document.getElementById(id);if(e)e.innerText=id==='weeklyR'?'N/A':id==='weeklyPnL'?'$0.00':id.includes('Trades')?'0':id==='weeklyWR'?'0%':'—'});return;}
-    const latest=new Date(normalizeDateField(trades[trades.length-1].date)+'T00:00:00'),dow=latest.getDay(),toMon=(dow+6)%7,weekStart=new Date(latest);weekStart.setDate(latest.getDate()-toMon);const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);const week=trades.filter(x=>{const d=new Date(normalizeDateField(x.date)+'T00:00:00');return d>=weekStart&&d<=weekEnd}),wm=calcMetrics(week),set=(id,v)=>{const e=document.getElementById(id);if(e)e.innerText=v};
-    set('weeklyPnL',money(wm.net));set('weeklyTrades',wm.trades);set('weeklyWR',wm.winRate.toFixed(1)+'%');set('weeklyR',wm.avgR===null?'N/A':wm.avgR.toFixed(2)+'R');const wb=bestOf(weekdayStats(week),'avg');set('weeklyBestDay',wb?`${wb.day} • ${money(wb.avg)}/trade`:'—');const sg=Object.entries(groupBy(week,x=>x.strategy||'Unassigned')).map(([strategy,ts])=>({strategy,m:calcMetrics(ts)})).sort((a,b)=>b.m.net-a.m.net)[0];set('weeklyBestStrategy',sg?`${sg.strategy} • ${money(sg.m.net)}`:'—');set('weeklyReviewBadge',`${weekStart.toLocaleDateString(undefined,{month:'short',day:'numeric'})}–${weekEnd.toLocaleDateString(undefined,{month:'short',day:'numeric'})}`);set('weeklyFocus',wm.streaks.maxLoss>=3?'Review losing streaks and common mistakes':wm.winRate>=60?'Protect the process behind profitable setups':'Improve setup selection and rule adherence');
-    const dailyMap={};trades.forEach(x=>{const d=normalizeDateField(x.date);if(d)dailyMap[d]=(dailyMap[d]||0)+(Number(x.netPnL)||0);});const dailyResults=Object.entries(dailyMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([date,pnl])=>({date,pnl}));const st={curW:0,curL:0,maxW:0,maxL:0};for(let i=dailyResults.length-1;i>=0;i--){const p=dailyResults[i].pnl;if(p>0&&st.curL===0)st.curW++;else if(p<0&&st.curW===0)st.curL++;else break;}let w=0,l=0;dailyResults.forEach(({pnl})=>{if(pnl>0){w++;l=0;st.maxW=Math.max(st.maxW,w)}else if(pnl<0){l++;w=0;st.maxL=Math.max(st.maxL,l)}else{w=0;l=0}});set('currentWinStreak',st.curW);set('currentLossStreak',st.curL);set('maxWinStreak2',st.maxW);set('maxLossStreak2',st.maxL);set('streakInsight',st.curL>=3?`You are in a ${st.curL}-day losing streak. Review the last few trading days before increasing activity.`:st.curW>=3?`You are on a ${st.curW}-day winning streak. Keep risk constant and avoid increasing size.`:'Streaks are calculated from daily closing P&L, not individual trades.');
-    const mm={};trades.forEach(x=>(Array.isArray(x.mistakes)?x.mistakes:[]).forEach(k=>{if(!mm[k])mm[k]={count:0,pnl:0};mm[k].count++;mm[k].pnl+=Number(x.netPnL)||0;}));const mb=document.getElementById('mistakeTracker');if(mb)mb.innerHTML=Object.entries(mm).sort((a,b)=>a[1].pnl-b[1].pnl).slice(0,8).map(([k,v])=>`<div class="flex items-center justify-between gap-3 border rounded-xl p-2.5"><div><b class="text-xs">${esc(k)}</b><span class="text-[9px] text-slate-400 block">${v.count} trade${v.count!==1?'s':''}</span></div><b class="text-xs ${v.pnl<0?'text-red-500':'text-emerald-600'}">${money(v.pnl)}</b></div>`).join('')||'<div class="text-xs text-slate-400 p-3 bg-slate-50 rounded-xl">No mistakes tagged yet.</div>';
-    const heat=document.getElementById('tradingHeatmap');
-    if(heat){
-      const by={};
-      trades.forEach(x=>{
-        const d=normalizeDateField(x.date);
-        if(d){
-          if(!by[d]) by[d]={pnl:0,trades:0,wins:0,losses:0};
-          by[d].pnl += Number(x.netPnL)||0;
-          by[d].trades += 1;
-          const p=Number(x.netPnL)||0;
-          if(p>0) by[d].wins++; else if(p<0) by[d].losses++;
-        }
-      });
-      const latestKey=Object.keys(by).sort().slice(-1)[0] || normalizeDateField(new Date().toISOString());
-      const latestDate=new Date((latestKey||new Date().toISOString().slice(0,10))+'T00:00:00');
-      const dow=(latestDate.getDay()+6)%7;
-      latestDate.setDate(latestDate.getDate()+(6-dow));
-      const startDate=new Date(latestDate); startDate.setDate(latestDate.getDate()-16*7+1);
-      const values=Object.values(by).map(v=>Math.abs(v.pnl));
-      const max=Math.max(1,...values);
-      const dayNames=['M','T','W','T','F','S','S'];
-      const weeks=[];
-      for(let w=0;w<16;w++){
-        const weekStart=new Date(startDate); weekStart.setDate(startDate.getDate()+w*7);
-        const monthLabel=weekStart.getDate()<=7 || w===0 ? weekStart.toLocaleDateString(undefined,{month:'short'}) : '';
-        let cells=`<div class="min-w-[18px] flex flex-col gap-1.5"><div class="h-4 text-[9px] font-semibold text-slate-400 text-center">${monthLabel}</div>`;
-        for(let r=0;r<7;r++){
-          const d=new Date(weekStart); d.setDate(weekStart.getDate()+r);
-          const key=d.toISOString().slice(0,10),v=by[key],p=v?.pnl||0,ratio=Math.abs(p)/max;
-          let cls='bg-slate-100 border border-slate-200';
-          if(v){
-            if(p>0) cls=ratio>.75?'bg-emerald-500':ratio>.45?'bg-emerald-400':ratio>.2?'bg-emerald-300':'bg-emerald-100';
-            else if(p<0) cls=ratio>.75?'bg-red-500':ratio>.45?'bg-red-400':ratio>.2?'bg-red-300':'bg-red-100';
-            else cls='bg-slate-200 border border-slate-300';
-          }
-          const label=d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
-          const detail=v?`${money(p)} • ${v.trades} trade${v.trades!==1?'s':''} • ${v.trades?(v.wins/v.trades*100).toFixed(0):0}% WR`:'No trades';
-          cells+=`<button type="button" title="${label}: ${detail}" ${v?`onclick="showDayDetail('${key}')"`:''} class="group relative w-[18px] h-[18px] rounded-[4px] ${cls} ${v?'cursor-pointer hover:ring-2 hover:ring-purple-300 hover:ring-offset-1':''} transition-all duration-150" aria-label="${label}: ${detail}"></button>`;
-        }
-        cells+='</div>'; weeks.push(cells);
-      }
-      heat.innerHTML=`<div class="flex gap-2 items-start"><div class="pt-6 flex flex-col gap-1.5 pr-1">${dayNames.map((d,i)=>`<div class="h-[18px] w-3 text-[8px] leading-[18px] text-slate-400 ${i%2?'opacity-0':''}">${d}</div>`).join('')}</div><div class="flex gap-1.5 min-w-max">${weeks.join('')}</div></div>`;
-      const summary=document.getElementById('heatmapSummary');
-      if(summary){
-        const days=Object.keys(by).length,green=Object.values(by).filter(v=>v.pnl>0).length,red=Object.values(by).filter(v=>v.pnl<0).length,total=Object.values(by).reduce((a,v)=>a+v.pnl,0);
-        summary.innerHTML=`<span class="px-2 py-1 rounded-full bg-slate-50 border border-slate-200">${days} active days</span><span class="px-2 py-1 rounded-full ${total>=0?'bg-emerald-50 text-emerald-700 border-emerald-100':'bg-red-50 text-red-700 border-red-100'} border">${money(total)}</span>`;
-      }
-      safeLucide();
-    }
-    const q={Aplus:0,A:0,B:0,C:0,D:0};trades.forEach(x=>{const b=qualityBand(tradeQuality(x));if(b==='A+')q.Aplus++;else q[b]++;});Object.entries(q).forEach(([k,v])=>set('q'+k,v));
-  }
-  const _oldUpdateDashboard=window.updateDashboard;window.updateDashboard=function(){_oldUpdateDashboard();renderAdvancedJournalAnalytics();};
-  const _oldRenderExecutionInsights=window.renderExecutionInsights;window.renderExecutionInsights=function(){_oldRenderExecutionInsights();renderAdvancedJournalAnalytics();};
-
-  // Migration and initialization
-  document.addEventListener('input',()=>{const q=document.getElementById('tradeQualityPreview');if(q){const linked=document.getElementById('execPlanId')?.value,p=allPlansStore.find(x=>x.planId===linked)||plansStore.find(x=>x.planId===linked),mistakes=[...document.querySelectorAll('input[name="tradeMistake"]:checked')].length,risk=Number(document.getElementById('execRisk')?.value||0),base=Number(p?.qualityScore||50),rs=!risk?60:(risk<=70?100:Math.max(0,100-(risk-70)*2));q.innerText=Math.round(Math.max(0,Math.min(100,base*.35+80*.2+rs*.25+(100-Math.min(50,mistakes*10))*.2)));}});
-  document.addEventListener('DOMContentLoaded',()=>{normalizeAll();ensureExecDirection();renderDropdowns();calculateExecutionPnL();renderTodaysPlans();renderNotebooks();renderExecutionInsights();updateDashboard();const sel=document.getElementById('calendarViewSelect');if(sel)sel.value='ALL';renderCalendar();});
-})();
-</script>
 </body>
 </html>
