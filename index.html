@@ -592,6 +592,14 @@
             <div id="planExtraTargetsContainer" class="space-y-2"></div>
           </div>
 
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="block text-xs font-semibold text-slate-600">Additional Entry Points (optional)</label>
+              <button type="button" onclick="addPlanEntryPoint()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Entry</button>
+            </div>
+            <div id="planExtraEntriesContainer" class="space-y-2"></div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Market Story Narrative</label>
@@ -1341,6 +1349,8 @@
     // Optional extra Take Profit levels for the plan currently open in the planner (scaling
     // out at multiple targets) — nothing here unless the user explicitly adds a row.
     let planExtraTargets = [];
+    // Same idea but for scaling IN — multiple entry price levels for the same idea.
+    let planExtraEntries = [];
     // Date groups (both Active and History) are collapsed by default, except today's Active
     // group which opens automatically — keyed as "mode:date" so the two views collapse independently.
     let expandedDateGroups = new Set([`active:${todayDateStr()}`]);
@@ -1412,6 +1422,7 @@
       renderQualityChecklistForm();
       renderExecMistakesCheckboxes();
       renderPlanExtraTargets();
+      renderPlanExtraEntries();
       initIds();
 
       if (gsUrl) {
@@ -1856,6 +1867,8 @@
       renderQualityChecklistForm();
       planExtraTargets = [];
       renderPlanExtraTargets();
+      planExtraEntries = [];
+      renderPlanExtraEntries();
       const label = document.getElementById('planSaveBtnLabel');
       if (label) label.innerText = 'Save Plan & Sync to Google Sheets';
     }
@@ -1890,6 +1903,40 @@
           <input type="number" step="any" value="${t.price}" oninput="updatePlanExtraTargetField('${t.id}', 'price', this.value)" placeholder="Price" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
           <input type="text" value="${nbEsc(t.note)}" oninput="updatePlanExtraTargetField('${t.id}', 'note', this.value)" placeholder="e.g. 50% off here" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
           <button type="button" onclick="removePlanProfitTarget('${t.id}')" class="text-red-500 hover:text-red-700 font-extrabold text-sm shrink-0">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    // Optional extra Entry price levels — scaling INTO a position at more than one level.
+    // Same opt-in pattern as the profit targets above: empty unless you add a row.
+    function addPlanEntryPoint() {
+      planExtraEntries.push({ id: nbGenId('ENT'), price: '', note: '' });
+      renderPlanExtraEntries();
+    }
+
+    function removePlanEntryPoint(id) {
+      planExtraEntries = planExtraEntries.filter(e => e.id !== id);
+      renderPlanExtraEntries();
+    }
+
+    function updatePlanEntryPointField(id, field, value) {
+      const e = planExtraEntries.find(e => e.id === id);
+      if (e) e[field] = value;
+    }
+
+    function renderPlanExtraEntries() {
+      const container = document.getElementById('planExtraEntriesContainer');
+      if (!container) return;
+      if (planExtraEntries.length === 0) {
+        container.innerHTML = `<p class="text-[10px] text-slate-400">No additional entries — add one only if you're planning to scale into this position at multiple levels.</p>`;
+        return;
+      }
+      container.innerHTML = planExtraEntries.map((e, idx) => `
+        <div class="flex gap-2 items-center">
+          <span class="text-[10px] font-bold text-slate-400 w-12 shrink-0">Entry ${idx + 2}</span>
+          <input type="number" step="any" value="${e.price}" oninput="updatePlanEntryPointField('${e.id}', 'price', this.value)" placeholder="Price" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
+          <input type="text" value="${nbEsc(e.note)}" oninput="updatePlanEntryPointField('${e.id}', 'note', this.value)" placeholder="e.g. deeper pullback level" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
+          <button type="button" onclick="removePlanEntryPoint('${e.id}')" class="text-red-500 hover:text-red-700 font-extrabold text-sm shrink-0">&times;</button>
         </div>
       `).join('');
     }
@@ -1932,6 +1979,12 @@
           : [];
       } catch (err) { planExtraTargets = []; }
       renderPlanExtraTargets();
+      try {
+        planExtraEntries = plan.additionalEntries
+          ? (typeof plan.additionalEntries === 'string' ? JSON.parse(plan.additionalEntries || '[]') : plan.additionalEntries)
+          : [];
+      } catch (err) { planExtraEntries = []; }
+      renderPlanExtraEntries();
       const label = document.getElementById('planSaveBtnLabel');
       if (label) label.innerText = `Update Plan ${plan.planId}`;
     }
@@ -1963,6 +2016,8 @@
         chartUrl: document.getElementById('planChartUrl')?.value || '',
         // Only kept if the user actually added a target — stays '[]' for the common case.
         additionalTargets: JSON.stringify(planExtraTargets.filter(t => t.price !== '')),
+        // Same for extra entry levels — stays '[]' unless scaling in was actually used.
+        additionalEntries: JSON.stringify(planExtraEntries.filter(e => e.price !== '')),
         status: "Planned"
       };
 
@@ -2116,6 +2171,23 @@
                         <span class="font-semibold block mb-1.5">Additional Profit Targets</span>
                         <div class="flex flex-wrap gap-1.5">
                           ${extraTargets.map((t, idx) => `<span class="text-[10px] font-bold text-emerald-700 bg-white border border-emerald-200 px-2 py-1 rounded-full">TP${idx + 2}: ${t.price}${t.note ? ` — ${nbEsc(t.note)}` : ''}</span>`).join('')}
+                        </div>
+                      </div>
+                    `;
+                  })()}
+                  ${(() => {
+                    let extraEntries = [];
+                    try {
+                      extraEntries = p.additionalEntries
+                        ? (typeof p.additionalEntries === 'string' ? JSON.parse(p.additionalEntries || '[]') : p.additionalEntries)
+                        : [];
+                    } catch (err) { extraEntries = []; }
+                    if (!Array.isArray(extraEntries) || extraEntries.length === 0) return '';
+                    return `
+                      <div class="bg-purple-50/50 p-3 rounded-xl border border-purple-100">
+                        <span class="font-semibold block mb-1.5">Additional Entry Points</span>
+                        <div class="flex flex-wrap gap-1.5">
+                          ${extraEntries.map((e, idx) => `<span class="text-[10px] font-bold text-purple-700 bg-white border border-purple-200 px-2 py-1 rounded-full">Entry${idx + 2}: ${e.price}${e.note ? ` — ${nbEsc(e.note)}` : ''}</span>`).join('')}
                         </div>
                       </div>
                     `;
