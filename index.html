@@ -51,9 +51,14 @@
       <button onclick="switchTab('todays-plans')" id="nav-todays-plans" class="nav-link w-full flex items-center justify-between px-3.5 py-3 text-slate-600">
         <div class="flex items-center space-x-3">
           <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>Today's Plans</span>
+          <span>Planned Trades</span>
         </div>
         <span id="planBadgeCount" class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full text-[10px]">0</span>
+      </button>
+
+      <button onclick="switchTab('notebooks')" id="nav-notebooks" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
+        <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+        <span>Notebooks</span>
       </button>
 
       <button onclick="switchTab('insights')" id="nav-insights" class="nav-link w-full flex items-center space-x-3 px-3.5 py-3 text-slate-600">
@@ -209,7 +214,7 @@
           </div>
           <div class="card p-3">
             <p class="text-[10px] font-medium text-slate-500">Average R</p>
-            <p id="kpi-avg-r" class="text-xl font-bold text-emerald-600 mt-0.5">2.10 R</p>
+            <p id="kpi-avg-r" class="text-xl font-bold text-slate-400 mt-0.5">— R</p>
             <span class="text-[9px] text-slate-400">Realized R Multiple</span>
           </div>
           <div class="card p-3">
@@ -470,7 +475,13 @@
             <h2 class="text-lg font-bold text-slate-800">Create Daily Market Thesis</h2>
             <p class="text-xs text-slate-500">Define the story before taking any trade execution.</p>
           </div>
-          <button type="button" onclick="resetPlannerForm()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg">Clear Form</button>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="goBackFromPlanner()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg flex items-center space-x-1.5">
+              <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+              <span>Back</span>
+            </button>
+            <button type="button" onclick="resetPlannerForm()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg">Clear Form</button>
+          </div>
         </div>
 
         <form id="plannerForm" onsubmit="handleSavePlan(event)" class="space-y-6">
@@ -573,6 +584,14 @@
             </div>
           </div>
 
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="block text-xs font-semibold text-slate-600">Additional Profit Targets (optional)</label>
+              <button type="button" onclick="addPlanProfitTarget()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Target</button>
+            </div>
+            <div id="planExtraTargetsContainer" class="space-y-2"></div>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Market Story Narrative</label>
@@ -585,6 +604,14 @@
               <label class="block text-xs font-semibold text-slate-600 mb-1">Invalidation Condition</label>
               <textarea id="planInvalidation" rows="3" required placeholder="What price action proves this idea wrong?" class="w-full border border-slate-200 rounded-lg p-2 text-xs"></textarea>
             </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1 flex items-center gap-1.5">
+              <i data-lucide="list-plus" class="w-3.5 h-3.5 text-slate-400"></i>
+              Notes / Multiple Entry Levels
+            </label>
+            <textarea id="planNotes" rows="2" placeholder="Optional — e.g. multiple entry levels for this instrument: Entry 1 @ 2340 (retest), Entry 2 @ 2325 (deeper pullback)..." class="w-full border border-slate-200 rounded-lg p-2 text-xs"></textarea>
           </div>
 
           <div class="card p-5 space-y-4 bg-slate-50/50 border-purple-200">
@@ -620,36 +647,89 @@
           <div class="flex justify-end pt-4 border-t border-slate-100">
             <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs flex items-center space-x-2">
               <i data-lucide="save" class="w-4 h-4"></i>
-              <span>Save Plan & Sync to Google Sheets</span>
+              <span id="planSaveBtnLabel">Save Plan & Sync to Google Sheets</span>
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- TAB 3: TODAY'S PLANS (ACCORDION) -->
+    <!-- TAB 3: PLANNED TRADES (DATE-WISE, ACTIVE / HISTORY TOGGLE) -->
     <div id="tab-todays-plans" class="hidden space-y-6">
-      <div class="flex justify-between items-center card p-4">
+      <div class="flex justify-between items-center card p-4 flex-wrap gap-3">
         <div>
-          <h2 class="text-md font-bold text-slate-800">Today's Planned Market Ideas</h2>
-          <p class="text-xs text-slate-500">Click any card to expand/collapse. Execute or delete directly.</p>
+          <h2 class="text-md font-bold text-slate-800">Planned Market Ideas</h2>
+          <p class="text-xs text-slate-500">Grouped by date. Click any card to expand/collapse. Execute or delete directly.</p>
         </div>
-        <div class="flex space-x-2">
+        <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+          <div class="flex bg-slate-100 rounded-lg p-1 text-xs font-semibold">
+            <button id="plansViewActiveBtn" onclick="setPlansViewMode('active')" class="px-3 py-1.5 rounded-md">Active Plans</button>
+            <button id="plansViewHistoryBtn" onclick="setPlansViewMode('history')" class="px-3 py-1.5 rounded-md flex items-center space-x-1.5">
+              <span>Plan History</span>
+              <span id="planHistoryCount" class="text-[9px] font-bold bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full">0</span>
+            </button>
+          </div>
           <button onclick="switchTab('planner')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             <span>+ Create Plan</span>
           </button>
-          <button onclick="clearTodaysPlans()" class="border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            <span>Clear All</span>
+          <button id="plansClearBtn" onclick="clearActivePlansToHistory()" class="border border-red-200 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
+            <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+            <span>Clear to History</span>
           </button>
-          <button onclick="restoreHiddenPlans()" title="Bring back plans hidden from this view (they were never deleted from your Sheet)" class="border border-slate-200 text-slate-500 hover:bg-slate-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
+          <button id="plansRestoreBtn" onclick="restoreHiddenPlans()" title="Bring cleared plans back into the Active view" class="hidden border border-slate-200 text-slate-500 hover:bg-slate-50 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1">
             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-            <span>Show Hidden</span>
+            <span>Restore All to Active</span>
           </button>
         </div>
       </div>
-      <div id="todaysPlansContainer" class="space-y-4"></div>
+      <div id="todaysPlansContainer" class="space-y-6"></div>
+    </div>
+
+    <!-- TAB 3B: NOTEBOOKS -->
+    <div id="tab-notebooks" class="hidden">
+      <div class="flex h-[calc(100vh-8rem)] min-h-[640px] card overflow-hidden">
+        <!-- FOLDER TREE SIDEBAR -->
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0">
+          <div class="p-4 border-b border-slate-100">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h2 class="text-sm font-extrabold text-slate-800">Notebook</h2>
+                <p class="text-[9px] text-slate-400">Folders, thoughts, images & journal notes</p>
+              </div>
+              <button onclick="createNotebookFolder()" title="New journal / folder" class="p-1.5 rounded-lg border border-slate-200 hover:bg-purple-50 text-purple-600">
+                <i data-lucide="folder-plus" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <input id="notebookSearch" oninput="renderNotebookTree()" placeholder="Search folders" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-100">
+          </div>
+          <div class="px-4 py-3 border-b border-slate-100">
+            <button onclick="selectNotebookFolder('root')" class="w-full flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold">
+              <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Trading Journals
+            </button>
+          </div>
+          <div id="notebookFolderTree" class="flex-1 overflow-y-auto p-2"></div>
+        </aside>
+
+        <!-- NOTE CONTENT AREA -->
+        <section class="flex-1 min-w-0 flex flex-col bg-slate-50/40">
+          <div class="p-5 bg-white border-b border-slate-200 flex justify-between items-start gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <i data-lucide="notebook-pen" class="w-5 h-5 text-purple-600"></i>
+              <div>
+                <h2 id="notebookTitle" class="text-lg font-extrabold text-slate-900">Trading Journals</h2>
+                <p id="notebookMeta" class="text-[10px] text-slate-400 mt-1">Create folders for playbooks, psychology, reviews, routines and daily journals.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="newNotebookNote()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Note
+              </button>
+            </div>
+          </div>
+          <div id="notebookContent" class="flex-1 overflow-y-auto p-5 space-y-5"></div>
+        </section>
+      </div>
     </div>
 
     <!-- TAB 4: EXECUTION INSIGHTS -->
@@ -718,6 +798,102 @@
                 <span id="ansEntryStatus" class="text-sm font-bold text-emerald-600">Disciplined Execution</span>
               </div>
               <i data-lucide="shield-check" class="w-8 h-8 text-emerald-500 opacity-80"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEEKLY TRADING REVIEW & STREAK ANALYSIS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card p-5 space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Weekly Trading Review</h3>
+                <p class="text-[10px] text-slate-500">Automatic review of the latest completed trading week.</p>
+              </div>
+              <span id="weeklyReviewRange" class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">-</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-400 font-semibold block">Week P&L</span>
+                <span id="weeklyReviewPnL" class="text-base font-extrabold text-slate-800">$0.00</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-400 font-semibold block">Trades</span>
+                <span id="weeklyReviewTrades" class="text-base font-extrabold text-slate-800">0</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-400 font-semibold block">Win Rate</span>
+                <span id="weeklyReviewWinRate" class="text-base font-extrabold text-slate-800">0%</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-400 font-semibold block">Avg R</span>
+                <span id="weeklyReviewAvgR" class="text-base font-extrabold text-slate-800">— R</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5 space-y-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Streak Analysis</h3>
+              <p class="text-[10px] text-slate-500">Current and historical win/loss streak behaviour, based on each day's closing net P&L.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+              <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                <span class="text-[10px] text-emerald-700 font-semibold block">Current Win Streak</span>
+                <span id="streakCurrentWin" class="text-base font-extrabold text-emerald-600">0</span>
+              </div>
+              <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+                <span class="text-[10px] text-red-700 font-semibold block">Current Loss Streak</span>
+                <span id="streakCurrentLoss" class="text-base font-extrabold text-red-500">0</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-500 font-semibold block">Max Win Streak</span>
+                <span id="streakMaxWin" class="text-base font-extrabold text-slate-800">0</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[10px] text-slate-500 font-semibold block">Max Loss Streak</span>
+                <span id="streakMaxLoss" class="text-base font-extrabold text-slate-800">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DAY-WISE & WEEKLY PLAN-TO-EXECUTION BREAKDOWN -->
+        <div class="bg-emerald-50/40 border border-emerald-100 p-5 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-emerald-950 flex items-center space-x-2">
+            <i data-lucide="calendar-check-2" class="w-4 h-4 text-emerald-600"></i>
+            <span>4. Planned vs. Unplanned Trades — Day-wise & Weekly</span>
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+              <thead class="bg-white text-slate-400 uppercase font-semibold">
+                <tr>
+                  <th class="p-2 rounded-l-lg">Day</th>
+                  <th class="p-2">Planned Executed</th>
+                  <th class="p-2">Unplanned</th>
+                  <th class="p-2">Plan-to-Execution %</th>
+                  <th class="p-2 text-right rounded-r-lg">Net P&L</th>
+                </tr>
+              </thead>
+              <tbody id="dayWiseExecutionTbody" class="divide-y divide-emerald-100 bg-white"></tbody>
+            </table>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center pt-1">
+            <div class="bg-white p-3 rounded-xl border border-emerald-100">
+              <span class="text-[10px] text-slate-400 font-semibold block">This Week Planned Executed</span>
+              <span id="weekPlanExecuted" class="text-base font-extrabold text-emerald-600">0</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-emerald-100">
+              <span class="text-[10px] text-slate-400 font-semibold block">This Week Unplanned</span>
+              <span id="weekPlanUnplanned" class="text-base font-extrabold text-red-500">0</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-emerald-100">
+              <span class="text-[10px] text-slate-400 font-semibold block">This Week Plan-to-Execution %</span>
+              <span id="weekPlanExecRate" class="text-base font-extrabold text-purple-700">0%</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-emerald-100">
+              <span class="text-[10px] text-slate-400 font-semibold block">This Week Trades Total</span>
+              <span id="weekPlanTotalTrades" class="text-base font-extrabold text-slate-800">0</span>
             </div>
           </div>
         </div>
@@ -851,7 +1027,7 @@
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Link Plan ID</label>
-              <select id="execPlanId" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <select id="execPlanId" onchange="handleExecPlanLinkChange(this.value)" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
                 <option value="UNPLANNED">-- Unplanned Trade --</option>
               </select>
             </div>
@@ -871,7 +1047,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="block text-xs font-semibold text-slate-600">Strategy</label>
@@ -883,24 +1059,39 @@
               <select id="execStrategy" class="w-full border border-slate-200 rounded-lg p-2 text-xs strategySelect"></select>
             </div>
             <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Direction</label>
+              <select id="execDirection" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+                <option value="Long">Long</option>
+                <option value="Short">Short</option>
+              </select>
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Lot Size / Lots Used</label>
               <input type="number" step="0.01" id="execLotSize" value="1.0" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Entry Price</label>
-              <input type="number" step="any" id="execEntry" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <input type="number" step="any" id="execEntry" oninput="calculateExecR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Stop Loss (SL)</label>
+              <input type="number" step="any" id="execActualSL" oninput="calculateExecR()" placeholder="Actual SL used" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Actual Exit Price</label>
-              <input type="number" step="any" id="execExit" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Net P&L ($)</label>
-              <input type="number" step="any" id="execPnL" placeholder="-500 or +1200" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+              <input type="number" step="any" id="execExit" oninput="calculateExecR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Net P&L ($)</label>
+              <input type="number" step="any" id="execPnL" placeholder="-500 or +1200" required class="w-full border border-slate-200 rounded-lg p-2 text-xs font-bold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Realized R Multiple</label>
+              <input type="text" id="execRDisplay" readonly placeholder="Auto-calculated from Entry/SL/Exit" class="w-full bg-slate-50 font-bold border border-slate-200 rounded-lg p-2 text-xs text-purple-700">
+            </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Session</label>
               <select id="execSession" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
@@ -910,6 +1101,9 @@
                 <option value="Outside">Outside</option>
               </select>
             </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Execution Notes</label>
               <input type="text" id="execNotes" placeholder="Notes / Story reflection..." class="w-full border border-slate-200 rounded-lg p-2 text-xs">
@@ -924,6 +1118,20 @@
               </div>
               <select id="execExitReason" class="w-full border border-slate-200 rounded-lg p-2 text-xs exitReasonSelect"></select>
             </div>
+          </div>
+
+          <div class="card p-4 space-y-3 bg-amber-50/40 border-amber-200">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-xs font-bold text-slate-800">Trading Mistakes / Rule Violations</h3>
+                <p class="text-[10px] text-slate-500">Select only what actually happened.</p>
+              </div>
+              <div class="space-x-1">
+                <button type="button" onclick="promptAddTradingMistake()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add</button>
+                <button type="button" onclick="openSettingsModal()" class="text-[10px] text-slate-400 hover:text-red-500">⚙️ Manage</button>
+              </div>
+            </div>
+            <div id="execMistakesContainer" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs"></div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -974,9 +1182,12 @@
                 <th class="p-2">Strategy</th>
                 <th class="p-2">Session</th>
                 <th class="p-2">Entry</th>
+                <th class="p-2">Actual SL</th>
                 <th class="p-2">Exit</th>
                 <th class="p-2">Net P&L</th>
+                <th class="p-2">R Multiple</th>
                 <th class="p-2">Exit Reason</th>
+                <th class="p-2">Mistakes</th>
                 <th class="p-2 text-center">Images</th>
                 <th class="p-2 text-center">Action</th>
               </tr>
@@ -1051,6 +1262,15 @@
         <div id="manageExitReasonsContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
       </div>
 
+      <!-- MANAGE TRADING MISTAKES -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-bold text-slate-800">Manage Trading Mistakes (Click 🗑️ to delete)</h4>
+          <button onclick="promptAddTradingMistake()" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Mistake</button>
+        </div>
+        <div id="manageTradingMistakesContainer" class="flex flex-wrap gap-2 text-xs pt-1"></div>
+      </div>
+
       <!-- EDITABLE CHECKLIST QUESTIONS -->
       <div class="border-t border-slate-100 pt-4 space-y-2">
         <div class="flex justify-between items-center">
@@ -1101,14 +1321,46 @@
     let strategies = JSON.parse(localStorage.getItem('strategiesStore') || '["Pullback", "Breakout", "Liquidity Sweep", "Structure Break", "Scalper", "DayTrader", "SwingTrader"]');
     let timeframes = JSON.parse(localStorage.getItem('timeframesStore') || '["1m", "5m", "15m", "30m", "1H", "4H", "Daily"]');
     let exitReasons = JSON.parse(localStorage.getItem('exitReasonsStore') || '["Take Profit Hit", "Stop Loss Hit", "Manual Close", "Break Even", "Trailing Stop", "News Event"]');
+    let tradingMistakes = JSON.parse(localStorage.getItem('tradingMistakesStore') || '["FOMO", "Oversized Risk", "Premature Exit", "Early Entry", "Revenge Trade", "Held Loser", "Late Entry", "Overtrading", "Outside Session", "Moved SL", "Ignored Setup", "No Confirmation"]');
+    // plansStore holds EVERY plan ever created (minus permanently deleted ones) — this is the
+    // full historical record, used both for the Active/History plan views AND for insight
+    // calculations like Plan-to-Execution Rate, so clearing a day's plans from view never
+    // loses that data.
     let plansStore = JSON.parse(localStorage.getItem('plansStore') || '[]');
     let executionsStore = JSON.parse(localStorage.getItem('executionsStore') || '[]');
-    // Plans "cleared" from the webpage view only — never deleted from Google Sheets.
+    // Plans permanently deleted (webpage view only — never deleted from Google Sheets).
     // Kept so a refresh (which re-pulls from the Sheet) doesn't bring them back.
     let dismissedPlanIds = new Set(JSON.parse(localStorage.getItem('dismissedPlanIds') || '[]'));
+    // Plans "cleared" from the Active view once their day has passed (or manually cleared).
+    // They remain fully in plansStore and simply show up under the Plan History sub-view instead.
+    let clearedPlanIds = new Set(JSON.parse(localStorage.getItem('clearedPlanIds') || '[]'));
     let gsUrl = localStorage.getItem('gsUrl') || '';
 
+    let plansViewMode = 'active'; // 'active' | 'history'
+    let lastMainTab = 'dashboard';
+    // Optional extra Take Profit levels for the plan currently open in the planner (scaling
+    // out at multiple targets) — nothing here unless the user explicitly adds a row.
+    let planExtraTargets = [];
+    // Date groups (both Active and History) are collapsed by default, except today's Active
+    // group which opens automatically — keyed as "mode:date" so the two views collapse independently.
+    let expandedDateGroups = new Set([`active:${todayDateStr()}`]);
     let expandedPlans = new Set();
+    // Plans manually "pinned" into the Active view even though their date has passed (or
+    // they were cleared) — lets you see old planned trades alongside today's without ever
+    // touching the plan's actual date. Removing the pin sends it right back to History.
+    let pinnedActivePlanIds = new Set(JSON.parse(localStorage.getItem('pinnedActivePlanIds') || '[]'));
+
+    // ---- NOTEBOOKS ----
+    let notebookFolders = JSON.parse(localStorage.getItem('notebookFoldersStore') || '[]');
+    let notebookNotes = JSON.parse(localStorage.getItem('notebookNotesStore') || '[]');
+    if (!notebookFolders.some(f => f.id === 'root')) {
+      notebookFolders.unshift({ id: 'root', name: 'Trading Journals', parentId: null, collapsed: false, createdAt: new Date().toISOString() });
+      localStorage.setItem('notebookFoldersStore', JSON.stringify(notebookFolders));
+    }
+    let nbSelectedFolder = 'root';
+    let nbEditingNote = null;
+    let nbPendingImages = [];
+    let nbPendingRefs = [];
     let assetChartInstance = null;
     let pairChartInstance = null;
     let strategyChartInstance = null;
@@ -1158,6 +1410,8 @@
 
       renderDropdowns();
       renderQualityChecklistForm();
+      renderExecMistakesCheckboxes();
+      renderPlanExtraTargets();
       initIds();
 
       if (gsUrl) {
@@ -1167,12 +1421,19 @@
       } else {
         updateDashboard();
       }
-      renderTodaysPlans();
+      renderPlansView();
       safeLucide();
     });
 
     function switchTab(tabId) {
-      const tabs = ['dashboard', 'planner', 'todays-plans', 'insights', 'calendar', 'strategy', 'instrument', 'execution', 'history'];
+      const tabs = ['dashboard', 'planner', 'todays-plans', 'notebooks', 'insights', 'calendar', 'strategy', 'instrument', 'execution', 'history'];
+      const current = tabs.find(id => {
+        const el = document.getElementById(`tab-${id}`);
+        return el && !el.classList.contains('hidden');
+      });
+      // Remember where we came from so the planner's Back button has somewhere sensible to go.
+      if (current && current !== 'planner') lastMainTab = current;
+
       tabs.forEach(id => {
         const tabEl = document.getElementById(`tab-${id}`);
         if (tabEl) tabEl.classList.add('hidden');
@@ -1185,12 +1446,22 @@
       const activeNav = document.getElementById(`nav-${tabId}`);
       if (activeNav) activeNav.classList.add('active');
 
-      if (tabId === 'todays-plans') renderTodaysPlans();
+      if (tabId === 'todays-plans') renderPlansView();
+      if (tabId === 'notebooks') renderNotebooks();
       if (tabId === 'insights') renderExecutionInsights();
       if (tabId === 'calendar') renderCalendar();
       if (tabId === 'strategy') renderStrategyAnalytics();
       if (tabId === 'instrument') renderInstrumentAnalytics();
       safeLucide();
+    }
+
+    // "Create Daily Plan" should never trap the user — Back just returns to wherever they
+    // came from, no validation, no forced save.
+    // "Back" cancels whatever you were doing (a new plan or an in-progress edit) and resets
+    // to a blank form — it deliberately does NOT navigate away, so you stay on Create Daily
+    // Plan the whole time.
+    function goBackFromPlanner() {
+      resetPlannerForm();
     }
 
     function renderDropdowns() {
@@ -1310,6 +1581,54 @@
       }
     }
 
+    function promptAddTradingMistake() {
+      const val = prompt("Enter Custom Trading Mistake / Rule Violation (e.g. Chased Breakout, Ignored News):");
+      if (val && val.trim()) {
+        const cleaned = val.trim();
+        if (!tradingMistakes.includes(cleaned)) {
+          tradingMistakes.push(cleaned);
+          localStorage.setItem('tradingMistakesStore', JSON.stringify(tradingMistakes));
+          syncConfigToGS();
+          renderExecMistakesCheckboxes();
+          renderSettingsLists();
+        }
+      }
+    }
+
+    function removeTradingMistake(idx) {
+      if (tradingMistakes.length <= 1) {
+        alert("You must keep at least one trading mistake option.");
+        return;
+      }
+      const item = tradingMistakes[idx];
+      if (confirm(`Remove trading mistake "${item}"?`)) {
+        tradingMistakes.splice(idx, 1);
+        localStorage.setItem('tradingMistakesStore', JSON.stringify(tradingMistakes));
+        syncConfigToGS();
+        renderExecMistakesCheckboxes();
+        renderSettingsLists();
+      }
+    }
+
+    function renderExecMistakesCheckboxes(preselected) {
+      const container = document.getElementById('execMistakesContainer');
+      if (!container) return;
+      const selected = new Set(preselected || []);
+      container.innerHTML = '';
+      tradingMistakes.forEach((m, idx) => {
+        container.innerHTML += `
+          <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer hover:border-amber-300">
+            <input type="checkbox" class="execMistakeChk w-4 h-4 text-amber-600 rounded" value="${m}" ${selected.has(m) ? 'checked' : ''}>
+            <span class="text-slate-700 font-medium">${m}</span>
+          </label>
+        `;
+      });
+    }
+
+    function getSelectedExecMistakes() {
+      return Array.from(document.querySelectorAll('.execMistakeChk:checked')).map(el => el.value);
+    }
+
     function removeInstrument(idx) {
       if (instruments.length <= 1) {
         alert("You must keep at least one instrument.");
@@ -1392,6 +1711,19 @@
           `;
         });
       }
+
+      const tmBox = document.getElementById('manageTradingMistakesContainer');
+      if (tmBox) {
+        tmBox.innerHTML = '';
+        tradingMistakes.forEach((m, idx) => {
+          tmBox.innerHTML += `
+            <span class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1.5">
+              <span>${m}</span>
+              <button onclick="removeTradingMistake(${idx})" class="text-red-500 hover:text-red-700 font-extrabold text-sm ml-1">&times;</button>
+            </span>
+          `;
+        });
+      }
     }
 
     function renderQualityChecklistForm() {
@@ -1462,7 +1794,7 @@
       }
 
       const badge = document.getElementById('planBadgeCount');
-      if (badge) badge.innerText = plansStore.length;
+      if (badge) badge.innerText = plansStore.filter(p => !isPlanInHistory(p)).length;
     }
 
     function calculateRR() {
@@ -1475,6 +1807,46 @@
       }
     }
 
+    // Correct R-Multiple: reward and risk are both measured as signed price distance from the
+    // ACTUAL entry, using the ACTUAL stop loss — not the planned one — so the number reflects
+    // what the trade really risked, direction-aware (Long vs Short).
+    function computeRMultiple(direction, entry, sl, exit) {
+      if (![entry, sl, exit].every(v => typeof v === 'number' && !isNaN(v))) return null;
+      const risk = Math.abs(entry - sl);
+      if (risk === 0) return null;
+      const reward = direction === 'Short' ? (entry - exit) : (exit - entry);
+      return reward / risk;
+    }
+
+    function calculateExecR() {
+      const direction = document.getElementById('execDirection')?.value || 'Long';
+      const entry = parseFloat(document.getElementById('execEntry')?.value);
+      const sl = parseFloat(document.getElementById('execActualSL')?.value);
+      const exit = parseFloat(document.getElementById('execExit')?.value);
+      const rEl = document.getElementById('execRDisplay');
+      if (!rEl) return;
+      const r = computeRMultiple(direction, entry, sl, exit);
+      rEl.value = r === null ? '' : `${r >= 0 ? '+' : ''}${r.toFixed(2)} R`;
+    }
+
+    // Linking an execution to a plan pre-fills everything the plan already knows (instrument,
+    // direction, strategy, lots, planned entry/SL, session) — the trader only has to correct
+    // whatever actually differed from plan at execution time.
+    function handleExecPlanLinkChange(planId) {
+      if (!planId || planId === 'UNPLANNED') return;
+      const plan = plansStore.find(p => p.planId === planId);
+      if (!plan) return;
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== '') el.value = val; };
+      set('execInstrument', plan.instrument);
+      set('execStrategy', plan.strategy);
+      set('execDirection', plan.direction);
+      set('execLotSize', plan.lotSize || 1.0);
+      set('execEntry', plan.plannedEntry);
+      set('execActualSL', plan.plannedSL);
+      set('execSession', plan.session);
+      calculateExecR();
+    }
+
     function resetPlannerForm() {
       const form = document.getElementById('plannerForm');
       if (form) form.reset();
@@ -1482,6 +1854,86 @@
       if (tagsPreview) tagsPreview.innerHTML = '';
       initIds();
       renderQualityChecklistForm();
+      planExtraTargets = [];
+      renderPlanExtraTargets();
+      const label = document.getElementById('planSaveBtnLabel');
+      if (label) label.innerText = 'Save Plan & Sync to Google Sheets';
+    }
+
+    // Optional scale-out targets beyond the primary TP — entirely opt-in, nothing shows
+    // unless you click "+ Add Target".
+    function addPlanProfitTarget() {
+      planExtraTargets.push({ id: nbGenId('TGT'), price: '', note: '' });
+      renderPlanExtraTargets();
+    }
+
+    function removePlanProfitTarget(id) {
+      planExtraTargets = planExtraTargets.filter(t => t.id !== id);
+      renderPlanExtraTargets();
+    }
+
+    function updatePlanExtraTargetField(id, field, value) {
+      const t = planExtraTargets.find(t => t.id === id);
+      if (t) t[field] = value;
+    }
+
+    function renderPlanExtraTargets() {
+      const container = document.getElementById('planExtraTargetsContainer');
+      if (!container) return;
+      if (planExtraTargets.length === 0) {
+        container.innerHTML = `<p class="text-[10px] text-slate-400">No additional targets — add one only if you're planning to scale out at multiple levels.</p>`;
+        return;
+      }
+      container.innerHTML = planExtraTargets.map((t, idx) => `
+        <div class="flex gap-2 items-center">
+          <span class="text-[10px] font-bold text-slate-400 w-12 shrink-0">TP ${idx + 2}</span>
+          <input type="number" step="any" value="${t.price}" oninput="updatePlanExtraTargetField('${t.id}', 'price', this.value)" placeholder="Price" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
+          <input type="text" value="${nbEsc(t.note)}" oninput="updatePlanExtraTargetField('${t.id}', 'note', this.value)" placeholder="e.g. 50% off here" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
+          <button type="button" onclick="removePlanProfitTarget('${t.id}')" class="text-red-500 hover:text-red-700 font-extrabold text-sm shrink-0">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    // Loads an existing plan's data into the planner form for editing. Since the Plan ID
+    // field is reused as-is, handleSavePlan below will update this same record in place
+    // instead of creating a new one.
+    function editPlanDirectly(id) {
+      const plan = plansStore.find(p => p.planId === id);
+      if (!plan) return;
+      switchTab('planner');
+      const set = (elId, val) => { const el = document.getElementById(elId); if (el && val !== undefined && val !== null) el.value = val; };
+      set('planId', plan.planId);
+      set('planDate', plan.date);
+      set('planInstrument', plan.instrument);
+      set('planDirection', plan.direction);
+      set('planStrategy', plan.strategy);
+      set('planLotSize', plan.lotSize);
+      set('planEntryTimeframe', plan.entryTimeframe);
+      set('planBias', plan.marketBias);
+      set('planHTF', plan.htfStructure);
+      set('planSession', plan.session);
+      const noNewsEl = document.getElementById('chkNoNews');
+      if (noNewsEl) noNewsEl.checked = !!plan.noNews;
+      set('planEntry', plan.plannedEntry);
+      set('planSL', plan.plannedSL);
+      set('planTP', plan.plannedTP);
+      set('planRR', plan.plannedRR);
+      set('planStory', plan.marketStory);
+      set('planTags', plan.tags);
+      set('planInvalidation', plan.invalidation);
+      set('planNotes', plan.notes);
+      set('planQualityScore', plan.qualityScore);
+      set('planConfidence', plan.confidence);
+      set('planChartUrl', plan.chartUrl);
+      previewPlanTags(plan.tags || '');
+      try {
+        planExtraTargets = plan.additionalTargets
+          ? (typeof plan.additionalTargets === 'string' ? JSON.parse(plan.additionalTargets || '[]') : plan.additionalTargets)
+          : [];
+      } catch (err) { planExtraTargets = []; }
+      renderPlanExtraTargets();
+      const label = document.getElementById('planSaveBtnLabel');
+      if (label) label.innerText = `Update Plan ${plan.planId}`;
     }
 
     async function handleSavePlan(e) {
@@ -1505,91 +1957,242 @@
         marketStory: document.getElementById('planStory')?.value || '',
         tags: document.getElementById('planTags')?.value || '',
         invalidation: document.getElementById('planInvalidation')?.value || '',
+        notes: document.getElementById('planNotes')?.value || '',
         qualityScore: document.getElementById('planQualityScore')?.value || '100',
         confidence: document.getElementById('planConfidence')?.value || 'High',
         chartUrl: document.getElementById('planChartUrl')?.value || '',
+        // Only kept if the user actually added a target — stays '[]' for the common case.
+        additionalTargets: JSON.stringify(planExtraTargets.filter(t => t.price !== '')),
         status: "Planned"
       };
 
-      plansStore.unshift(planData);
+      const existingIdx = plansStore.findIndex(p => p.planId === planData.planId);
+      const isUpdate = existingIdx !== -1;
+      if (isUpdate) plansStore[existingIdx] = planData;
+      else plansStore.unshift(planData);
       localStorage.setItem('plansStore', JSON.stringify(plansStore));
       if (gsUrl) await syncToGS('SAVE_PLAN', planData);
 
-      alert(`Plan ${planData.planId} Saved & Synced!`);
+      alert(isUpdate ? `Plan ${planData.planId} Updated & Synced!` : `Plan ${planData.planId} Saved & Synced!`);
       resetPlannerForm();
       updateDashboard();
       switchTab('todays-plans');
     }
 
-    function renderTodaysPlans() {
-      const container = document.getElementById('todaysPlansContainer');
-      if (!container) return;
-      container.innerHTML = '';
+    function todayDateStr() {
+      return new Date().toISOString().slice(0, 10);
+    }
 
-      if (plansStore.length === 0) {
-        container.innerHTML = `<div class="card p-12 text-center text-slate-400 font-semibold">No planned trades created yet today.</div>`;
-        return;
+    // A plan falls into "history" once its date has passed OR the user manually cleared it —
+    // either way it stays fully in plansStore (and therefore in every insight calculation).
+    // A pin overrides both of those, letting an old plan show in Active without touching its date.
+    function isPlanInHistory(p) {
+      if (pinnedActivePlanIds.has(p.planId)) return false;
+      return clearedPlanIds.has(p.planId) || (p.date && p.date < todayDateStr());
+    }
+
+    // True only for plans that are in the Active view purely because they're pinned — i.e.
+    // their real date has already passed. Used to show the "pinned from history" badge.
+    function isPlanPinnedFromPast(p) {
+      return pinnedActivePlanIds.has(p.planId) && p.date && p.date < todayDateStr();
+    }
+
+    function getLinkedExecutionSummary(planId) {
+      const linked = executionsStore.filter(x => x.planId === planId);
+      if (linked.length === 0) return null;
+      const pnl = linked.reduce((s, x) => s + (Number(x.netPnL) || 0), 0);
+      return { pnl, count: linked.length };
+    }
+
+    function formatDateHeader(dateStr) {
+      if (!dateStr || dateStr === 'No Date') return 'No Date Set';
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function quickAddPlanForDate(dateStr) {
+      switchTab('planner');
+      const dateEl = document.getElementById('planDate');
+      if (dateEl && dateStr && dateStr !== 'No Date') dateEl.value = dateStr;
+    }
+
+    function setPlansViewMode(mode) {
+      plansViewMode = mode;
+      renderPlansView();
+    }
+
+    // Both Active and History date groups collapse independently — keyed by mode so
+    // toggling one doesn't affect the other's state.
+    function toggleDateGroup(mode, dateKey) {
+      const key = `${mode}:${dateKey}`;
+      if (expandedDateGroups.has(key)) expandedDateGroups.delete(key);
+      else expandedDateGroups.add(key);
+      renderPlansView();
+    }
+
+    // Builds the date-grouped markup shared by both the Active list and the collapsible
+    // Plan History panel — 'mode' just controls which action buttons show per plan.
+    function buildDateGroupedPlansHtml(plans, mode) {
+      if (plans.length === 0) {
+        return `<div class="card p-12 text-center text-slate-400 font-semibold">${mode === 'active' ? 'No active planned trades. Create one to get started.' : 'No plan history yet — plans move here once their day passes or you clear them.'}</div>`;
       }
 
-      plansStore.forEach(p => {
-        const isExpanded = expandedPlans.has(p.planId);
-        const planTagsArr = parseTags(p.tags);
-        container.innerHTML += `
-          <div class="card overflow-hidden">
-            <div onclick="togglePlanAccordion('${p.planId}')" class="p-4 bg-white flex justify-between items-center cursor-pointer hover:bg-slate-50 border-b border-slate-100">
-              <div class="flex items-center space-x-3 flex-wrap gap-y-1.5">
-                <span class="font-mono text-xs font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded">${p.planId}</span>
-                <span class="font-bold text-slate-800 text-sm">${p.instrument}</span>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.direction === 'Long' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${p.direction}</span>
-                <span class="text-xs text-slate-500">${p.strategy} (${p.lotSize || 1} Lots)</span>
-                <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">${p.entryTimeframe || '15m'}</span>
-                ${planTagsArr.length > 0 ? `
-                  <span class="flex flex-wrap gap-1">
-                    ${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}
-                  </span>
-                ` : ''}
-              </div>
-              <div class="flex items-center space-x-3">
-                <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Score: ${p.qualityScore}/100</span>
-                <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-400"></i>
-              </div>
-            </div>
-
-            ${isExpanded ? `
-              <div class="p-5 bg-slate-50/50 space-y-4 border-t border-slate-100 text-xs">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-slate-200 font-mono">
-                  <div><span class="text-[10px] text-slate-400 block font-sans">Entry</span><span class="font-bold">${p.plannedEntry}</span></div>
-                  <div><span class="text-[10px] text-slate-400 block font-sans">SL</span><span class="font-bold text-red-500">${p.plannedSL}</span></div>
-                  <div><span class="text-[10px] text-slate-400 block font-sans">TP</span><span class="font-bold text-emerald-600">${p.plannedTP}</span></div>
-                  <div><span class="text-[10px] text-slate-400 block font-sans">R:R</span><span class="font-bold text-purple-700">${p.plannedRR || 'N/A'}</span></div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                    <span class="font-semibold block">Market Story</span>
-                    ${planTagsArr.length > 0 ? `<div class="flex flex-wrap gap-1">${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>` : ''}
-                    <p>${p.marketStory}</p>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="font-semibold block mb-1">Invalidation</span><p>${p.invalidation}</p></div>
-                </div>
-                <div class="flex justify-between items-center pt-2">
-                  <div>${p.chartUrl ? `<a href="${p.chartUrl}" target="_blank" class="text-purple-600 font-semibold hover:underline">View Chart Link</a>` : ''}</div>
-                  <div class="flex space-x-2">
-                    <button onclick="executePlanDirectly('${p.planId}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold">Log Execution</button>
-                    <button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Delete</button>
-                  </div>
-                </div>
-              </div>
-            ` : ''}
-          </div>
-        `;
+      const byDate = {};
+      plans.forEach(p => {
+        const key = p.date || 'No Date';
+        if (!byDate[key]) byDate[key] = [];
+        byDate[key].push(p);
       });
+      const realDates = Object.keys(byDate).filter(k => k !== 'No Date').sort((a, b) => (a < b ? 1 : (a > b ? -1 : 0)));
+      const dateKeys = byDate['No Date'] ? [...realDates, 'No Date'] : realDates;
+
+      let html = '';
+      dateKeys.forEach(dateKey => {
+        const plansForDate = byDate[dateKey];
+        const isDateExpanded = expandedDateGroups.has(`${mode}:${dateKey}`);
+        html += `
+          <div class="card overflow-hidden">
+            <div onclick="toggleDateGroup('${mode}', '${dateKey}')" class="bg-slate-50 px-4 py-3 ${isDateExpanded ? 'border-b border-slate-100' : ''} flex justify-between items-center cursor-pointer hover:bg-slate-100 select-none">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="${isDateExpanded ? 'chevron-up' : 'chevron-down'}" class="w-3.5 h-3.5 text-slate-400"></i>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-800">${formatDateHeader(dateKey)}</h3>
+                  <p class="text-[10px] text-slate-400">${plansForDate.length} planned idea${plansForDate.length !== 1 ? 's' : ''}</p>
+                </div>
+              </div>
+              ${mode === 'active' && dateKey !== 'No Date' ? `<button onclick="event.stopPropagation(); quickAddPlanForDate('${dateKey}')" class="text-[10px] text-purple-600 font-bold hover:underline">+ Add Plan</button>` : ''}
+            </div>
+            ${isDateExpanded ? `<div class="divide-y divide-slate-100">` : ''}
+        `;
+
+        if (isDateExpanded) {
+        plansForDate.forEach(p => {
+          const isExpanded = expandedPlans.has(p.planId);
+          const planTagsArr = parseTags(p.tags);
+          const linkedExec = getLinkedExecutionSummary(p.planId);
+          html += `
+            <div>
+              <div onclick="togglePlanAccordion('${p.planId}')" class="p-4 bg-white flex justify-between items-center cursor-pointer hover:bg-slate-50">
+                <div class="flex items-center space-x-3 flex-wrap gap-y-1.5">
+                  <span class="font-mono text-xs font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded">${p.planId}</span>
+                  <span class="font-bold text-slate-800 text-sm">${p.instrument}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.direction === 'Long' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${p.direction}</span>
+                  <span class="text-xs text-slate-500">${p.strategy} (${p.lotSize || 1} Lots)</span>
+                  <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">${p.entryTimeframe || '15m'}</span>
+                  ${p.notes ? `<i data-lucide="list-plus" title="Has additional notes / multiple entry levels" class="w-3.5 h-3.5 text-amber-500"></i>` : ''}
+                  ${mode === 'active' && isPlanPinnedFromPast(p) ? `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">📌 Pinned from History</span>` : ''}
+                  ${planTagsArr.length > 0 ? `
+                    <span class="flex flex-wrap gap-1">
+                      ${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}
+                    </span>
+                  ` : ''}
+                </div>
+                <div class="flex items-center space-x-3">
+                  <span class="text-xs font-bold ${linkedExec ? (linkedExec.pnl >= 0 ? 'text-emerald-600' : 'text-red-500') : 'text-slate-300'}">${linkedExec ? `${linkedExec.pnl >= 0 ? '+' : ''}$${linkedExec.pnl.toFixed(2)}` : '+$0.00'}</span>
+                  <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Score: ${p.qualityScore}/100</span>
+                  <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-400"></i>
+                </div>
+              </div>
+
+              ${isExpanded ? `
+                <div class="p-5 bg-slate-50/50 space-y-4 border-t border-slate-100 text-xs">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-slate-200 font-mono">
+                    <div><span class="text-[10px] text-slate-400 block font-sans">Entry</span><span class="font-bold">${p.plannedEntry}</span></div>
+                    <div><span class="text-[10px] text-slate-400 block font-sans">SL</span><span class="font-bold text-red-500">${p.plannedSL}</span></div>
+                    <div><span class="text-[10px] text-slate-400 block font-sans">TP</span><span class="font-bold text-emerald-600">${p.plannedTP}</span></div>
+                    <div><span class="text-[10px] text-slate-400 block font-sans">R:R</span><span class="font-bold text-purple-700">${p.plannedRR || 'N/A'}</span></div>
+                  </div>
+                  ${(() => {
+                    let extraTargets = [];
+                    try {
+                      extraTargets = p.additionalTargets
+                        ? (typeof p.additionalTargets === 'string' ? JSON.parse(p.additionalTargets || '[]') : p.additionalTargets)
+                        : [];
+                    } catch (err) { extraTargets = []; }
+                    if (!Array.isArray(extraTargets) || extraTargets.length === 0) return '';
+                    return `
+                      <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+                        <span class="font-semibold block mb-1.5">Additional Profit Targets</span>
+                        <div class="flex flex-wrap gap-1.5">
+                          ${extraTargets.map((t, idx) => `<span class="text-[10px] font-bold text-emerald-700 bg-white border border-emerald-200 px-2 py-1 rounded-full">TP${idx + 2}: ${t.price}${t.note ? ` — ${nbEsc(t.note)}` : ''}</span>`).join('')}
+                        </div>
+                      </div>
+                    `;
+                  })()}
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                      <span class="font-semibold block">Market Story</span>
+                      ${planTagsArr.length > 0 ? `<div class="flex flex-wrap gap-1">${planTagsArr.map(t => `<span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}</div>` : ''}
+                      <p>${p.marketStory}</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200"><span class="font-semibold block mb-1">Invalidation</span><p>${p.invalidation}</p></div>
+                  </div>
+                  ${p.notes ? `
+                    <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+                      <span class="font-semibold block mb-1 flex items-center gap-1.5"><i data-lucide="list-plus" class="w-3.5 h-3.5 text-amber-600"></i>Notes / Multiple Entry Levels</span>
+                      <p class="whitespace-pre-line">${p.notes}</p>
+                    </div>
+                  ` : ''}
+                  ${linkedExec ? `
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                      <span class="font-semibold">Linked Execution${linkedExec.count > 1 ? 's' : ''}</span>
+                      <span class="font-bold ${linkedExec.pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}">${linkedExec.count} trade${linkedExec.count !== 1 ? 's' : ''} &bull; ${linkedExec.pnl >= 0 ? '+' : ''}$${linkedExec.pnl.toFixed(2)}</span>
+                    </div>
+                  ` : ''}
+                  <div class="flex justify-between items-center pt-2">
+                    <div>${p.chartUrl ? `<a href="${p.chartUrl}" target="_blank" class="text-purple-600 font-semibold hover:underline">View Chart Link</a>` : ''}</div>
+                    <div class="flex space-x-2">
+                      <button onclick="executePlanDirectly('${p.planId}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-semibold">Log Execution</button>
+                      <button onclick="editPlanDirectly('${p.planId}')" class="border border-purple-200 text-purple-600 px-3 py-1.5 rounded-lg font-semibold">Edit</button>
+                      ${mode === 'active'
+                        ? (isPlanPinnedFromPast(p)
+                            ? `<button onclick="unpinPlanFromActive('${p.planId}')" class="border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg font-semibold">Unpin (Return to History)</button>`
+                            : `<button onclick="clearSinglePlanToHistory('${p.planId}')" class="border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg font-semibold">Move to History</button>`)
+                        : `<button onclick="restoreSinglePlanToActive('${p.planId}')" class="border border-purple-200 text-purple-600 px-3 py-1.5 rounded-lg font-semibold">Pin to Active</button>`}
+                      <button onclick="deletePlan('${p.planId}')" class="border border-red-200 text-red-600 px-3 py-1.5 rounded-lg font-semibold">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+        }
+
+        html += isDateExpanded ? `</div></div>` : `</div>`;
+      });
+      return html;
+    }
+
+    function renderPlansView() {
+      const container = document.getElementById('todaysPlansContainer');
+      if (!container) return;
+
+      const activeBtn = document.getElementById('plansViewActiveBtn');
+      const historyBtn = document.getElementById('plansViewHistoryBtn');
+      const clearBtn = document.getElementById('plansClearBtn');
+      const restoreBtn = document.getElementById('plansRestoreBtn');
+
+      const activePlans = plansStore.filter(p => !isPlanInHistory(p));
+      const historyPlans = plansStore.filter(p => isPlanInHistory(p));
+
+      if (activeBtn) activeBtn.className = `px-3 py-1.5 rounded-md transition ${plansViewMode === 'active' ? 'bg-white shadow-sm text-purple-700' : 'text-slate-500'}`;
+      if (historyBtn) historyBtn.className = `px-3 py-1.5 rounded-md transition ${plansViewMode === 'history' ? 'bg-white shadow-sm text-purple-700' : 'text-slate-500'}`;
+      if (clearBtn) clearBtn.classList.toggle('hidden', plansViewMode !== 'active');
+      if (restoreBtn) restoreBtn.classList.toggle('hidden', plansViewMode !== 'history' || historyPlans.length === 0);
+      const countEl = document.getElementById('planHistoryCount');
+      if (countEl) countEl.innerText = historyPlans.length;
+
+      const relevant = plansViewMode === 'active' ? activePlans : historyPlans;
+      container.innerHTML = buildDateGroupedPlansHtml(relevant, plansViewMode);
       safeLucide();
     }
 
     function togglePlanAccordion(id) {
       if (expandedPlans.has(id)) expandedPlans.delete(id);
       else expandedPlans.add(id);
-      renderTodaysPlans();
+      renderPlansView();
     }
 
     function executePlanDirectly(id) {
@@ -1598,42 +2201,582 @@
         switchTab('execution');
         const pIdSelect = document.getElementById('execPlanId');
         if (pIdSelect) pIdSelect.value = plan.planId;
-        const instSelect = document.getElementById('execInstrument');
-        if (instSelect) instSelect.value = plan.instrument;
-        const stratSelect = document.getElementById('execStrategy');
-        if (stratSelect) stratSelect.value = plan.strategy;
-        const lotInput = document.getElementById('execLotSize');
-        if (lotInput) lotInput.value = plan.lotSize || 1.0;
-        const entryInput = document.getElementById('execEntry');
-        if (entryInput) entryInput.value = plan.plannedEntry;
+        const dateInput = document.getElementById('execDate');
+        if (dateInput && plan.date) dateInput.value = plan.date;
+        handleExecPlanLinkChange(plan.planId);
       }
     }
 
+    // Permanent delete — removes the plan everywhere (Active, History, and insight calculations)
+    // and stops it reappearing on the next Google Sheets fetch.
     function deletePlan(id) {
+      if (!confirm(`Permanently delete plan ${id}? This cannot be undone and will remove it from Plan History and all insights too.`)) return;
       dismissedPlanIds.add(id);
       localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
+      clearedPlanIds.delete(id);
+      localStorage.setItem('clearedPlanIds', JSON.stringify([...clearedPlanIds]));
       plansStore = plansStore.filter(p => p.planId !== id);
       localStorage.setItem('plansStore', JSON.stringify(plansStore));
-      renderTodaysPlans();
+      renderPlansView();
       initIds();
     }
 
-    function clearTodaysPlans() {
-      if (confirm("Clear all planned trades from this view? Your Google Sheet history will not be affected.")) {
-        plansStore.forEach(p => dismissedPlanIds.add(p.planId));
-        localStorage.setItem('dismissedPlanIds', JSON.stringify([...dismissedPlanIds]));
-        plansStore = [];
-        localStorage.setItem('plansStore', JSON.stringify([]));
-        renderTodaysPlans();
-        initIds();
+    // Soft-clear: moves a plan out of the Active view into Plan History. The plan's full data
+    // stays in plansStore, so Plan-to-Execution Rate and other insights keep counting it.
+    function clearSinglePlanToHistory(id) {
+      clearedPlanIds.add(id);
+      localStorage.setItem('clearedPlanIds', JSON.stringify([...clearedPlanIds]));
+      pinnedActivePlanIds.delete(id);
+      localStorage.setItem('pinnedActivePlanIds', JSON.stringify([...pinnedActivePlanIds]));
+      plansViewMode = "history";
+      renderPlansView();
+    }
+
+    // Brings a History plan into the Active view without touching its date at all — un-clears
+    // it if it was manually cleared, AND pins it if its date has genuinely passed. Either way,
+    // "Unpin" later sends it straight back to History, filed under its real, unchanged date.
+    function restoreSinglePlanToActive(id) {
+      clearedPlanIds.delete(id);
+      localStorage.setItem('clearedPlanIds', JSON.stringify([...clearedPlanIds]));
+      pinnedActivePlanIds.add(id);
+      localStorage.setItem('pinnedActivePlanIds', JSON.stringify([...pinnedActivePlanIds]));
+      plansViewMode = 'active';
+      renderPlansView();
+    }
+
+    // Un-pins a plan that was being viewed in Active despite its date having passed — it
+    // simply falls back into History under whatever date it always had.
+    function unpinPlanFromActive(id) {
+      pinnedActivePlanIds.delete(id);
+      localStorage.setItem('pinnedActivePlanIds', JSON.stringify([...pinnedActivePlanIds]));
+      renderPlansView();
+    }
+
+    function clearActivePlansToHistory() {
+      const activeIds = plansStore.filter(p => !isPlanInHistory(p)).map(p => p.planId);
+      if (activeIds.length === 0) { renderPlansView(); return; }
+      if (confirm(`Move ${activeIds.length} active plan(s) to Plan History? They stay fully in your records and insights — just out of the Active view.`)) {
+        activeIds.forEach(id => { clearedPlanIds.add(id); pinnedActivePlanIds.delete(id); });
+        localStorage.setItem('clearedPlanIds', JSON.stringify([...clearedPlanIds]));
+        localStorage.setItem('pinnedActivePlanIds', JSON.stringify([...pinnedActivePlanIds]));
+        plansViewMode = "history";
+        renderPlansView();
       }
     }
 
+    // Restores every manually-cleared plan back to the Active view (plans that moved to
+    // History simply because their date passed will naturally return once re-dated or stay
+    // correctly filed under History by date).
     function restoreHiddenPlans() {
-      dismissedPlanIds.clear();
-      localStorage.setItem('dismissedPlanIds', JSON.stringify([]));
-      if (gsUrl) fetchFromGS();
-      else renderTodaysPlans();
+      clearedPlanIds.clear();
+      localStorage.setItem('clearedPlanIds', JSON.stringify([]));
+      plansViewMode = 'active';
+      renderPlansView();
+    }
+
+    // ================= NOTEBOOKS =================
+    // Folders + notes, image links, and trade references (a note can be pinned to a
+    // specific planned or executed trade). Everything persists locally and, when a Sheet
+    // URL is configured, syncs via the same SAVE_/DELETE_ action pattern as plans & executions.
+
+    const NOTEBOOK_TEMPLATES = {
+      blank: { label: 'Blank Note', body: '' },
+      daily_review: {
+        label: 'Daily Review',
+        body: "What went well today:\n- \n\nWhat went wrong today:\n- \n\nBiggest lesson:\n- \n\nTomorrow's focus:\n- "
+      },
+      premarket_plan: {
+        label: 'Pre-Market Plan',
+        body: "Overall market bias:\n- \n\nKey levels to watch:\n- \n\nInstruments on radar:\n- \n\nWhat would invalidate my bias today:\n- "
+      },
+      psychology_checkin: {
+        label: 'Psychology Check-in',
+        body: "How I'm feeling before the session (1-10 calm, 1-10 confident):\n- \n\nAny outside stress affecting my trading:\n- \n\nRule I'm most tempted to break today:\n- "
+      },
+      mistake_postmortem: {
+        label: 'Mistake Post-Mortem',
+        body: "What happened:\n- \n\nWhy I think it happened:\n- \n\nHow I'll prevent it next time:\n- "
+      }
+    };
+
+    function nbEsc(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function nbGenId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    }
+
+    function nbPersistFolders() {
+      localStorage.setItem('notebookFoldersStore', JSON.stringify(notebookFolders));
+    }
+    function nbPersistNotes() {
+      localStorage.setItem('notebookNotesStore', JSON.stringify(notebookNotes));
+    }
+
+    function createNotebookFolder(parentId) {
+      const name = prompt("Folder / Journal name (e.g. 'Psychology', 'Weekly Reviews', 'NAS100 Playbook'):");
+      if (!name || !name.trim()) return;
+      const folder = {
+        id: nbGenId('FLD'),
+        name: name.trim(),
+        parentId: parentId || 'root',
+        collapsed: false,
+        createdAt: new Date().toISOString()
+      };
+      notebookFolders.push(folder);
+      nbPersistFolders();
+      if (gsUrl) syncToGS('SAVE_NOTEBOOK_FOLDER', folder);
+      nbSelectedFolder = folder.id;
+      renderNotebooks();
+    }
+
+    function renameNotebookFolder(id) {
+      const folder = notebookFolders.find(f => f.id === id);
+      if (!folder) return;
+      const name = prompt("Rename folder:", folder.name);
+      if (!name || !name.trim()) return;
+      folder.name = name.trim();
+      nbPersistFolders();
+      if (gsUrl) syncToGS('SAVE_NOTEBOOK_FOLDER', folder);
+      renderNotebooks();
+    }
+
+    function toggleNotebookFolderCollapse(id) {
+      const folder = notebookFolders.find(f => f.id === id);
+      if (!folder) return;
+      folder.collapsed = !folder.collapsed;
+      nbPersistFolders();
+      renderNotebookTree();
+    }
+
+    // Deletes a folder AND everything nested inside it (subfolders + notes) — matches how
+    // a real notebook works, but confirmed explicitly since it's irreversible client-side.
+    function deleteNotebookFolder(id) {
+      if (id === 'root') { alert("The root Trading Journals folder can't be deleted."); return; }
+      const folder = notebookFolders.find(f => f.id === id);
+      if (!folder) return;
+      const collectDescendantFolderIds = (fid) => {
+        const kids = notebookFolders.filter(f => f.parentId === fid).map(f => f.id);
+        return kids.reduce((acc, kid) => acc.concat(kid, collectDescendantFolderIds(kid)), []);
+      };
+      const toDelete = [id, ...collectDescendantFolderIds(id)];
+      const noteCount = notebookNotes.filter(n => toDelete.includes(n.folderId)).length;
+      if (!confirm(`Delete "${folder.name}"${toDelete.length > 1 ? ' and its subfolders' : ''}? This will also delete ${noteCount} note(s) inside. This cannot be undone.`)) return;
+
+      notebookFolders = notebookFolders.filter(f => !toDelete.includes(f.id));
+      notebookNotes = notebookNotes.filter(n => !toDelete.includes(n.folderId));
+      nbPersistFolders();
+      nbPersistNotes();
+      if (gsUrl) toDelete.forEach(fid => syncToGS('DELETE_NOTEBOOK_FOLDER', { id: fid }));
+      nbSelectedFolder = 'root';
+      nbEditingNote = null;
+      renderNotebooks();
+    }
+
+    function selectNotebookFolder(id) {
+      nbSelectedFolder = id;
+      nbEditingNote = null;
+      renderNotebooks();
+    }
+
+    function renderNotebookTree() {
+      const treeEl = document.getElementById('notebookFolderTree');
+      if (!treeEl) return;
+      const search = (document.getElementById('notebookSearch')?.value || '').trim().toLowerCase();
+
+      const renderLevel = (parentId, depth) => {
+        let kids = notebookFolders.filter(f => f.parentId === parentId);
+        if (search) kids = kids.filter(f => f.name.toLowerCase().includes(search));
+        if (kids.length === 0) return '';
+        return kids.map(f => {
+          const hasChildren = notebookFolders.some(sub => sub.parentId === f.id);
+          const noteCount = notebookNotes.filter(n => n.folderId === f.id).length;
+          const isSelected = nbSelectedFolder === f.id;
+          return `
+            <div style="margin-left:${depth * 12}px">
+              <div class="group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer text-xs ${isSelected ? 'bg-purple-50 text-purple-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}">
+                <div class="flex items-center gap-1.5 min-w-0" onclick="selectNotebookFolder('${f.id}')">
+                  ${hasChildren ? `<i onclick="event.stopPropagation(); toggleNotebookFolderCollapse('${f.id}')" data-lucide="${f.collapsed ? 'chevron-right' : 'chevron-down'}" class="w-3 h-3 shrink-0 text-slate-400"></i>` : `<span class="w-3 shrink-0"></span>`}
+                  <i data-lucide="folder" class="w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-purple-600' : 'text-slate-400'}"></i>
+                  <span class="truncate">${nbEsc(f.name)}</span>
+                  ${noteCount > 0 ? `<span class="text-[9px] text-slate-400 font-normal">${noteCount}</span>` : ''}
+                </div>
+                <div class="hidden group-hover:flex items-center gap-1 shrink-0">
+                  <button onclick="event.stopPropagation(); createNotebookFolder('${f.id}')" title="New subfolder" class="text-slate-400 hover:text-purple-600"><i data-lucide="folder-plus" class="w-3 h-3"></i></button>
+                  <button onclick="event.stopPropagation(); renameNotebookFolder('${f.id}')" title="Rename" class="text-slate-400 hover:text-purple-600"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+                  <button onclick="event.stopPropagation(); deleteNotebookFolder('${f.id}')" title="Delete" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+              </div>
+              ${!f.collapsed ? renderLevel(f.id, depth + 1) : ''}
+            </div>
+          `;
+        }).join('');
+      };
+
+      treeEl.innerHTML = renderLevel('root', 0) || `<p class="text-[10px] text-slate-400 text-center py-6 px-2">No folders yet. Use the <i data-lucide="folder-plus" class="w-3 h-3 inline"></i> button above to create your first journal.</p>`;
+      safeLucide();
+    }
+
+    function nbFolderPath(folderId) {
+      const path = [];
+      let cur = notebookFolders.find(f => f.id === folderId);
+      while (cur) {
+        path.unshift(cur);
+        cur = cur.parentId ? notebookFolders.find(f => f.id === cur.parentId) : null;
+      }
+      return path;
+    }
+
+    function nbLinkedTradeLabel(ref) {
+      if (ref.type === 'plan') {
+        const p = plansStore.find(x => x.planId === ref.id);
+        return p ? `${p.planId} — ${p.instrument} ${p.direction}` : `${ref.id} (plan)`;
+      }
+      const x = executionsStore.find(e => e.executionId === ref.id);
+      return x ? `${x.executionId} — ${x.instrument} ${x.direction || ''}` : `${ref.id} (trade)`;
+    }
+
+    function openNotebookTradeReference(ref) {
+      if (ref.type === 'plan') {
+        switchTab('todays-plans');
+        expandedPlans.add(ref.id);
+        renderPlansView();
+      } else {
+        switchTab('history');
+      }
+    }
+
+    function renderNotebooks() {
+      renderNotebookTree();
+      const titleEl = document.getElementById('notebookTitle');
+      const metaEl = document.getElementById('notebookMeta');
+      const contentEl = document.getElementById('notebookContent');
+      if (!contentEl) return;
+
+      if (nbEditingNote !== null) {
+        renderNotebookEditor(titleEl, metaEl, contentEl);
+        return;
+      }
+
+      const folder = notebookFolders.find(f => f.id === nbSelectedFolder) || notebookFolders.find(f => f.id === 'root');
+      const path = nbFolderPath(folder.id);
+      if (titleEl) titleEl.innerText = folder.name;
+      if (metaEl) metaEl.innerHTML = path.length > 1
+        ? path.map(f => nbEsc(f.name)).join(' <span class="text-slate-300">/</span> ')
+        : 'Create folders for playbooks, psychology, reviews, routines and daily journals.';
+
+      const subfolders = notebookFolders.filter(f => f.parentId === folder.id);
+      const notes = notebookNotes.filter(n => n.folderId === folder.id).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      let html = '';
+
+      if (subfolders.length > 0) {
+        html += `<div class="grid grid-cols-2 md:grid-cols-3 gap-3">`;
+        subfolders.forEach(f => {
+          const noteCount = notebookNotes.filter(n => n.folderId === f.id).length;
+          html += `
+            <div onclick="selectNotebookFolder('${f.id}')" class="card p-4 flex items-center gap-3 cursor-pointer hover:border-purple-300 hover:shadow-md transition">
+              <div class="bg-purple-50 text-purple-600 p-2.5 rounded-xl"><i data-lucide="folder" class="w-5 h-5"></i></div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-slate-800 truncate">${nbEsc(f.name)}</p>
+                <p class="text-[10px] text-slate-400">${noteCount} note${noteCount !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      if (notes.length === 0 && subfolders.length === 0) {
+        html += `
+          <div class="card p-12 text-center text-slate-400">
+            <i data-lucide="notebook-pen" class="w-8 h-8 mx-auto mb-3 text-slate-300"></i>
+            <p class="font-semibold text-sm">This folder is empty.</p>
+            <p class="text-xs mt-1">Add a subfolder or click "New Note" above to start journaling here.</p>
+          </div>
+        `;
+      } else if (notes.length > 0) {
+        html += `<div class="space-y-3">` + notes.map(n => nbNoteCardHtml(n)).join('') + `</div>`;
+      }
+
+      contentEl.innerHTML = html;
+      safeLucide();
+    }
+
+    function nbNoteCardHtml(n) {
+      const template = NOTEBOOK_TEMPLATES[n.template] || NOTEBOOK_TEMPLATES.blank;
+      const preview = (n.body || '').replace(/\n+/g, ' ').slice(0, 220);
+      const images = Array.isArray(n.images) ? n.images : [];
+      const refs = Array.isArray(n.refs) ? n.refs : [];
+      return `
+        <div class="card p-4 hover:shadow-md transition">
+          <div class="flex justify-between items-start gap-3">
+            <div class="min-w-0 flex-1 cursor-pointer" onclick="editNotebookNote('${n.id}')">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <h4 class="text-sm font-bold text-slate-800">${nbEsc(n.title || 'Untitled Note')}</h4>
+                ${n.template && n.template !== 'blank' ? `<span class="text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">${template.label}</span>` : ''}
+              </div>
+              <p class="text-[10px] text-slate-400 mb-2">${n.date ? formatDateHeader(n.date) : ''}</p>
+              ${preview ? `<p class="text-xs text-slate-600 line-clamp-2">${nbEsc(preview)}${(n.body || '').length > 220 ? '…' : ''}</p>` : '<p class="text-xs text-slate-300 italic">No content yet</p>'}
+              ${refs.length > 0 ? `
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  ${refs.map(r => `<span onclick="event.stopPropagation(); openNotebookTradeReference(${JSON.stringify(r).replace(/"/g, '&quot;')})" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full cursor-pointer hover:bg-emerald-100">🔗 ${nbEsc(nbLinkedTradeLabel(r))}</span>`).join('')}
+                </div>
+              ` : ''}
+              ${images.length > 0 ? `
+                <div class="flex gap-1.5 mt-2">
+                  ${images.slice(0, 4).map(url => `<img src="${nbEsc(url)}" class="w-12 h-12 rounded-lg object-cover border border-slate-200">`).join('')}
+                  ${images.length > 4 ? `<span class="text-[10px] text-slate-400 self-center">+${images.length - 4}</span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="editNotebookNote('${n.id}')" title="Edit" class="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+              <button onclick="deleteNotebookNote('${n.id}')" title="Delete" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function newNotebookNote() {
+      nbEditingNote = {
+        id: null,
+        folderId: nbSelectedFolder,
+        title: '',
+        date: todayDateStr(),
+        template: 'blank',
+        body: '',
+        images: [],
+        refs: []
+      };
+      nbPendingImages = [];
+      nbPendingRefs = [];
+      nbRefTypeChoice = 'plan';
+      renderNotebooks();
+    }
+
+    function editNotebookNote(id) {
+      const note = notebookNotes.find(n => n.id === id);
+      if (!note) return;
+      nbEditingNote = { ...note };
+      nbPendingImages = Array.isArray(note.images) ? [...note.images] : [];
+      nbPendingRefs = Array.isArray(note.refs) ? [...note.refs] : [];
+      nbRefTypeChoice = 'plan';
+      renderNotebooks();
+    }
+
+    function cancelNotebookEdit() {
+      nbEditingNote = null;
+      renderNotebooks();
+    }
+
+    function applyNotebookTemplate(key) {
+      const t = NOTEBOOK_TEMPLATES[key];
+      if (!t || !nbEditingNote) return;
+      const titleEl = document.getElementById('nbEditorTitle');
+      const dateEl = document.getElementById('nbEditorDate');
+      if (titleEl) nbEditingNote.title = titleEl.value;
+      if (dateEl) nbEditingNote.date = dateEl.value;
+      nbEditingNote.template = key;
+      const bodyEl = document.getElementById('nbEditorBody');
+      if (bodyEl && (!bodyEl.value || confirm("Replace current note text with this template?"))) {
+        nbEditingNote.body = t.body;
+      } else if (bodyEl) {
+        nbEditingNote.body = bodyEl.value;
+      }
+      nbRerenderEditor();
+    }
+
+    function nbCaptureEditorFields() {
+      if (!nbEditingNote) return;
+      const t = document.getElementById('nbEditorTitle');
+      const d = document.getElementById('nbEditorDate');
+      const b = document.getElementById('nbEditorBody');
+      if (t) nbEditingNote.title = t.value;
+      if (d) nbEditingNote.date = d.value;
+      if (b) nbEditingNote.body = b.value;
+    }
+
+    function nbRerenderEditor() {
+      renderNotebookEditor(document.getElementById('notebookTitle'), document.getElementById('notebookMeta'), document.getElementById('notebookContent'), true);
+    }
+
+    // Paste-and-click, no popup dialog — matches how the rest of the form works.
+    function nbAddImageFromInput() {
+      const input = document.getElementById('nbImageUrlInput');
+      if (!input || !input.value.trim()) return;
+      nbPendingImages.push(input.value.trim());
+      nbCaptureEditorFields();
+      nbRerenderEditor();
+    }
+
+    function nbRemoveImage(idx) {
+      nbPendingImages.splice(idx, 1);
+      nbCaptureEditorFields();
+      nbRerenderEditor();
+    }
+
+    // Which reference type ("plan" or "execution") the inline picker is currently showing.
+    let nbRefTypeChoice = 'plan';
+
+    function nbSetRefTypeChoice(val) {
+      nbRefTypeChoice = val;
+      nbCaptureEditorFields();
+      nbRerenderEditor();
+    }
+
+    // Plans and executions are already loaded from your Google Sheet — no need to type an
+    // ID by hand, just pick it from the dropdown.
+    function nbAddTradeReferenceFromForm() {
+      const idSelect = document.getElementById('nbRefIdSelect');
+      if (!idSelect || !idSelect.value) return;
+      const type = nbRefTypeChoice;
+      const id = idSelect.value;
+      if (nbPendingRefs.some(r => r.type === type && r.id === id)) return;
+      nbPendingRefs.push({ type, id });
+      nbCaptureEditorFields();
+      nbRerenderEditor();
+    }
+
+    function nbRemoveTradeReference(idx) {
+      nbPendingRefs.splice(idx, 1);
+      nbCaptureEditorFields();
+      nbRerenderEditor();
+    }
+
+    function renderNotebookEditor(titleEl, metaEl, contentEl, preserveScroll) {
+      if (!contentEl) return;
+      const n = nbEditingNote;
+      const isNew = !n.id;
+      if (titleEl) titleEl.innerText = isNew ? 'New Note' : 'Edit Note';
+      if (metaEl) metaEl.innerText = notebookFolders.find(f => f.id === n.folderId)?.name || 'Trading Journals';
+
+      // Trade-reference picker options — sourced straight from your already-synced
+      // plans/executions, so nothing needs to be typed by hand.
+      const linkedIdsForType = nbPendingRefs.filter(r => r.type === nbRefTypeChoice).map(r => r.id);
+      const refSourceList = nbRefTypeChoice === 'plan' ? plansStore : executionsStore;
+      const refOptionsHtml = refSourceList
+        .filter(x => !linkedIdsForType.includes(nbRefTypeChoice === 'plan' ? x.planId : x.executionId))
+        .map(x => {
+          const idVal = nbRefTypeChoice === 'plan' ? x.planId : x.executionId;
+          return `<option value="${nbEsc(idVal)}">${nbEsc(idVal)} — ${nbEsc(x.instrument)} ${nbEsc(x.direction || '')}</option>`;
+        }).join('');
+      const hasRefOptions = refOptionsHtml.length > 0;
+
+      contentEl.innerHTML = `
+        <div class="card p-5 space-y-4 max-w-3xl">
+          <div class="flex flex-wrap gap-2">
+            ${Object.entries(NOTEBOOK_TEMPLATES).map(([key, t]) => `
+              <button type="button" onclick="applyNotebookTemplate('${key}')" class="text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${n.template === key ? 'bg-purple-600 text-white border-purple-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}">${t.label}</button>
+            `).join('')}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Title</label>
+              <input id="nbEditorTitle" type="text" value="${nbEsc(n.title)}" placeholder="e.g. Post-London-session review" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+              <input id="nbEditorDate" type="date" value="${n.date || todayDateStr()}" class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Note</label>
+            <textarea id="nbEditorBody" rows="10" placeholder="Write freely..." class="w-full border border-slate-200 rounded-lg p-3 text-xs leading-relaxed">${nbEsc(n.body)}</textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-600">Images</label>
+            <div class="flex gap-2">
+              <input id="nbImageUrlInput" type="text" placeholder="Paste an image URL (e.g. a chart screenshot link) and click Add" onkeydown="if(event.key==='Enter'){event.preventDefault(); nbAddImageFromInput();}" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs">
+              <button type="button" onclick="nbAddImageFromInput()" class="text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg shrink-0">Add</button>
+            </div>
+            <p class="text-[9px] text-slate-400">Direct upload isn't supported — Google Sheets cells cap out around 50k characters, and an embedded photo would blow past that instantly. A link keeps sync reliable.</p>
+            ${nbPendingImages.length > 0 ? `
+              <div class="flex flex-wrap gap-2 pt-1">
+                ${nbPendingImages.map((url, idx) => `
+                  <div class="relative group">
+                    <img src="${nbEsc(url)}" class="w-20 h-20 rounded-lg object-cover border border-slate-200">
+                    <button type="button" onclick="nbRemoveImage(${idx})" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100">&times;</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-600">Linked Trades</label>
+            <div class="flex gap-2">
+              <select onchange="nbSetRefTypeChoice(this.value)" class="border border-slate-200 rounded-lg p-2 text-xs shrink-0">
+                <option value="plan" ${nbRefTypeChoice === 'plan' ? 'selected' : ''}>Planned Trade</option>
+                <option value="execution" ${nbRefTypeChoice === 'execution' ? 'selected' : ''}>Executed Trade</option>
+              </select>
+              <select id="nbRefIdSelect" class="flex-1 border border-slate-200 rounded-lg p-2 text-xs" ${hasRefOptions ? '' : 'disabled'}>
+                ${hasRefOptions ? refOptionsHtml : `<option value="">No ${nbRefTypeChoice === 'plan' ? 'planned' : 'executed'} trades available yet</option>`}
+              </select>
+              <button type="button" onclick="nbAddTradeReferenceFromForm()" ${hasRefOptions ? '' : 'disabled'} class="text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed px-3 py-2 rounded-lg shrink-0">Add</button>
+            </div>
+            ${nbPendingRefs.length > 0 ? `
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${nbPendingRefs.map((r, idx) => `
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full flex items-center gap-1.5">
+                    🔗 ${nbEsc(nbLinkedTradeLabel(r))}
+                    <button type="button" onclick="nbRemoveTradeReference(${idx})" class="text-red-500 hover:text-red-700 font-extrabold">&times;</button>
+                  </span>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+            <button type="button" onclick="cancelNotebookEdit()" class="text-xs border border-slate-200 hover:bg-slate-50 text-slate-600 px-4 py-2 rounded-lg font-semibold">Cancel</button>
+            <button type="button" onclick="saveNotebookNote()" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-xs font-bold">Save Note</button>
+          </div>
+        </div>
+      `;
+      safeLucide();
+    }
+
+    function saveNotebookNote() {
+      const n = nbEditingNote;
+      if (!n) return;
+      const title = document.getElementById('nbEditorTitle')?.value.trim() || 'Untitled Note';
+      const date = document.getElementById('nbEditorDate')?.value || todayDateStr();
+      const body = document.getElementById('nbEditorBody')?.value || '';
+
+      const noteData = {
+        id: n.id || nbGenId('NOTE'),
+        folderId: n.folderId,
+        title,
+        date,
+        template: n.template || 'blank',
+        body,
+        images: [...nbPendingImages],
+        refs: [...nbPendingRefs],
+        updatedAt: new Date().toISOString()
+      };
+
+      const idx = notebookNotes.findIndex(x => x.id === noteData.id);
+      if (idx >= 0) notebookNotes[idx] = noteData;
+      else notebookNotes.unshift(noteData);
+      nbPersistNotes();
+      if (gsUrl) syncToGS('SAVE_NOTEBOOK_NOTE', { ...noteData, images: JSON.stringify(noteData.images), refs: JSON.stringify(noteData.refs) });
+
+      nbEditingNote = null;
+      renderNotebooks();
+    }
+
+    function deleteNotebookNote(id) {
+      if (!confirm("Delete this note? This cannot be undone.")) return;
+      notebookNotes = notebookNotes.filter(n => n.id !== id);
+      nbPersistNotes();
+      if (gsUrl) syncToGS('DELETE_NOTEBOOK_NOTE', { id });
+      if (nbEditingNote && nbEditingNote.id === id) nbEditingNote = null;
+      renderNotebooks();
     }
 
     function renderExecutionInsights() {
@@ -1698,6 +2841,142 @@
           statusEl.className = "text-sm font-bold text-red-500";
         }
       }
+
+      renderWeeklyTradingReview();
+      renderStreakAnalysis();
+      renderDayWiseExecutionBreakdown();
+    }
+
+    // Returns [Monday, Sunday] Date objects for the week containing the given date (defaults to today).
+    function getWeekRange(refDate) {
+      const d = refDate ? new Date(refDate + 'T00:00:00') : new Date();
+      const day = d.getDay(); // 0 = Sun
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(d); monday.setDate(d.getDate() + diffToMonday); monday.setHours(0,0,0,0);
+      const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+      return [monday, sunday];
+    }
+
+    function fmtShortDate(d) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function dateToKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function execRMultipleFor(x) {
+      let rVal = x.rMultiple;
+      if (rVal === undefined || rVal === null || rVal === '' || isNaN(Number(rVal))) {
+        const linkedPlan = plansStore.find(p => p.planId === x.planId);
+        const slForR = x.actualSL || (linkedPlan ? linkedPlan.plannedSL : undefined);
+        rVal = computeRMultiple(x.direction || (linkedPlan ? linkedPlan.direction : 'Long'),
+          parseFloat(x.entryPrice), parseFloat(slForR), parseFloat(x.exitPrice));
+      } else {
+        rVal = Number(rVal);
+      }
+      return (rVal === null || isNaN(rVal)) ? null : rVal;
+    }
+
+    function renderWeeklyTradingReview() {
+      const [monday, sunday] = getWeekRange();
+      const startKey = dateToKey(monday), endKey = dateToKey(sunday);
+      const weekTrades = executionsStore.filter(x => x.date && x.date >= startKey && x.date <= endKey);
+
+      let pnl = 0, wins = 0, totalR = 0, rCount = 0;
+      weekTrades.forEach(x => {
+        const p = Number(x.netPnL) || 0;
+        pnl += p;
+        if (p > 0) wins++;
+        const r = execRMultipleFor(x);
+        if (r !== null) { totalR += r; rCount++; }
+      });
+
+      const rangeEl = document.getElementById('weeklyReviewRange');
+      if (rangeEl) rangeEl.innerText = `${fmtShortDate(monday)} - ${fmtShortDate(sunday)}`;
+      const pnlEl = document.getElementById('weeklyReviewPnL');
+      if (pnlEl) {
+        pnlEl.innerText = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`;
+        pnlEl.className = `text-base font-extrabold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`;
+      }
+      const tEl = document.getElementById('weeklyReviewTrades'); if (tEl) tEl.innerText = weekTrades.length;
+      const wrEl = document.getElementById('weeklyReviewWinRate');
+      if (wrEl) wrEl.innerText = weekTrades.length > 0 ? `${((wins / weekTrades.length) * 100).toFixed(1)}%` : '0%';
+      const avgREl = document.getElementById('weeklyReviewAvgR');
+      if (avgREl) avgREl.innerText = rCount > 0 ? `${(totalR / rCount >= 0) ? '+' : ''}${(totalR / rCount).toFixed(2)}R` : '— R';
+    }
+
+    function renderStreakAnalysis() {
+      const dayMap = {};
+      executionsStore.forEach(x => {
+        if (!x.date) return;
+        dayMap[x.date] = (dayMap[x.date] || 0) + (Number(x.netPnL) || 0);
+      });
+      const days = Object.keys(dayMap).sort();
+
+      let maxWin = 0, maxLoss = 0, curWinRun = 0, curLossRun = 0;
+      let currentType = null, currentLen = 0;
+      days.forEach(d => {
+        const pnl = dayMap[d];
+        if (pnl > 0) {
+          curWinRun++; curLossRun = 0;
+          if (curWinRun > maxWin) maxWin = curWinRun;
+          currentType = 'win'; currentLen = curWinRun;
+        } else if (pnl < 0) {
+          curLossRun++; curWinRun = 0;
+          if (curLossRun > maxLoss) maxLoss = curLossRun;
+          currentType = 'loss'; currentLen = curLossRun;
+        }
+        // Breakeven (pnl === 0) days don't break or extend either streak.
+      });
+
+      const curWin = currentType === 'win' ? currentLen : 0;
+      const curLoss = currentType === 'loss' ? currentLen : 0;
+
+      const cw = document.getElementById('streakCurrentWin'); if (cw) cw.innerText = curWin;
+      const cl = document.getElementById('streakCurrentLoss'); if (cl) cl.innerText = curLoss;
+      const mw = document.getElementById('streakMaxWin'); if (mw) mw.innerText = maxWin;
+      const ml = document.getElementById('streakMaxLoss'); if (ml) ml.innerText = maxLoss;
+    }
+
+    function renderDayWiseExecutionBreakdown() {
+      const [monday] = getWeekRange();
+      const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const tbody = document.getElementById('dayWiseExecutionTbody');
+      if (tbody) tbody.innerHTML = '';
+
+      let weekPlanned = 0, weekUnplanned = 0;
+
+      dayNames.forEach((label, idx) => {
+        const d = new Date(monday); d.setDate(monday.getDate() + idx);
+        const key = dateToKey(d);
+        const dayTrades = executionsStore.filter(x => x.date === key);
+        const planned = dayTrades.filter(x => x.planId && x.planId !== 'UNPLANNED').length;
+        const unplanned = dayTrades.length - planned;
+        const dayPnL = dayTrades.reduce((s, x) => s + (Number(x.netPnL) || 0), 0);
+        const rate = dayTrades.length > 0 ? ((planned / dayTrades.length) * 100).toFixed(0) : '—';
+
+        weekPlanned += planned;
+        weekUnplanned += unplanned;
+
+        if (tbody) {
+          tbody.innerHTML += `
+            <tr>
+              <td class="p-2 font-semibold text-slate-700">${label} <span class="text-slate-400 font-normal">${fmtShortDate(d)}</span></td>
+              <td class="p-2 font-bold text-emerald-600">${planned}</td>
+              <td class="p-2 font-bold text-red-500">${unplanned}</td>
+              <td class="p-2 font-bold text-purple-700">${rate === '—' ? '—' : rate + '%'}</td>
+              <td class="p-2 text-right font-bold ${dayPnL >= 0 ? 'text-emerald-600' : 'text-red-500'}">${dayTrades.length > 0 ? `${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(2)}` : '—'}</td>
+            </tr>
+          `;
+        }
+      });
+
+      const weekTotal = weekPlanned + weekUnplanned;
+      const wpE = document.getElementById('weekPlanExecuted'); if (wpE) wpE.innerText = weekPlanned;
+      const wuE = document.getElementById('weekPlanUnplanned'); if (wuE) wuE.innerText = weekUnplanned;
+      const wrE = document.getElementById('weekPlanExecRate'); if (wrE) wrE.innerText = weekTotal > 0 ? `${((weekPlanned / weekTotal) * 100).toFixed(0)}%` : '0%';
+      const wtE = document.getElementById('weekPlanTotalTrades'); if (wtE) wtE.innerText = weekTotal;
     }
 
     function renderCalendar() {
@@ -2042,21 +3321,29 @@
         else lossPoints = pointsDiff;
       }
 
+      const direction = document.getElementById('execDirection')?.value || 'Long';
+      const actualSLVal = document.getElementById('execActualSL')?.value || '';
+      const rMultiple = computeRMultiple(direction, parseFloat(entryPriceVal), parseFloat(actualSLVal), parseFloat(exitPriceVal));
+
       const execData = {
         executionId: document.getElementById('execId')?.value || '',
         planId: document.getElementById('execPlanId')?.value || 'UNPLANNED',
         date: document.getElementById('execDate')?.value || '',
         instrument: document.getElementById('execInstrument')?.value || '',
         strategy: document.getElementById('execStrategy')?.value || '',
+        direction: direction,
         lotSize: parseFloat(document.getElementById('execLotSize')?.value || 1.0),
         entryPrice: entryPriceVal,
+        actualSL: actualSLVal,
         exitPrice: exitPriceVal,
         netPnL: netPnLVal,
+        rMultiple: rMultiple,
         session: document.getElementById('execSession')?.value || 'London',
         beforeImageUrl: document.getElementById('execBeforeImage')?.value || '',
         afterImageUrl: document.getElementById('execAfterImage')?.value || '',
         notes: document.getElementById('execNotes')?.value || '',
         exitReason: document.getElementById('execExitReason')?.value || '',
+        mistakes: getSelectedExecMistakes(),
         profitPoints: profitPoints,
         lossPoints: lossPoints
       };
@@ -2070,6 +3357,9 @@
       if (form) form.reset();
       const preview = document.getElementById('execImagePreview');
       if (preview) preview.innerHTML = '';
+      const rEl = document.getElementById('execRDisplay');
+      if (rEl) rEl.value = '';
+      renderExecMistakesCheckboxes();
       initIds();
       updateDashboard();
       switchTab('history');
@@ -2107,6 +3397,7 @@
         strategies: JSON.stringify(strategies),
         timeframes: JSON.stringify(timeframes),
         exitReasons: JSON.stringify(exitReasons),
+        tradingMistakes: JSON.stringify(tradingMistakes),
         checklistQuestions: JSON.stringify(checklistQuestions)
       });
     }
@@ -2118,9 +3409,11 @@
         if (config.strategies) { strategies = JSON.parse(config.strategies); localStorage.setItem('strategiesStore', JSON.stringify(strategies)); }
         if (config.timeframes) { timeframes = JSON.parse(config.timeframes); localStorage.setItem('timeframesStore', JSON.stringify(timeframes)); }
         if (config.exitReasons) { exitReasons = JSON.parse(config.exitReasons); localStorage.setItem('exitReasonsStore', JSON.stringify(exitReasons)); }
+        if (config.tradingMistakes) { tradingMistakes = JSON.parse(config.tradingMistakes); localStorage.setItem('tradingMistakesStore', JSON.stringify(tradingMistakes)); }
         if (config.checklistQuestions) { checklistQuestions = JSON.parse(config.checklistQuestions); localStorage.setItem('checklistQuestions', JSON.stringify(checklistQuestions)); }
         renderDropdowns();
         renderQualityChecklistForm();
+        renderExecMistakesCheckboxes();
         if (document.getElementById('settingsModal') && !document.getElementById('settingsModal').classList.contains('hidden')) {
           renderSettingsLists();
         }
@@ -2135,10 +3428,22 @@
         if (data.planned) plansStore = data.planned.map(x => ({ ...x, date: normalizeDateField(x.date) })).filter(p => !dismissedPlanIds.has(p.planId));
         if (data.executed) executionsStore = data.executed.map(x => ({ ...x, date: normalizeDateField(x.date), netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0) }));
         if (data.config) applyRemoteConfig(data.config);
+        if (data.notebookFolders) notebookFolders = data.notebookFolders;
+        if (data.notebookNotes) {
+          notebookNotes = data.notebookNotes.map(n => ({
+            ...n,
+            date: normalizeDateField(n.date),
+            images: typeof n.images === 'string' ? (n.images ? JSON.parse(n.images) : []) : (n.images || []),
+            refs: typeof n.refs === 'string' ? (n.refs ? JSON.parse(n.refs) : []) : (n.refs || [])
+          }));
+        }
         localStorage.setItem('plansStore', JSON.stringify(plansStore));
         localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+        if (data.notebookFolders) nbPersistFolders();
+        if (data.notebookNotes) nbPersistNotes();
         updateDashboard();
-        renderTodaysPlans();
+        renderPlansView();
+        if (document.getElementById('tab-notebooks') && !document.getElementById('tab-notebooks').classList.contains('hidden')) renderNotebooks();
       } catch(err) { console.error("Fetch GS Error:", err); }
     }
 
@@ -2161,16 +3466,39 @@
       let bestTrade = 0, worstTrade = 0;
       let assetPnL = {}, sessionPnL = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
       let weekDaysPnL = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      // Parallel count/profit/loss maps — kept separate from the PnL-only maps above so the
+      // existing charts (which just read raw PnL numbers) don't need to change.
+      let sessionCount = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
+      let sessionProfit = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
+      let sessionLoss = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
+      let weekDaysCount = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      let weekDaysProfit = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      let weekDaysLoss = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      let strategyPnL = {};
 
       let totalDev = 0, devCount = 0;
       let plannedExecutedCount = 0, impulseCount = 0;
 
       let highQualPnL = 0, lowQualPnL = 0;
+      let totalR = 0, rCount = 0;
 
       filtered.forEach(x => {
         const pnl = Number(x.netPnL) || 0;
         netPnL += pnl;
         if (x.date) daysSet.add(x.date);
+
+        // Recompute R-Multiple on the fly (covers older records saved before rMultiple existed)
+        // using actual SL when present, falling back to the linked plan's planned SL otherwise.
+        let rVal = x.rMultiple;
+        if (rVal === undefined || rVal === null || rVal === '' || isNaN(Number(rVal))) {
+          const linkedPlanForR = plansStore.find(p => p.planId === x.planId);
+          const slForR = x.actualSL || (linkedPlanForR ? linkedPlanForR.plannedSL : undefined);
+          rVal = computeRMultiple(x.direction || (linkedPlanForR ? linkedPlanForR.direction : 'Long'),
+            parseFloat(x.entryPrice), parseFloat(slForR), parseFloat(x.exitPrice));
+        } else {
+          rVal = Number(rVal);
+        }
+        if (rVal !== null && !isNaN(rVal)) { totalR += rVal; rCount++; }
 
         if (pnl > bestTrade) bestTrade = pnl;
         if (pnl < worstTrade) worstTrade = pnl;
@@ -2198,13 +3526,31 @@
         const inst = x.instrument || 'Unknown';
         assetPnL[inst] = (assetPnL[inst] || 0) + pnl;
 
+        const strat = x.strategy || 'Unknown';
+        strategyPnL[strat] = (strategyPnL[strat] || 0) + pnl;
+
         const sess = x.session || 'London';
-        if (sessionPnL[sess] !== undefined) sessionPnL[sess] += pnl;
+        if (sessionPnL[sess] !== undefined) {
+          sessionPnL[sess] += pnl;
+          sessionCount[sess]++;
+          if (pnl > 0) sessionProfit[sess] += pnl;
+          else if (pnl < 0) sessionLoss[sess] += Math.abs(pnl);
+        }
 
         if (x.date) {
-          const d = new Date(x.date);
+          // Build the Date from y/m/d parts directly (local time) rather than
+          // `new Date(x.date)`, which parses a plain "YYYY-MM-DD" string as UTC midnight —
+          // that can silently shift .getDay() to the wrong weekday depending on the
+          // browser's timezone offset from UTC.
+          const [dy, dm, dd] = x.date.split('-').map(Number);
+          const d = new Date(dy, (dm || 1) - 1, dd || 1);
           const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
-          if (weekDaysPnL[dayName] !== undefined) weekDaysPnL[dayName] += pnl;
+          if (weekDaysPnL[dayName] !== undefined) {
+            weekDaysPnL[dayName] += pnl;
+            weekDaysCount[dayName]++;
+            if (pnl > 0) weekDaysProfit[dayName] += pnl;
+            else if (pnl < 0) weekDaysLoss[dayName] += Math.abs(pnl);
+          }
         }
       });
 
@@ -2215,6 +3561,30 @@
         if (assetPnL[inst] < losingPnLVal) { losingPair = inst; losingPnLVal = assetPnL[inst]; }
       });
 
+      // Best Strategy / Best Session / Best Weekday for the Trading Edge Matrix — "best" means
+      // highest net PnL, same convention as Best Instrument above (stays "None" until something
+      // actually turns a positive net PnL).
+      let bestStrategy = 'None', bestStrategyVal = 0;
+      Object.keys(strategyPnL).forEach(s => {
+        if (strategyPnL[s] > bestStrategyVal) { bestStrategy = s; bestStrategyVal = strategyPnL[s]; }
+      });
+      let bestSession = 'None', bestSessionVal = 0;
+      Object.keys(sessionPnL).forEach(s => {
+        if (sessionPnL[s] > bestSessionVal) { bestSession = s; bestSessionVal = sessionPnL[s]; }
+      });
+      const weekdayFullNames = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+      let bestWeekday = 'None', bestWeekdayVal = 0;
+      Object.keys(weekDaysPnL).forEach(d => {
+        if (weekDaysPnL[d] > bestWeekdayVal) { bestWeekday = weekdayFullNames[d]; bestWeekdayVal = weekDaysPnL[d]; }
+      });
+
+      // Overtrading Risk — the share of trades taken with no linked plan.
+      const totalPlannedVsImpulse = plannedExecutedCount + impulseCount;
+      const impulseRatio = totalPlannedVsImpulse > 0 ? impulseCount / totalPlannedVsImpulse : 0;
+      let overtradeStatus = 'Low', overtradeColorClass = 'text-emerald-600';
+      if (impulseRatio > 0.4) { overtradeStatus = 'High'; overtradeColorClass = 'text-red-500'; }
+      else if (impulseRatio > 0.2) { overtradeStatus = 'Medium'; overtradeColorClass = 'text-amber-500'; }
+
       const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : '0';
       const profitFactor = totalLoss > 0 ? (totalProfit / totalLoss).toFixed(2) : (totalProfit > 0 ? 'INF' : '0.00');
       const expectancy = totalTrades > 0 ? (netPnL / totalTrades).toFixed(2) : '0.00';
@@ -2222,6 +3592,7 @@
       const avgLoss = losses > 0 ? (totalLoss / losses).toFixed(2) : '0.00';
       const avgDev = devCount > 0 ? (totalDev / devCount).toFixed(2) : '0.00';
       const planAdherence = (plannedExecutedCount + impulseCount) > 0 ? ((plannedExecutedCount / (plannedExecutedCount + impulseCount)) * 100).toFixed(0) : '0';
+      const avgR = rCount > 0 ? (totalR / rCount) : null;
 
       const pnlEl = document.getElementById('kpi-net-pnl');
       if (pnlEl) {
@@ -2235,6 +3606,12 @@
       const pfEl = document.getElementById('kpi-profit-factor'); if (pfEl) pfEl.innerText = profitFactor;
       const wrEl = document.getElementById('kpi-win-rate'); if (wrEl) wrEl.innerText = `${winRate}%`;
       const wrSub = document.getElementById('kpi-wr-sub'); if (wrSub) wrSub.innerText = `${wins}W / ${losses}L`;
+
+      const avgREl = document.getElementById('kpi-avg-r');
+      if (avgREl) {
+        avgREl.innerText = avgR === null ? '— R' : `${avgR >= 0 ? '+' : ''}${avgR.toFixed(2)} R`;
+        avgREl.className = `text-xl font-bold mt-0.5 ${avgR === null ? 'text-slate-400' : (avgR >= 0 ? 'text-emerald-600' : 'text-red-500')}`;
+      }
 
       const bTrd = document.getElementById('kpi-best-trade'); if (bTrd) bTrd.innerText = `+$${bestTrade.toFixed(2)}`;
       const wTrd = document.getElementById('kpi-worst-trade'); if (wTrd) wTrd.innerText = `-$${Math.abs(worstTrade).toFixed(2)}`;
@@ -2255,9 +3632,14 @@
       const barI = document.getElementById('barImpulseRate'); if (barI) barI.style.width = `${100 - planAdherence}%`;
       const r2P = document.getElementById('row2PlannedCnt'); if (r2P) r2P.innerText = plannedExecutedCount;
       const r2I = document.getElementById('row2ImpulseCnt'); if (r2I) r2I.innerText = impulseCount;
+      const r2Over = document.getElementById('row2OvertradeStatus');
+      if (r2Over) { r2Over.innerText = overtradeStatus; r2Over.className = `text-sm font-extrabold ${overtradeColorClass}`; }
 
       // Update Row 3 Edge Matrix
       const r3Inst = document.getElementById('row3BestInst'); if (r3Inst) r3Inst.innerText = starPair;
+      const r3Strat = document.getElementById('row3BestStrat'); if (r3Strat) r3Strat.innerText = bestStrategy;
+      const r3Sess = document.getElementById('row3BestSess'); if (r3Sess) r3Sess.innerText = bestSession;
+      const r3Day = document.getElementById('row3BestDay'); if (r3Day) r3Day.innerText = bestWeekday;
 
       // Update Row 4, 6, 7 Visuals
       const r4H = document.getElementById('row4HighQualPnL'); if (r4H) r4H.innerText = `${highQualPnL >= 0 ? '+' : ''}$${highQualPnL.toFixed(2)}`;
@@ -2267,7 +3649,7 @@
       const r7L = document.getElementById('row7AvgLoser'); if (r7L) r7L.innerText = `-$${avgLoss}`;
 
       renderDynamicCharts(assetPnL, weekDaysPnL);
-      renderDynamicTables(sessionPnL);
+      renderDynamicTables(sessionPnL, sessionCount, sessionProfit, sessionLoss, weekDaysPnL, weekDaysCount, weekDaysProfit, weekDaysLoss);
       renderExecutedLogsTable();
       renderEquityCurve();
     }
@@ -2453,22 +3835,47 @@
       }
     }
 
-    function renderDynamicTables(sessionPnL) {
+    function renderDynamicTables(sessionPnL, sessionCount, sessionProfit, sessionLoss, weekDaysPnL, weekDaysCount, weekDaysProfit, weekDaysLoss) {
       const sessTbody = document.getElementById('summarySessionTbody');
-      if (!sessTbody) return;
-      sessTbody.innerHTML = '';
-      Object.keys(sessionPnL).forEach(s => {
-        const val = sessionPnL[s];
-        sessTbody.innerHTML += `
-          <tr>
-            <td class="p-2 font-medium">${s}</td>
-            <td class="p-2 font-bold ${val >= 0 ? 'text-emerald-600' : 'text-red-500'}">${val >= 0 ? '+' : ''}$${val.toFixed(2)}</td>
-            <td class="p-2">${val > 0 ? '$' + val.toFixed(2) : '$0.00'}</td>
-            <td class="p-2">${val < 0 ? '$' + Math.abs(val).toFixed(2) : '$0.00'}</td>
-            <td class="p-2 text-right font-bold">-</td>
-          </tr>
-        `;
-      });
+      if (sessTbody) {
+        sessTbody.innerHTML = '';
+        Object.keys(sessionPnL).forEach(s => {
+          const val = sessionPnL[s];
+          const count = (sessionCount && sessionCount[s]) || 0;
+          const profit = (sessionProfit && sessionProfit[s]) || 0;
+          const loss = (sessionLoss && sessionLoss[s]) || 0;
+          sessTbody.innerHTML += `
+            <tr>
+              <td class="p-2 font-medium">${s}</td>
+              <td class="p-2 font-bold ${val >= 0 ? 'text-emerald-600' : 'text-red-500'}">${val >= 0 ? '+' : ''}$${val.toFixed(2)}</td>
+              <td class="p-2 text-emerald-600">${profit > 0 ? '+$' + profit.toFixed(2) : '$0.00'}</td>
+              <td class="p-2 text-red-500">${loss > 0 ? '-$' + loss.toFixed(2) : '$0.00'}</td>
+              <td class="p-2 text-right font-bold">${count}</td>
+            </tr>
+          `;
+        });
+      }
+
+      const weekTbody = document.getElementById('summaryWeekTbody');
+      if (weekTbody) {
+        weekTbody.innerHTML = '';
+        const dayFullNames = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach(dayKey => {
+          const val = (weekDaysPnL && weekDaysPnL[dayKey]) || 0;
+          const count = (weekDaysCount && weekDaysCount[dayKey]) || 0;
+          const profit = (weekDaysProfit && weekDaysProfit[dayKey]) || 0;
+          const loss = (weekDaysLoss && weekDaysLoss[dayKey]) || 0;
+          weekTbody.innerHTML += `
+            <tr>
+              <td class="p-2 font-medium">${dayFullNames[dayKey]}</td>
+              <td class="p-2 font-bold ${val >= 0 ? 'text-emerald-600' : 'text-red-500'}">${val >= 0 ? '+' : ''}$${val.toFixed(2)}</td>
+              <td class="p-2 text-emerald-600">${profit > 0 ? '+$' + profit.toFixed(2) : '$0.00'}</td>
+              <td class="p-2 text-red-500">${loss > 0 ? '-$' + loss.toFixed(2) : '$0.00'}</td>
+              <td class="p-2 text-right font-bold">${count}</td>
+            </tr>
+          `;
+        });
+      }
     }
 
     function renderExecutedLogsTable() {
@@ -2477,6 +3884,9 @@
       tbody.innerHTML = '';
       getFilteredExecutions().forEach(x => {
         const pnl = Number(x.netPnL) || 0;
+        const rVal = x.rMultiple === null || x.rMultiple === undefined || x.rMultiple === '' || isNaN(Number(x.rMultiple))
+          ? null : Number(x.rMultiple);
+        const mistakesArr = Array.isArray(x.mistakes) ? x.mistakes : (typeof x.mistakes === 'string' && x.mistakes ? x.mistakes.split(',').map(s => s.trim()).filter(Boolean) : []);
         tbody.innerHTML += `
           <tr>
             <td class="p-2 font-mono font-bold text-emerald-600">${x.executionId}</td>
@@ -2487,9 +3897,12 @@
             <td class="p-2">${x.strategy || 'Scalper'}</td>
             <td class="p-2">${x.session || 'London'}</td>
             <td class="p-2 font-mono">${x.entryPrice}</td>
+            <td class="p-2 font-mono text-red-500">${x.actualSL || '—'}</td>
             <td class="p-2 font-mono">${x.exitPrice}</td>
             <td class="p-2 font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+            <td class="p-2 font-bold ${rVal === null ? 'text-slate-300' : (rVal >= 0 ? 'text-emerald-600' : 'text-red-500')}">${rVal === null ? '—' : `${rVal >= 0 ? '+' : ''}${rVal.toFixed(2)}R`}</td>
             <td class="p-2 text-slate-500">${x.exitReason || '—'}</td>
+            <td class="p-2 text-slate-500">${mistakesArr.length > 0 ? mistakesArr.map(m => `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded-full inline-block mr-1 mb-0.5">${m}</span>`).join('') : '—'}</td>
             <td class="p-2 text-center space-x-1">
               ${x.beforeImageUrl ? `<a href="${x.beforeImageUrl}" target="_blank" title="Before Entry" class="text-purple-600 hover:underline font-semibold">Before</a>` : ''}
               ${x.beforeImageUrl && x.afterImageUrl ? '<span class="text-slate-300">|</span>' : ''}
