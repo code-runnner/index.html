@@ -1353,7 +1353,11 @@
     let planExtraEntries = [];
     // Date groups (both Active and History) are collapsed by default, except today's Active
     // group which opens automatically — keyed as "mode:date" so the two views collapse independently.
+    // Date groups (both Active and History) default to OPEN the first time they're seen, so
+    // you never land on a page that looks empty — collapsing is something you do deliberately
+    // to tidy up groups you've already reviewed, tracked here once you've touched them.
     let expandedDateGroups = new Set([`active:${todayDateStr()}`]);
+    let seenDateGroups = new Set([`active:${todayDateStr()}`]);
     let expandedPlans = new Set();
     // Plans manually "pinned" into the Active view even though their date has passed (or
     // they were cleared) — lets you see old planned trades alongside today's without ever
@@ -2105,7 +2109,13 @@
       let html = '';
       dateKeys.forEach(dateKey => {
         const plansForDate = byDate[dateKey];
-        const isDateExpanded = expandedDateGroups.has(`${mode}:${dateKey}`);
+        const groupKey = `${mode}:${dateKey}`;
+        // First time this exact date group has ever been rendered, default it open.
+        if (!seenDateGroups.has(groupKey)) {
+          seenDateGroups.add(groupKey);
+          expandedDateGroups.add(groupKey);
+        }
+        const isDateExpanded = expandedDateGroups.has(groupKey);
         html += `
           <div class="card overflow-hidden">
             <div onclick="toggleDateGroup('${mode}', '${dateKey}')" class="bg-slate-50 px-4 py-3 ${isDateExpanded ? 'border-b border-slate-100' : ''} flex justify-between items-center cursor-pointer hover:bg-slate-100 select-none">
