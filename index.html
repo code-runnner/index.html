@@ -3547,15 +3547,15 @@
       let totalProfit = 0, totalLoss = 0, daysSet = new Set();
       let bestTrade = 0, worstTrade = 0;
       let assetPnL = {}, sessionPnL = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
-      let weekDaysPnL = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      let weekDaysPnL = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 };
       // Parallel count/profit/loss maps — kept separate from the PnL-only maps above so the
       // existing charts (which just read raw PnL numbers) don't need to change.
       let sessionCount = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
       let sessionProfit = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
       let sessionLoss = { London: 0, 'New York': 0, Asia: 0, Outside: 0 };
-      let weekDaysCount = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
-      let weekDaysProfit = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
-      let weekDaysLoss = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+      let weekDaysCount = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 };
+      let weekDaysProfit = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 };
+      let weekDaysLoss = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0 };
       let strategyPnL = {};
 
       let totalDev = 0, devCount = 0;
@@ -3882,7 +3882,7 @@
         pairChartInstance = new Chart(barCanvas, {
           type: 'bar',
           data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
             datasets: [{
               label: 'Net P&L ($)',
               data: vals,
@@ -3941,8 +3941,8 @@
       const weekTbody = document.getElementById('summaryWeekTbody');
       if (weekTbody) {
         weekTbody.innerHTML = '';
-        const dayFullNames = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
-        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach(dayKey => {
+        const dayFullNames = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
+        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach(dayKey => {
           const val = (weekDaysPnL && weekDaysPnL[dayKey]) || 0;
           const count = (weekDaysCount && weekDaysCount[dayKey]) || 0;
           const profit = (weekDaysProfit && weekDaysProfit[dayKey]) || 0;
