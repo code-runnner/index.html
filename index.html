@@ -17,6 +17,7 @@
     .nav-link { transition: all 0.2s ease; border-radius: 0.75rem; }
     .nav-link:hover { background-color: #f1f5f9; color: #7c3aed; }
     .nav-link.active { background-color: #f3e8ff; color: #7c3aed; font-weight: 700; }
+    .nb-editor-body:empty:before { content: attr(data-placeholder); color: #94a3b8; }
   </style>
 </head>
 <body class="flex min-h-screen">
@@ -381,18 +382,27 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- SHORT ANALYSIS -->
           <div class="border border-slate-100 rounded-xl p-4">
-            <h4 class="text-sm font-bold text-slate-800 mb-1">Short Analysis</h4>
-            <div class="h-40 relative flex items-end justify-center pb-3">
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="trending-down" class="w-4 h-4 text-amber-500"></i>
+                Short Analysis
+              </h4>
+              <span id="shortTradesBadge" class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full">0 Trades</span>
+            </div>
+            <div class="h-40 relative flex items-end justify-center pb-6">
               <canvas id="shortAnalysisGauge" class="absolute inset-0"></canvas>
+              <span class="absolute left-1 bottom-8 text-[9px] text-slate-300 font-semibold">0%</span>
+              <span class="absolute right-1 bottom-8 text-[9px] text-slate-300 font-semibold">100%</span>
               <div class="relative z-10 text-center pointer-events-none">
-                <span class="text-[10px] text-slate-400 block">Profit</span>
-                <span id="shortGaugeProfit" class="text-lg font-bold text-slate-800">$0.00</span>
+                <span class="text-[10px] text-slate-400 block tracking-wide">NET PROFIT</span>
+                <span id="shortGaugeProfit" class="text-lg font-bold text-slate-800 block">$0.00</span>
+                <span id="shortGaugeWinRateSub" class="text-[10px] text-slate-400">0.0% Win Rate</span>
               </div>
             </div>
             <div class="grid grid-cols-3 gap-1 text-center text-xs pt-3 border-t border-slate-100">
               <div>
                 <p class="text-slate-400">Wins (<span id="shortWinsCount">0</span>)</p>
-                <p id="shortWinsAmt" class="font-semibold text-slate-700 mt-0.5">$0.00</p>
+                <p id="shortWinsAmt" class="font-semibold text-emerald-600 mt-0.5">+$0.00</p>
               </div>
               <div>
                 <p class="text-slate-400">Win Rate</p>
@@ -400,47 +410,69 @@
               </div>
               <div>
                 <p class="text-slate-400">Losses (<span id="shortLossesCount">0</span>)</p>
-                <p id="shortLossesAmt" class="font-semibold text-slate-700 mt-0.5">$0.00</p>
+                <p id="shortLossesAmt" class="font-semibold text-red-500 mt-0.5">-$0.00</p>
               </div>
             </div>
           </div>
 
           <!-- PROFITABILITY -->
           <div class="border border-slate-100 rounded-xl p-4">
-            <h4 class="text-sm font-bold text-slate-800 mb-1">Profitability</h4>
-            <div class="h-40 relative flex items-end justify-center pb-3">
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-purple-500"></i>
+                Overall Profitability
+              </h4>
+              <span id="profitTradesBadge" class="text-[10px] bg-purple-50 text-purple-600 font-semibold px-2 py-0.5 rounded-full">0 Total Trades</span>
+            </div>
+            <div class="h-40 relative flex items-end justify-center pb-6">
               <canvas id="profitabilityGauge" class="absolute inset-0"></canvas>
+              <span class="absolute left-1 bottom-8 text-[9px] text-slate-300 font-semibold">0%</span>
+              <span class="absolute right-1 bottom-8 text-[9px] text-slate-300 font-semibold">100%</span>
               <div class="relative z-10 text-center pointer-events-none">
-                <span class="text-[10px] text-slate-400 block">Total Trades</span>
-                <span id="profitTotalTrades" class="text-lg font-bold text-slate-800">0</span>
+                <span class="text-[10px] text-slate-400 block tracking-wide">REALIZED TOTAL</span>
+                <span id="profitRealizedTotal" class="text-lg font-bold text-slate-800 block">$0.00</span>
+                <span id="profitGaugeWinRateSub" class="text-[10px] text-slate-400">0.0% Win Rate</span>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-1 text-center text-xs pt-3 border-t border-slate-100">
+            <div class="grid grid-cols-3 gap-1 text-center text-xs pt-3 border-t border-slate-100">
               <div>
-                <p id="profitWinPct" class="font-semibold text-slate-700">0%</p>
-                <p id="profitWinsCount" class="text-slate-400 mt-0.5">Wins: 0</p>
+                <p class="text-slate-400">Total Wins (<span id="profitWinsCount">0</span>)</p>
+                <p id="profitWinsAmt" class="font-semibold text-emerald-600 mt-0.5">+$0.00</p>
               </div>
               <div>
-                <p id="profitLossPct" class="font-semibold text-slate-700">0%</p>
-                <p id="profitLossesCount" class="text-slate-400 mt-0.5">Losses: 0</p>
+                <p class="text-slate-400">Win / Loss %</p>
+                <p id="profitWinLossPct" class="font-semibold text-purple-600 mt-0.5">0% / 0%</p>
+              </div>
+              <div>
+                <p class="text-slate-400">Total Loss (<span id="profitLossesCount">0</span>)</p>
+                <p id="profitLossAmt" class="font-semibold text-red-500 mt-0.5">-$0.00</p>
               </div>
             </div>
           </div>
 
           <!-- LONG ANALYSIS -->
           <div class="border border-slate-100 rounded-xl p-4">
-            <h4 class="text-sm font-bold text-slate-800 mb-1">Long Analysis</h4>
-            <div class="h-40 relative flex items-end justify-center pb-3">
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="trending-up" class="w-4 h-4 text-emerald-500"></i>
+                Long Analysis
+              </h4>
+              <span id="longTradesBadge" class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full">0 Trades</span>
+            </div>
+            <div class="h-40 relative flex items-end justify-center pb-6">
               <canvas id="longAnalysisGauge" class="absolute inset-0"></canvas>
+              <span class="absolute left-1 bottom-8 text-[9px] text-slate-300 font-semibold">0%</span>
+              <span class="absolute right-1 bottom-8 text-[9px] text-slate-300 font-semibold">100%</span>
               <div class="relative z-10 text-center pointer-events-none">
-                <span class="text-[10px] text-slate-400 block">Profit</span>
-                <span id="longGaugeProfit" class="text-lg font-bold text-slate-800">$0.00</span>
+                <span class="text-[10px] text-slate-400 block tracking-wide">NET PROFIT</span>
+                <span id="longGaugeProfit" class="text-lg font-bold text-slate-800 block">$0.00</span>
+                <span id="longGaugeWinRateSub" class="text-[10px] text-slate-400">0.0% Win Rate</span>
               </div>
             </div>
             <div class="grid grid-cols-3 gap-1 text-center text-xs pt-3 border-t border-slate-100">
               <div>
                 <p class="text-slate-400">Wins (<span id="longWinsCount">0</span>)</p>
-                <p id="longWinsAmt" class="font-semibold text-slate-700 mt-0.5">$0.00</p>
+                <p id="longWinsAmt" class="font-semibold text-emerald-600 mt-0.5">+$0.00</p>
               </div>
               <div>
                 <p class="text-slate-400">Win Rate</p>
@@ -448,11 +480,23 @@
               </div>
               <div>
                 <p class="text-slate-400">Losses (<span id="longLossesCount">0</span>)</p>
-                <p id="longLossesAmt" class="font-semibold text-slate-700 mt-0.5">$0.00</p>
+                <p id="longLossesAmt" class="font-semibold text-red-500 mt-0.5">-$0.00</p>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- HIGHEST REPEATED MISTAKES BREAKDOWN -->
+      <div class="card p-6 space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <h3 id="mistakesBreakdownTitle" class="text-md font-extrabold text-slate-800 flex items-center space-x-2">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500"></i>
+            <span>Highest Repeated Mistakes Breakdown</span>
+          </h3>
+          <span class="text-xs text-slate-400">Ranked by frequency & dollar capital leak</span>
+        </div>
+        <div id="mistakesBreakdownGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
       </div>
 
       <!-- Main Charts Row -->
@@ -619,10 +663,12 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Stop Loss (SL)</label>
               <input type="number" step="any" id="planSL" oninput="calculateRR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <span id="planSLPoints" class="text-[10px] font-bold text-red-500 mt-1 block">SL Distance: — pts</span>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Take Profit (TP)</label>
               <input type="number" step="any" id="planTP" oninput="calculateRR()" required class="w-full border border-slate-200 rounded-lg p-2 text-xs">
+              <span id="planTPPoints" class="text-[10px] font-bold text-emerald-600 mt-1 block">TP Distance: — pts</span>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Planned Risk:Reward</label>
@@ -716,6 +762,11 @@
           <p class="text-xs text-slate-500">Grouped by date. Click any card to expand/collapse. Execute or delete directly.</p>
         </div>
         <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="plansSearchInput" oninput="renderPlansView()" placeholder="Search plans by instrument, strategy, tag, plan ID..."
+              class="border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs w-64 focus:outline-none focus:ring-2 focus:ring-purple-100">
+          </div>
           <div class="flex bg-slate-100 rounded-lg p-1 text-xs font-semibold">
             <button id="plansViewActiveBtn" onclick="setPlansViewMode('active')" class="px-3 py-1.5 rounded-md">Active Plans</button>
             <button id="plansViewHistoryBtn" onclick="setPlansViewMode('history')" class="px-3 py-1.5 rounded-md flex items-center space-x-1.5">
@@ -1004,33 +1055,74 @@
           <button onclick="promptAddStrategy()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Custom Strategy</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="card p-4 lg:col-span-1">
-            <h3 class="text-xs font-bold text-slate-700 mb-3">Net P&L by Strategy</h3>
-            <div class="h-64">
-              <canvas id="strategyBarChart"></canvas>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0"><i data-lucide="award" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Top Profitable Strategy</p>
+              <p id="stratTopProfitable" class="text-sm font-bold text-slate-800">—</p>
+              <p id="stratTopProfitableSub" class="text-xs text-emerald-600 font-semibold">+$0.00 Net P&L</p>
             </div>
           </div>
-
-          <div class="lg:col-span-2 overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-600">
-              <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
-                <tr>
-                  <th class="p-2.5">Strategy</th>
-                  <th class="p-2.5">Trades</th>
-                  <th class="p-2.5 cursor-pointer select-none hover:text-purple-600" onclick="toggleStrategyWinRateSort()">
-                    <span class="inline-flex items-center gap-1">
-                      Win Rate
-                      <span id="strategyWinRateSortIcon" class="text-[9px]">▼</span>
-                    </span>
-                  </th>
-                  <th class="p-2.5">Profit Factor</th>
-                  <th class="p-2.5 text-right">Net P&L</th>
-                </tr>
-              </thead>
-              <tbody id="strategyTbody" class="divide-y divide-slate-100"></tbody>
-            </table>
+          <div class="bg-purple-50/60 border border-purple-100 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0"><i data-lucide="percent" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">Highest Win Rate Setup</p>
+              <p id="stratHighestWinRate" class="text-sm font-bold text-slate-800">—</p>
+              <p id="stratHighestWinRateSub" class="text-xs text-purple-600 font-semibold">0.0% (0W / 0L)</p>
+            </div>
           </div>
+          <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">Most Executed Setup</p>
+              <p id="stratMostExecuted" class="text-sm font-bold text-slate-800">—</p>
+              <p id="stratMostExecutedSub" class="text-xs text-indigo-600 font-semibold">0 Total Executions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h3 class="text-md font-bold text-slate-800">Strategy Visual Performance Graphs</h3>
+            <p class="text-xs text-slate-500">Interactive comparative analysis across all strategy models.</p>
+          </div>
+          <div class="bg-slate-100 rounded-lg p-1 flex text-xs font-semibold shrink-0">
+            <button id="stratViewBtnPnl" onclick="setStrategyChartView('pnl')" class="px-3 py-1.5 rounded-md bg-white text-purple-700 shadow-sm">Net P&L ($) Bar Graph</button>
+            <button id="stratViewBtnWr" onclick="setStrategyChartView('winrate')" class="px-3 py-1.5 rounded-md text-slate-500">Win Rate & Profit Factor</button>
+          </div>
+        </div>
+        <div class="h-80">
+          <canvas id="strategyBarChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="text-md font-bold text-slate-800 mb-1">Strategy Detailed Breakdown</h3>
+        <p class="text-xs text-slate-500 mb-4">Click table headers to sort.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-semibold">
+              <tr>
+                <th class="p-2.5">Strategy</th>
+                <th class="p-2.5">Trades</th>
+                <th class="p-2.5 cursor-pointer select-none hover:text-purple-600" onclick="toggleStrategyWinRateSort()">
+                  <span class="inline-flex items-center gap-1">
+                    Win Rate
+                    <span id="strategyWinRateSortIcon" class="text-[9px]">▼</span>
+                  </span>
+                </th>
+                <th class="p-2.5">Profit Factor</th>
+                <th class="p-2.5">Gross Profit</th>
+                <th class="p-2.5">Gross Loss</th>
+                <th class="p-2.5">Avg Win / Loss</th>
+                <th class="p-2.5 text-right">Net P&L</th>
+              </tr>
+            </thead>
+            <tbody id="strategyTbody" class="divide-y divide-slate-100"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1038,12 +1130,45 @@
     <!-- TAB 7: INSTRUMENT WIN RATE TAB -->
     <div id="tab-instrument" class="hidden space-y-6">
       <div class="card p-6">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-6 gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Instrument-Wise Win Rate & Performance</h2>
             <p class="text-xs text-slate-500">Asset profitability breakdowns and win percentages.</p>
           </div>
-          <button onclick="promptAddInstrument()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">+ Add Instrument</button>
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="relative">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+              <input id="instrumentSearchInput" type="text" placeholder="Search ticker..." oninput="renderInstrumentAnalytics()" class="border border-slate-200 rounded-lg pl-7 pr-3 py-1.5 text-xs w-40" />
+            </div>
+            <button onclick="promptAddInstrument()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">+ Add Instrument</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0"><i data-lucide="award" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Star Profitable Asset</p>
+              <p id="instStarAsset" class="text-sm font-bold text-slate-800">—</p>
+              <p id="instStarAssetSub" class="text-xs text-emerald-600 font-semibold">+$0.00 Net P&L</p>
+            </div>
+          </div>
+          <div class="bg-purple-50/60 border border-purple-100 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wide">Highest Win Rate Asset</p>
+              <p id="instHighestWinRateAsset" class="text-sm font-bold text-slate-800">—</p>
+              <p id="instHighestWinRateAssetSub" class="text-xs text-purple-600 font-semibold">0.0% Win Rate</p>
+            </div>
+          </div>
+          <div class="bg-slate-800 rounded-xl p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-white/10 text-white flex items-center justify-center shrink-0"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-300 uppercase tracking-wide">Assets Tracked</p>
+              <p id="instAssetsTracked" class="text-sm font-bold text-white">0 Instruments</p>
+              <p id="instAssetsTrackedSub" class="text-xs text-slate-400">0 active with traded history</p>
+            </div>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -1059,6 +1184,9 @@
                   </span>
                 </th>
                 <th class="p-3">W / L Breakdown</th>
+                <th class="p-3">Gross Profit</th>
+                <th class="p-3">Gross Loss</th>
+                <th class="p-3">Avg Win / Loss</th>
                 <th class="p-3 text-right">Net P&L ($)</th>
               </tr>
             </thead>
@@ -1210,7 +1338,7 @@
           <div class="flex justify-end pt-4 border-t border-slate-100">
             <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-xs flex items-center space-x-2">
               <i data-lucide="check-circle" class="w-4 h-4"></i>
-              <span>Log Trade & Sync</span>
+              <span id="execSubmitBtnLabel">Log Trade & Sync</span>
             </button>
           </div>
         </form>
@@ -1256,16 +1384,138 @@
 
   <!-- SETTINGS & MANAGER MODAL -->
   <div id="dayDetailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto p-4">
-    <div class="card max-w-lg w-full p-6 space-y-4 my-8">
+    <div class="card max-w-xl w-full p-6 space-y-5 my-8">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <div>
-          <h3 id="dayDetailTitle" class="font-bold text-slate-800 text-base">Day Detail</h3>
-          <p id="dayDetailSubtitle" class="text-[11px] text-slate-400 mt-0.5">0 trades &bull; $0.00 Net P&L</p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="calendar" class="w-4 h-4 text-emerald-600"></i>
+          </div>
+          <div>
+            <h3 id="dayDetailTitle" class="font-bold text-slate-800 text-base">Trading Session</h3>
+            <p id="dayDetailSubtitle" class="text-[11px] text-slate-400 mt-0.5">0 trades &bull; $0.00 Net P&L</p>
+          </div>
         </div>
         <button onclick="closeDayDetailModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
-      <div id="dayDetailList" class="space-y-2 max-h-96 overflow-y-auto text-xs"></div>
+
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">Executions on this Day</span>
+          <button onclick="quickAddExecutionForDate(currentDayDetailDate); closeDayDetailModal();" class="text-[10px] font-bold text-purple-600 hover:underline flex items-center gap-1">
+            <i data-lucide="plus" class="w-3 h-3"></i>Add Trade
+          </button>
+        </div>
+        <div id="dayDetailList" class="space-y-2 max-h-72 overflow-y-auto text-xs"></div>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>Session Notes &amp; Psychology</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] text-slate-400">Discipline Score:</span>
+            <input type="number" id="dayDisciplineScore" min="0" max="10" class="w-12 text-center text-xs font-bold border border-slate-200 rounded-lg p-1 bg-emerald-50 text-emerald-700">
+            <span class="text-[10px] text-slate-400">/10</span>
+          </div>
+        </div>
+        <label class="block text-[10px] font-semibold text-slate-500 mb-1">Pre-Market Prep &amp; Key Levels</label>
+        <textarea id="dayPreMarketNotes" rows="3" placeholder="Bias, key levels, watchlist for the day..." class="w-full border border-slate-200 rounded-lg p-2 text-xs mb-3"></textarea>
+        <label class="block text-[10px] font-semibold text-slate-500 mb-1">Post-Market Reflection &amp; Rules Adherence</label>
+        <textarea id="dayPostMarketNotes" rows="3" placeholder="How did execution go? Any rule violations?" class="w-full border border-slate-200 rounded-lg p-2 text-xs"></textarea>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <span class="text-[10px] text-slate-400">Notes auto-save to this day</span>
+        <div class="space-x-2">
+          <button onclick="closeDayDetailModal()" class="border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-semibold hover:bg-slate-50">Close</button>
+          <button onclick="saveDaySessionNotes()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Save Notes</button>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- TRADE DETAIL MODAL (rich single-trade view, opened from Master Trade Logs or Day Detail) -->
+  <div id="tradeDetailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-[55] overflow-y-auto p-4">
+    <div class="card max-w-3xl w-full my-8 overflow-hidden">
+      <div class="flex justify-between items-center px-6 py-4 border-b border-slate-100">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span id="tdDirectionBadge" class="text-xs font-bold px-2.5 py-1 rounded-lg">LONG</span>
+          <h3 id="tdInstrument" class="text-lg font-extrabold text-slate-900">—</h3>
+          <span id="tdAssetBadge" class="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Stocks</span>
+          <span id="tdDate" class="text-xs text-slate-400">—</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="editExecutionFromDetail()" title="Edit" class="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button onclick="deleteExecutionFromDetail()" title="Delete" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          <button onclick="closeTradeDetailModal()" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+      <p id="tdSubMeta" class="px-6 pt-3 text-[11px] text-slate-400">—</p>
+
+      <div class="p-6 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div id="tdNetReturnCard" class="p-3 rounded-xl border">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Net Return</span>
+            <p id="tdNetReturn" class="text-lg font-extrabold mt-0.5">+$0.00</p>
+            <span id="tdROI" class="text-[10px] text-slate-400">0% ROI</span>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">R-Multiple Realized</span>
+            <p id="tdRMultiple" class="text-lg font-extrabold mt-0.5 text-slate-800">—</p>
+            <span class="text-[10px] text-slate-400">Risk-adjusted return</span>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Entry &amp; Exit</span>
+            <p class="text-xs font-bold text-slate-800 mt-1">Entry: <span id="tdEntry">—</span></p>
+            <p class="text-xs font-bold text-slate-800">Exit: <span id="tdExit">—</span></p>
+          </div>
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Position Size</span>
+            <p id="tdLots" class="text-lg font-extrabold mt-0.5 text-slate-800">—</p>
+            <span id="tdFees" class="text-[10px] text-slate-400">Fees: $0.00</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><i data-lucide="award" class="w-3.5 h-3.5 text-emerald-500"></i>Playbook &amp; Setup Info</h4>
+            <p id="tdStrategy" class="font-bold text-slate-800 text-sm mb-2">—</p>
+            <div id="tdSetupTags" class="flex flex-wrap gap-1.5"></div>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200">
+            <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-500"></i>Behavioral &amp; Mistake Tags</h4>
+            <div id="tdMistakes" class="mb-2"></div>
+            <p class="text-xs text-slate-500">Exit Reason: <span id="tdExitReason" class="font-semibold text-slate-700">—</span></p>
+          </div>
+        </div>
+
+        <div id="tdNotesBlock" class="p-4 rounded-xl border border-slate-200 hidden">
+          <h4 class="text-xs font-bold text-slate-700 mb-1.5">Execution Notes</h4>
+          <p id="tdNotes" class="text-xs text-slate-600 whitespace-pre-line">—</p>
+        </div>
+
+        <div id="tdImagesBlock" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+          <div id="tdBeforeImgWrap" class="hidden">
+            <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Before Entry</span>
+            <img id="tdBeforeImg" class="rounded-lg border border-slate-200 w-full cursor-zoom-in" src="">
+          </div>
+          <div id="tdAfterImgWrap" class="hidden">
+            <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">After Entry</span>
+            <img id="tdAfterImg" class="rounded-lg border border-slate-200 w-full cursor-zoom-in" src="">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center px-6 py-4 border-t border-slate-100 bg-slate-50">
+        <span id="tdTradeIdFooter" class="text-[10px] text-slate-400">Trade ID: —</span>
+        <button onclick="closeTradeDetailModal()" class="bg-white border border-slate-200 hover:bg-slate-100 px-4 py-2 rounded-lg text-xs font-semibold text-slate-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image lightbox: click any note image thumbnail to view it full-size -->
+  <div id="nbImageLightbox" onclick="closeNbImageLightbox()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-[60] p-6 cursor-zoom-out">
+    <button onclick="closeNbImageLightbox()" class="absolute top-5 right-5 text-white/80 hover:text-white text-3xl font-bold leading-none">&times;</button>
+    <img id="nbImageLightboxImg" src="" class="max-w-full max-h-full rounded-lg shadow-2xl" onclick="event.stopPropagation()">
   </div>
 
   <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50 overflow-y-auto p-4">
@@ -1349,6 +1599,11 @@
 
   <!-- JavaScript App Engine -->
   <script>
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = text;
+    }
+
     function safeLucide() {
       try {
         if (window.lucide && typeof lucide.createIcons === 'function') {
@@ -1389,6 +1644,14 @@
     // They remain fully in plansStore and simply show up under the Plan History sub-view instead.
     let clearedPlanIds = new Set(JSON.parse(localStorage.getItem('clearedPlanIds') || '[]'));
     let gsUrl = localStorage.getItem('gsUrl') || '';
+    // When set, the next Log Execution form submit updates this existing record in place
+    // instead of creating a new one — used by the "Edit" action in the Trade Detail modal.
+    let editingExecutionId = null;
+    // Which execution the Trade Detail modal is currently showing (needed by its Edit/Delete buttons).
+    let currentTradeDetailExecId = null;
+    // Per-day session notes (pre-market prep, post-market reflection, discipline score),
+    // keyed by date string — powers the richer P&L Calendar day-detail view.
+    let sessionNotesStore = JSON.parse(localStorage.getItem('sessionNotesStore') || '{}');
 
     let plansViewMode = 'active'; // 'active' | 'history'
     let lastMainTab = 'dashboard';
@@ -1414,7 +1677,29 @@
     let notebookFolders = JSON.parse(localStorage.getItem('notebookFoldersStore') || '[]');
     let notebookNotes = JSON.parse(localStorage.getItem('notebookNotesStore') || '[]');
     if (!notebookFolders.some(f => f.id === 'root')) {
-      notebookFolders.unshift({ id: 'root', name: 'Trading Journals', parentId: null, collapsed: false, createdAt: new Date().toISOString() });
+      notebookFolders.unshift({ id: 'root', name: 'Trading Journals', parentId: null, collapsed: false, order: 0, createdAt: new Date().toISOString() });
+      localStorage.setItem('notebookFoldersStore', JSON.stringify(notebookFolders));
+    }
+    // Migration/repair: ensures every folder has a numeric "order" field, grouped and
+    // ordered per parent. Runs at load AND after any full refresh from the Sheet, since a
+    // sheet-side folder record won't carry this newer field and would otherwise reset it.
+    function nbEnsureFolderOrder() {
+      const byParent = {};
+      let touched = false;
+      notebookFolders.forEach(f => {
+        if (typeof f.order !== 'number' || isNaN(f.order)) {
+          touched = true;
+          (byParent[f.parentId] = byParent[f.parentId] || []).push(f);
+        }
+      });
+      Object.values(byParent).forEach(arr => {
+        arr.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+        const base = Date.now();
+        arr.forEach((f, idx) => { f.order = base + idx; });
+      });
+      return touched;
+    }
+    if (nbEnsureFolderOrder()) {
       localStorage.setItem('notebookFoldersStore', JSON.stringify(notebookFolders));
     }
     let nbSelectedFolder = 'root';
@@ -1424,6 +1709,7 @@
     let assetChartInstance = null;
     let pairChartInstance = null;
     let strategyChartInstance = null;
+    let strategyChartView = 'pnl'; // 'pnl' or 'winrate'
     let equityChartInstance = null;
     let strategyWinRateSortDir = null; // null = no sort, 'asc' = low to high, 'desc' = high to low
     let instrumentWinRateSortDir = null;
@@ -1566,6 +1852,7 @@
           syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
+          renderInstrumentAnalytics();
         }
       }
     }
@@ -1580,6 +1867,7 @@
           syncConfigToGS();
           renderDropdowns();
           renderSettingsLists();
+          renderStrategyAnalytics();
         }
       }
     }
@@ -1866,6 +2154,17 @@
       if (rrEl && entry && sl && tp && Math.abs(entry - sl) > 0) {
         rrEl.value = `${(Math.abs(tp - entry) / Math.abs(entry - sl)).toFixed(2)} R`;
       }
+
+      // Auto-calculated SL / TP distance in raw points (price distance from entry) —
+      // helps traders instantly see position risk/reward in points, not just R multiple.
+      const slPtsEl = document.getElementById('planSLPoints');
+      if (slPtsEl) {
+        slPtsEl.innerText = (entry && sl) ? `SL Distance: ${Math.abs(entry - sl).toFixed(2)} pts` : 'SL Distance: — pts';
+      }
+      const tpPtsEl = document.getElementById('planTPPoints');
+      if (tpPtsEl) {
+        tpPtsEl.innerText = (entry && tp) ? `TP Distance: ${Math.abs(tp - entry).toFixed(2)} pts` : 'TP Distance: — pts';
+      }
     }
 
     // Correct R-Multiple: reward and risk are both measured as signed price distance from the
@@ -2133,6 +2432,14 @@
       if (dateEl && dateStr && dateStr !== 'No Date') dateEl.value = dateStr;
     }
 
+    // Jumps straight to the Log Execution form pre-filled with the given date — used by the
+    // "+ Add Trade" shortcut in the P&L Calendar day-detail modal.
+    function quickAddExecutionForDate(dateStr) {
+      switchTab('execution');
+      const dateEl = document.getElementById('execDate');
+      if (dateEl && dateStr && dateStr !== 'No Date') dateEl.value = dateStr;
+    }
+
     function setPlansViewMode(mode) {
       plansViewMode = mode;
       renderPlansView();
@@ -2149,9 +2456,12 @@
 
     // Builds the date-grouped markup shared by both the Active list and the collapsible
     // Plan History panel — 'mode' just controls which action buttons show per plan.
-    function buildDateGroupedPlansHtml(plans, mode) {
+    function buildDateGroupedPlansHtml(plans, mode, searchQuery) {
       if (plans.length === 0) {
-        return `<div class="card p-12 text-center text-slate-400 font-semibold">${mode === 'active' ? 'No active planned trades. Create one to get started.' : 'No plan history yet — plans move here once their day passes or you clear them.'}</div>`;
+        const emptyMsg = searchQuery
+          ? `No plans match "${nbEsc(searchQuery)}".`
+          : (mode === 'active' ? 'No active planned trades. Create one to get started.' : 'No plan history yet — plans move here once their day passes or you clear them.');
+        return `<div class="card p-12 text-center text-slate-400 font-semibold">${emptyMsg}</div>`;
       }
 
       const byDate = {};
@@ -2172,7 +2482,7 @@
           seenDateGroups.add(groupKey);
           expandedDateGroups.add(groupKey);
         }
-        const isDateExpanded = expandedDateGroups.has(groupKey);
+        const isDateExpanded = searchQuery ? true : expandedDateGroups.has(groupKey);
         html += `
           <div class="card overflow-hidden">
             <div onclick="toggleDateGroup('${mode}', '${dateKey}')" class="bg-slate-50 px-4 py-3 ${isDateExpanded ? 'border-b border-slate-100' : ''} flex justify-between items-center cursor-pointer hover:bg-slate-100 select-none">
@@ -2323,8 +2633,21 @@
       const countEl = document.getElementById('planHistoryCount');
       if (countEl) countEl.innerText = historyPlans.length;
 
-      const relevant = plansViewMode === 'active' ? activePlans : historyPlans;
-      container.innerHTML = buildDateGroupedPlansHtml(relevant, plansViewMode);
+      let relevant = plansViewMode === 'active' ? activePlans : historyPlans;
+
+      const searchInput = document.getElementById('plansSearchInput');
+      const query = (searchInput?.value || '').trim().toLowerCase();
+      if (query) {
+        relevant = relevant.filter(p => {
+          const haystack = [
+            p.planId, p.instrument, p.strategy, p.direction, p.entryTimeframe,
+            p.session, p.tags, p.marketStory, p.invalidation, p.notes, p.confidence
+          ].filter(Boolean).join(' ').toLowerCase();
+          return haystack.includes(query);
+        });
+      }
+
+      container.innerHTML = buildDateGroupedPlansHtml(relevant, plansViewMode, query);
       safeLucide();
     }
 
@@ -2446,6 +2769,22 @@
       return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     }
 
+    // Notes are stored as HTML now (for bold/color formatting), but older notes and
+    // the templates above are plain text with \n line breaks. These helpers bridge that.
+    function nbLooksLikeHtml(str) {
+      return /<[a-z][\s\S]*>/i.test(str || '');
+    }
+    function nbBodyToEditableHtml(body) {
+      if (!body) return '';
+      if (nbLooksLikeHtml(body)) return body;
+      return nbEsc(body).replace(/\n/g, '<br>');
+    }
+    function nbStripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      return tmp.textContent || tmp.innerText || '';
+    }
+
     function nbPersistFolders() {
       localStorage.setItem('notebookFoldersStore', JSON.stringify(notebookFolders));
     }
@@ -2453,14 +2792,22 @@
       localStorage.setItem('notebookNotesStore', JSON.stringify(notebookNotes));
     }
 
+    function nbNextFolderOrder(parentId) {
+      const siblings = notebookFolders.filter(f => f.parentId === parentId);
+      if (siblings.length === 0) return 0;
+      return Math.max(...siblings.map(f => f.order || 0)) + 1;
+    }
+
     function createNotebookFolder(parentId) {
       const name = prompt("Folder / Journal name (e.g. 'Psychology', 'Weekly Reviews', 'NAS100 Playbook'):");
       if (!name || !name.trim()) return;
+      const resolvedParentId = parentId || 'root';
       const folder = {
         id: nbGenId('FLD'),
         name: name.trim(),
-        parentId: parentId || 'root',
+        parentId: resolvedParentId,
         collapsed: false,
+        order: nbNextFolderOrder(resolvedParentId),
         createdAt: new Date().toISOString()
       };
       notebookFolders.push(folder);
@@ -2519,6 +2866,26 @@
       renderNotebooks();
     }
 
+    // Moves a folder up/down among its same-parent siblings by swapping "order"
+    // values with the neighbor in that direction.
+    function moveNotebookFolder(id, direction) {
+      const folder = notebookFolders.find(f => f.id === id);
+      if (!folder) return;
+      const siblings = notebookFolders
+        .filter(f => f.parentId === folder.parentId)
+        .sort((a, b) => (a.order || 0) - (b.order || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+      const idx = siblings.findIndex(f => f.id === id);
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= siblings.length) return;
+      const neighbor = siblings[swapIdx];
+      const tmp = folder.order || 0;
+      folder.order = neighbor.order || 0;
+      neighbor.order = tmp;
+      nbPersistFolders();
+      if (gsUrl) { syncToGS('SAVE_NOTEBOOK_FOLDER', folder); syncToGS('SAVE_NOTEBOOK_FOLDER', neighbor); }
+      renderNotebookTree();
+    }
+
     function renderNotebookTree() {
       const treeEl = document.getElementById('notebookFolderTree');
       if (!treeEl) return;
@@ -2526,12 +2893,15 @@
 
       const renderLevel = (parentId, depth) => {
         let kids = notebookFolders.filter(f => f.parentId === parentId);
+        kids.sort((a, b) => (a.order || 0) - (b.order || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
         if (search) kids = kids.filter(f => f.name.toLowerCase().includes(search));
         if (kids.length === 0) return '';
-        return kids.map(f => {
+        return kids.map((f, i) => {
           const hasChildren = notebookFolders.some(sub => sub.parentId === f.id);
           const noteCount = notebookNotes.filter(n => n.folderId === f.id).length;
           const isSelected = nbSelectedFolder === f.id;
+          const isFirst = i === 0;
+          const isLast = i === kids.length - 1;
           return `
             <div style="margin-left:${depth * 12}px">
               <div class="group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer text-xs ${isSelected ? 'bg-purple-50 text-purple-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}">
@@ -2542,9 +2912,13 @@
                   ${noteCount > 0 ? `<span class="text-[9px] text-slate-400 font-normal">${noteCount}</span>` : ''}
                 </div>
                 <div class="hidden group-hover:flex items-center gap-1 shrink-0">
+                  ${f.id !== 'root' ? `
+                    <button onclick="event.stopPropagation(); moveNotebookFolder('${f.id}', 'up')" title="Move up" ${isFirst ? 'disabled' : ''} class="${isFirst ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-purple-600'}"><i data-lucide="arrow-up" class="w-3 h-3"></i></button>
+                    <button onclick="event.stopPropagation(); moveNotebookFolder('${f.id}', 'down')" title="Move down" ${isLast ? 'disabled' : ''} class="${isLast ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-purple-600'}"><i data-lucide="arrow-down" class="w-3 h-3"></i></button>
+                  ` : ''}
                   <button onclick="event.stopPropagation(); createNotebookFolder('${f.id}')" title="New subfolder" class="text-slate-400 hover:text-purple-600"><i data-lucide="folder-plus" class="w-3 h-3"></i></button>
                   <button onclick="event.stopPropagation(); renameNotebookFolder('${f.id}')" title="Rename" class="text-slate-400 hover:text-purple-600"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-                  <button onclick="event.stopPropagation(); deleteNotebookFolder('${f.id}')" title="Delete" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                  ${f.id !== 'root' ? `<button onclick="event.stopPropagation(); deleteNotebookFolder('${f.id}')" title="Delete" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
                 </div>
               </div>
               ${!f.collapsed ? renderLevel(f.id, depth + 1) : ''}
@@ -2645,7 +3019,8 @@
 
     function nbNoteCardHtml(n) {
       const template = NOTEBOOK_TEMPLATES[n.template] || NOTEBOOK_TEMPLATES.blank;
-      const preview = (n.body || '').replace(/\n+/g, ' ').slice(0, 220);
+      const plainBody = nbLooksLikeHtml(n.body) ? nbStripHtml(n.body) : (n.body || '');
+      const preview = plainBody.replace(/\s+/g, ' ').trim().slice(0, 220);
       const images = Array.isArray(n.images) ? n.images : [];
       const refs = Array.isArray(n.refs) ? n.refs : [];
       return `
@@ -2657,7 +3032,7 @@
                 ${n.template && n.template !== 'blank' ? `<span class="text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">${template.label}</span>` : ''}
               </div>
               <p class="text-[10px] text-slate-400 mb-2">${n.date ? formatDateHeader(n.date) : ''}</p>
-              ${preview ? `<p class="text-xs text-slate-600 line-clamp-2">${nbEsc(preview)}${(n.body || '').length > 220 ? '…' : ''}</p>` : '<p class="text-xs text-slate-300 italic">No content yet</p>'}
+              ${preview ? `<p class="text-xs text-slate-600 line-clamp-2">${nbEsc(preview)}${plainBody.length > 220 ? '…' : ''}</p>` : '<p class="text-xs text-slate-300 italic">No content yet</p>'}
               ${refs.length > 0 ? `
                 <div class="flex flex-wrap gap-1.5 mt-2">
                   ${refs.map(r => `<span onclick="event.stopPropagation(); openNotebookTradeReference(${JSON.stringify(r).replace(/"/g, '&quot;')})" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full cursor-pointer hover:bg-emerald-100">🔗 ${nbEsc(nbLinkedTradeLabel(r))}</span>`).join('')}
@@ -2665,7 +3040,7 @@
               ` : ''}
               ${images.length > 0 ? `
                 <div class="flex gap-1.5 mt-2">
-                  ${images.slice(0, 4).map(url => `<img src="${nbEsc(url)}" class="w-12 h-12 rounded-lg object-cover border border-slate-200">`).join('')}
+                  ${images.slice(0, 4).map(url => `<img src="${nbEsc(url)}" onclick="event.stopPropagation(); openNbImageLightbox('${nbEsc(url).replace(/'/g, "\\'")}')" class="w-12 h-12 rounded-lg object-cover border border-slate-200 cursor-zoom-in hover:opacity-80 transition">`).join('')}
                   ${images.length > 4 ? `<span class="text-[10px] text-slate-400 self-center">+${images.length - 4}</span>` : ''}
                 </div>
               ` : ''}
@@ -2720,10 +3095,10 @@
       if (dateEl) nbEditingNote.date = dateEl.value;
       nbEditingNote.template = key;
       const bodyEl = document.getElementById('nbEditorBody');
-      if (bodyEl && (!bodyEl.value || confirm("Replace current note text with this template?"))) {
+      if (bodyEl && (!bodyEl.innerText.trim() || confirm("Replace current note text with this template?"))) {
         nbEditingNote.body = t.body;
       } else if (bodyEl) {
-        nbEditingNote.body = bodyEl.value;
+        nbEditingNote.body = bodyEl.innerHTML;
       }
       nbRerenderEditor();
     }
@@ -2735,7 +3110,23 @@
       const b = document.getElementById('nbEditorBody');
       if (t) nbEditingNote.title = t.value;
       if (d) nbEditingNote.date = d.value;
-      if (b) nbEditingNote.body = b.value;
+      if (b) nbEditingNote.body = b.innerHTML;
+    }
+
+    // Formatting toolbar for the note editor — uses execCommand, which is deprecated
+    // but still the simplest reliable way to get bold/italic/color into a
+    // contenteditable region without pulling in a rich-text-editor library.
+    function nbFormat(command, value) {
+      document.getElementById('nbEditorBody')?.focus();
+      document.execCommand(command, false, value || null);
+    }
+    function nbApplyHighlight(color) {
+      // Chrome/Edge/Safari use 'hiliteColor', older/other engines fall back to 'backColor'.
+      // 'transparent' removes the highlight.
+      document.getElementById('nbEditorBody')?.focus();
+      const ok = document.execCommand('hiliteColor', false, color);
+      if (!ok) document.execCommand('backColor', false, color);
+      nbCaptureEditorFields();
     }
 
     function nbRerenderEditor() {
@@ -2756,6 +3147,25 @@
       nbCaptureEditorFields();
       nbRerenderEditor();
     }
+
+    function openNbImageLightbox(url) {
+      const modal = document.getElementById('nbImageLightbox');
+      const img = document.getElementById('nbImageLightboxImg');
+      if (!modal || !img) return;
+      img.src = url;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    function closeNbImageLightbox() {
+      const modal = document.getElementById('nbImageLightbox');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('nbImageLightboxImg').src = '';
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeNbImageLightbox();
+    });
 
     // Which reference type ("plan" or "execution") the inline picker is currently showing.
     let nbRefTypeChoice = 'plan';
@@ -2825,7 +3235,23 @@
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Note</label>
-            <textarea id="nbEditorBody" rows="10" placeholder="Write freely..." class="w-full border border-slate-200 rounded-lg p-3 text-xs leading-relaxed">${nbEsc(n.body)}</textarea>
+            <div class="flex flex-wrap items-center gap-1 border border-slate-200 border-b-0 rounded-t-lg bg-slate-50 p-1.5">
+              <button type="button" onmousedown="event.preventDefault()" onclick="nbFormat('bold')" title="Bold" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white font-extrabold text-xs text-slate-600">B</button>
+              <button type="button" onmousedown="event.preventDefault()" onclick="nbFormat('italic')" title="Italic" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white italic text-xs text-slate-600">I</button>
+              <button type="button" onmousedown="event.preventDefault()" onclick="nbFormat('underline')" title="Underline" class="w-7 h-7 flex items-center justify-center rounded hover:bg-white underline text-xs text-slate-600">U</button>
+              <span class="w-px h-5 bg-slate-200 mx-1"></span>
+              <span class="text-[9px] font-semibold text-slate-400 mr-0.5">Highlight</span>
+              ${['#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fed7aa', '#e9d5ff'].map(c => `
+                <button type="button" onmousedown="event.preventDefault()" onclick="nbApplyHighlight('${c}')" title="Highlight color" class="w-5 h-5 rounded-full border border-slate-300" style="background:${c}"></button>
+              `).join('')}
+              <label onmousedown="event.preventDefault()" title="Pick any highlight color" class="w-5 h-5 rounded-full border border-slate-300 cursor-pointer relative overflow-hidden" style="background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);">
+                <input type="color" onmousedown="event.stopPropagation()" oninput="nbApplyHighlight(this.value)" value="#fef08a" class="absolute -top-1 -left-1 w-8 h-8 opacity-0 cursor-pointer">
+              </label>
+              <button type="button" onmousedown="event.preventDefault()" onclick="nbApplyHighlight('transparent')" title="Remove highlight" class="w-5 h-5 rounded-full border border-dashed border-slate-400 bg-white relative"><span class="absolute inset-0 flex items-center justify-center text-red-400 text-[10px] leading-none">×</span></button>
+              <span class="w-px h-5 bg-slate-200 mx-1"></span>
+              <button type="button" onmousedown="event.preventDefault()" onclick="nbFormat('removeFormat')" title="Clear formatting" class="text-[10px] font-semibold text-slate-400 hover:text-slate-600 px-2">Clear</button>
+            </div>
+            <div id="nbEditorBody" contenteditable="true" oninput="nbCaptureEditorFields()" data-placeholder="Write freely..." class="nb-editor-body w-full border border-slate-200 rounded-b-lg p-3 text-xs leading-relaxed min-h-[220px] focus:outline-none focus:ring-2 focus:ring-purple-100">${nbBodyToEditableHtml(n.body)}</div>
           </div>
 
           <div class="space-y-2">
@@ -2839,7 +3265,7 @@
               <div class="flex flex-wrap gap-2 pt-1">
                 ${nbPendingImages.map((url, idx) => `
                   <div class="relative group">
-                    <img src="${nbEsc(url)}" class="w-20 h-20 rounded-lg object-cover border border-slate-200">
+                    <img src="${nbEsc(url)}" onclick="openNbImageLightbox('${nbEsc(url).replace(/'/g, "\\'")}')" class="w-20 h-20 rounded-lg object-cover border border-slate-200 cursor-zoom-in hover:opacity-80 transition">
                     <button type="button" onclick="nbRemoveImage(${idx})" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100">&times;</button>
                   </div>
                 `).join('')}
@@ -2885,7 +3311,7 @@
       if (!n) return;
       const title = document.getElementById('nbEditorTitle')?.value.trim() || 'Untitled Note';
       const date = document.getElementById('nbEditorDate')?.value || todayDateStr();
-      const body = document.getElementById('nbEditorBody')?.value || '';
+      const body = document.getElementById('nbEditorBody')?.innerHTML || '';
 
       const noteData = {
         id: n.id || nbGenId('NOTE'),
@@ -3184,9 +3610,14 @@
       if (wRateEl) wRateEl.innerText = `${(winDays + lossDays) > 0 ? ((winDays / (winDays + lossDays)) * 100).toFixed(0) : 0}%`;
     }
 
+    // Tracks which date the Day Detail modal is currently showing — used by "+ Add Trade"
+    // and by Save Notes to know which sessionNotesStore entry to write to.
+    let currentDayDetailDate = null;
+
     function showDayDetail(dateKey) {
       const dayTrades = getFilteredExecutions().filter(x => x.date === dateKey);
       if (dayTrades.length === 0) return;
+      currentDayDetailDate = dateKey;
 
       let dayPnL = 0;
       dayTrades.forEach(t => dayPnL += (Number(t.netPnL) || 0));
@@ -3194,11 +3625,12 @@
       const titleEl = document.getElementById('dayDetailTitle');
       if (titleEl) {
         const d = new Date(dateKey + 'T00:00:00');
-        titleEl.innerText = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        titleEl.innerText = `Trading Session: ${dateKey}`;
+        titleEl.title = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       }
       const subEl = document.getElementById('dayDetailSubtitle');
       if (subEl) {
-        subEl.innerHTML = `${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''} &bull; <span class="${dayPnL >= 0 ? 'text-emerald-600' : 'text-red-500'} font-bold">${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(2)} Net P&L</span>`;
+        subEl.innerHTML = `${dayTrades.length} Execution${dayTrades.length > 1 ? 's' : ''} &bull; <span class="${dayPnL >= 0 ? 'text-emerald-600' : 'text-red-500'} font-bold">${dayPnL >= 0 ? '+' : ''}$${dayPnL.toFixed(2)} Net</span>`;
       }
 
       const listEl = document.getElementById('dayDetailList');
@@ -3207,31 +3639,59 @@
           const pnl = Number(t.netPnL) || 0;
           const win = pnl > 0;
           const flat = pnl === 0;
+          const rVal = t.rMultiple === null || t.rMultiple === undefined || t.rMultiple === '' || isNaN(Number(t.rMultiple)) ? null : Number(t.rMultiple);
+          const mistakesArr = Array.isArray(t.mistakes) ? t.mistakes : (typeof t.mistakes === 'string' && t.mistakes ? t.mistakes.split(',').map(s => s.trim()).filter(Boolean) : []);
           return `
-            <div class="flex items-center justify-between p-2.5 rounded-lg border ${win ? 'bg-emerald-50/50 border-emerald-100' : flat ? 'bg-slate-50 border-slate-200' : 'bg-red-50/50 border-red-100'}">
+            <div onclick="openTradeDetail('${t.executionId}')" class="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:shadow-sm hover:-translate-y-0.5 transition-all ${win ? 'bg-emerald-50/50 border-emerald-100' : flat ? 'bg-slate-50 border-slate-200' : 'bg-red-50/50 border-red-100'}">
               <div>
-                <span class="font-bold text-slate-800">${t.instrument || '—'}</span>
-                <span class="text-[10px] text-slate-400 ml-2">${t.direction || ''} ${t.strategy ? '\u2022 ' + t.strategy : ''} ${t.session ? '\u2022 ' + t.session : ''}</span>
-                ${(t.beforeImageUrl || t.afterImageUrl) ? `
-                  <div class="mt-1 space-x-2">
-                    ${t.beforeImageUrl ? `<a href="${t.beforeImageUrl}" target="_blank" class="text-[10px] text-purple-600 hover:underline font-semibold">Before</a>` : ''}
-                    ${t.afterImageUrl ? `<a href="${t.afterImageUrl}" target="_blank" class="text-[10px] text-purple-600 hover:underline font-semibold">After</a>` : ''}
-                  </div>
-                ` : ''}
+                <div class="flex items-center gap-2">
+                  <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${t.direction === 'Short' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">${(t.direction || 'Long').toUpperCase()}</span>
+                  <span class="font-bold text-slate-800">${t.instrument || '—'}</span>
+                  <span class="text-[10px] text-slate-400">@${t.entryPrice ?? '—'} \u2192 ${t.exitPrice ?? '—'}</span>
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5">${t.strategy || 'Unplanned'} ${mistakesArr.length ? `\u2022 <span class="text-amber-600 font-semibold">\u26A0\uFE0F ${mistakesArr[0]}</span>` : ''}</div>
               </div>
-              <span class="font-bold ${win ? 'text-emerald-600' : flat ? 'text-slate-500' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
+              <div class="text-right">
+                <span class="font-bold block ${win ? 'text-emerald-600' : flat ? 'text-slate-500' : 'text-red-500'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
+                ${rVal !== null ? `<span class="text-[10px] text-slate-400">${rVal >= 0 ? '+' : ''}${rVal.toFixed(2)}R</span>` : ''}
+              </div>
             </div>
           `;
         }).join('');
       }
 
+      const notes = sessionNotesStore[dateKey] || {};
+      const preEl = document.getElementById('dayPreMarketNotes');
+      if (preEl) preEl.value = notes.prep || '';
+      const postEl = document.getElementById('dayPostMarketNotes');
+      if (postEl) postEl.value = notes.reflection || '';
+      const scoreEl = document.getElementById('dayDisciplineScore');
+      if (scoreEl) scoreEl.value = notes.disciplineScore ?? '';
+
       const modal = document.getElementById('dayDetailModal');
       if (modal) modal.classList.remove('hidden');
+      safeLucide();
+    }
+
+    async function saveDaySessionNotes() {
+      if (!currentDayDetailDate) return;
+      const notes = {
+        date: currentDayDetailDate,
+        prep: document.getElementById('dayPreMarketNotes')?.value || '',
+        reflection: document.getElementById('dayPostMarketNotes')?.value || '',
+        disciplineScore: document.getElementById('dayDisciplineScore')?.value || '',
+        updatedAt: new Date().toISOString()
+      };
+      sessionNotesStore[currentDayDetailDate] = notes;
+      localStorage.setItem('sessionNotesStore', JSON.stringify(sessionNotesStore));
+      if (gsUrl) await syncToGS('SAVE_SESSION_NOTES', notes);
+      alert('Session notes saved!');
     }
 
     function closeDayDetailModal() {
       const modal = document.getElementById('dayDetailModal');
       if (modal) modal.classList.add('hidden');
+      currentDayDetailDate = null;
     }
 
     function toggleStrategyWinRateSort() {
@@ -3264,7 +3724,9 @@
           const st = stratStats[s];
           const wr = st.trades > 0 ? (st.wins / st.trades) * 100 : 0;
           const pf = st.loss > 0 ? (st.profit / st.loss) : (st.profit > 0 ? Infinity : 0);
-          return { strategy: s, trades: st.trades, winRate: wr, pf, net: st.net };
+          const avgWin = st.wins > 0 ? st.profit / st.wins : 0;
+          const avgLoss = st.losses > 0 ? st.loss / st.losses : 0;
+          return { strategy: s, trades: st.trades, wins: st.wins, losses: st.losses, winRate: wr, pf, profit: st.profit, loss: st.loss, avgWin, avgLoss, net: st.net };
         })
         .filter(r => r.trades > 0); // only strategies actually traded, not the full config list
 
@@ -3276,8 +3738,26 @@
         rows.sort((a, b) => b.net - a.net); // default: best net P&L strategy first
       }
 
+      // Header stat cards
+      const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No trades logged yet.</td></tr>`;
+        setText('stratTopProfitable', '—'); setText('stratTopProfitableSub', 'No trades yet');
+        setText('stratHighestWinRate', '—'); setText('stratHighestWinRateSub', '—');
+        setText('stratMostExecuted', '—'); setText('stratMostExecutedSub', '0 Total Executions');
+      } else {
+        const topProfitable = [...rows].sort((a, b) => b.net - a.net)[0];
+        const highestWinRate = [...rows].sort((a, b) => b.winRate - a.winRate)[0];
+        const mostExecuted = [...rows].sort((a, b) => b.trades - a.trades)[0];
+        setText('stratTopProfitable', topProfitable.strategy);
+        setText('stratTopProfitableSub', `${topProfitable.net >= 0 ? '+' : ''}$${topProfitable.net.toFixed(2)} Net P&L`);
+        setText('stratHighestWinRate', highestWinRate.strategy);
+        setText('stratHighestWinRateSub', `${highestWinRate.winRate.toFixed(1)}% (${highestWinRate.wins}W / ${highestWinRate.losses}L)`);
+        setText('stratMostExecuted', mostExecuted.strategy);
+        setText('stratMostExecutedSub', `${mostExecuted.trades} Total Execution${mostExecuted.trades === 1 ? '' : 's'}`);
+      }
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">No trades logged yet.</td></tr>`;
       }
 
       rows.forEach(r => {
@@ -3289,6 +3769,9 @@
             <td class="p-2.5 font-semibold">${r.trades}</td>
             <td class="p-2.5 font-bold ${r.winRate >= 50 ? 'text-emerald-600' : 'text-slate-600'}">${wr}%</td>
             <td class="p-2.5 font-bold text-purple-700">${pf}</td>
+            <td class="p-2.5 text-emerald-600 font-semibold">+$${r.profit.toFixed(2)}</td>
+            <td class="p-2.5 text-red-500 font-semibold">-$${r.loss.toFixed(2)}</td>
+            <td class="p-2.5 text-slate-500">+$${r.avgWin.toFixed(0)} / -$${r.avgLoss.toFixed(0)}</td>
             <td class="p-2.5 text-right font-bold ${r.net >= 0 ? 'text-emerald-600' : 'text-red-500'}">${r.net >= 0 ? '+' : ''}$${r.net.toFixed(2)}</td>
           </tr>
         `;
@@ -3300,16 +3783,39 @@
         sortIcon.className = strategyWinRateSortDir ? 'text-[9px] text-purple-600' : 'text-[9px] text-slate-300';
       }
 
-      // Chart always shows strategies ranked by Net P&L (best at top), independent of the
-      // table's win-rate sort toggle — that's the more useful ordering for a P&L bar chart.
+      // Chart always ranks strategies by Net P&L (best at top) regardless of view or of the
+      // table's win-rate sort toggle — that's the more useful ordering for either chart type.
       const chartRows = [...rows].sort((a, b) => b.net - a.net);
+      renderStrategyChart(chartRows);
+    }
+
+    // Toggles between the two Strategy P&L chart views and redraws.
+    function setStrategyChartView(view) {
+      strategyChartView = view;
+      const pnlBtn = document.getElementById('stratViewBtnPnl');
+      const wrBtn = document.getElementById('stratViewBtnWr');
+      if (pnlBtn && wrBtn) {
+        if (view === 'pnl') {
+          pnlBtn.className = 'px-3 py-1.5 rounded-md bg-white text-purple-700 shadow-sm';
+          wrBtn.className = 'px-3 py-1.5 rounded-md text-slate-500';
+        } else {
+          wrBtn.className = 'px-3 py-1.5 rounded-md bg-white text-purple-700 shadow-sm';
+          pnlBtn.className = 'px-3 py-1.5 rounded-md text-slate-500';
+        }
+      }
+      renderStrategyAnalytics();
+    }
+
+    function renderStrategyChart(chartRows) {
+      const chartCanvas = document.getElementById('strategyBarChart');
+      if (!chartCanvas) return;
+      if (strategyChartInstance) strategyChartInstance.destroy();
+
       const labels = chartRows.map(r => r.strategy);
-      const netValues = chartRows.map(r => r.net);
       const tradeCounts = chartRows.map(r => r.trades);
 
-      const chartCanvas = document.getElementById('strategyBarChart');
-      if (chartCanvas) {
-        if (strategyChartInstance) strategyChartInstance.destroy();
+      if (strategyChartView === 'pnl') {
+        const netValues = chartRows.map(r => r.net);
 
         // Custom plugin: prints the $ value at the end of each bar so you can read exact
         // numbers at a glance instead of hovering every bar for a tooltip.
@@ -3380,6 +3886,69 @@
             }
           }
         });
+      } else {
+        // Win Rate & Profit Factor view — grouped vertical bars. Win Rate reads off the
+        // left 0–100% axis; Profit Factor (unbounded, so a capped display value is used
+        // for bar height only — the tooltip always shows the real number, including INF).
+        const winRates = chartRows.map(r => r.winRate);
+        const pfCapped = chartRows.map(r => r.pf === Infinity ? 5 : Math.min(r.pf, 5));
+        const pfDisplay = chartRows.map(r => r.pf === Infinity ? 'INF' : r.pf.toFixed(2));
+
+        strategyChartInstance = new Chart(chartCanvas, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Win Rate (%)',
+                data: winRates,
+                backgroundColor: 'rgba(124, 58, 237, 0.85)',
+                hoverBackgroundColor: '#7c3aed',
+                borderRadius: 6,
+                yAxisID: 'yWinRate',
+                maxBarThickness: 26
+              },
+              {
+                label: 'Profit Factor',
+                data: pfCapped,
+                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                hoverBackgroundColor: '#059669',
+                borderRadius: 6,
+                yAxisID: 'yProfitFactor',
+                maxBarThickness: 26
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 700, easing: 'easeOutQuart' },
+            plugins: {
+              legend: { display: true, position: 'top', labels: { boxWidth: 10, font: { size: 10 } } },
+              tooltip: {
+                backgroundColor: '#0f172a', padding: 10, cornerRadius: 8,
+                callbacks: {
+                  label: (ctx) => ctx.datasetIndex === 0
+                    ? `Win Rate: ${ctx.parsed.y.toFixed(1)}%`
+                    : `Profit Factor: ${pfDisplay[ctx.dataIndex]}`
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, weight: '600' } } },
+              yWinRate: {
+                position: 'left', min: 0, max: 100,
+                grid: { color: '#f1f5f9' },
+                ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => `${v}%` }
+              },
+              yProfitFactor: {
+                position: 'right', min: 0, max: 5,
+                grid: { display: false },
+                ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => v.toFixed(1) }
+              }
+            }
+          }
+        });
       }
     }
 
@@ -3396,25 +3965,47 @@
       tbody.innerHTML = '';
 
       let instStats = {};
-      instruments.forEach(i => instStats[i] = { trades: 0, wins: 0, losses: 0, net: 0 });
+      instruments.forEach(i => instStats[i] = { trades: 0, wins: 0, losses: 0, profit: 0, loss: 0, net: 0 });
 
       getFilteredExecutions().forEach(x => {
         const inst = x.instrument || 'BTCUSD.x';
-        if (!instStats[inst]) instStats[inst] = { trades: 0, wins: 0, losses: 0, net: 0 };
+        if (!instStats[inst]) instStats[inst] = { trades: 0, wins: 0, losses: 0, profit: 0, loss: 0, net: 0 };
         const pnl = Number(x.netPnL) || 0;
         instStats[inst].trades++;
         instStats[inst].net += pnl;
-        if (pnl > 0) instStats[inst].wins++;
-        else if (pnl < 0) instStats[inst].losses++;
+        if (pnl > 0) { instStats[inst].wins++; instStats[inst].profit += pnl; }
+        else if (pnl < 0) { instStats[inst].losses++; instStats[inst].loss += Math.abs(pnl); }
       });
 
-      let rows = Object.keys(instStats)
+      const allTradedRows = Object.keys(instStats)
         .map(inst => {
           const st = instStats[inst];
           const wr = st.trades > 0 ? (st.wins / st.trades) * 100 : 0;
-          return { inst, trades: st.trades, wins: st.wins, losses: st.losses, net: st.net, winRate: wr };
+          const avgWin = st.wins > 0 ? st.profit / st.wins : 0;
+          const avgLoss = st.losses > 0 ? st.loss / st.losses : 0;
+          return { inst, trades: st.trades, wins: st.wins, losses: st.losses, profit: st.profit, loss: st.loss, avgWin, avgLoss, net: st.net, winRate: wr };
         })
         .filter(r => r.trades > 0); // only instruments actually traded, not the full config list
+
+      // Header stat cards (unaffected by the search box — always summarize everything traded)
+      const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+      setText('instAssetsTracked', `${instruments.length} Instrument${instruments.length === 1 ? '' : 's'}`);
+      setText('instAssetsTrackedSub', `${allTradedRows.length} active with traded history`);
+      if (allTradedRows.length === 0) {
+        setText('instStarAsset', '—'); setText('instStarAssetSub', 'No trades yet');
+        setText('instHighestWinRateAsset', '—'); setText('instHighestWinRateAssetSub', '—');
+      } else {
+        const starAsset = [...allTradedRows].sort((a, b) => b.net - a.net)[0];
+        const highestWR = [...allTradedRows].sort((a, b) => b.winRate - a.winRate)[0];
+        setText('instStarAsset', starAsset.inst);
+        setText('instStarAssetSub', `${starAsset.net >= 0 ? '+' : ''}$${starAsset.net.toFixed(2)} Net P&L`);
+        setText('instHighestWinRateAsset', highestWR.inst);
+        setText('instHighestWinRateAssetSub', `${highestWR.winRate.toFixed(1)}% Win Rate (${highestWR.wins}W / ${highestWR.losses}L)`);
+      }
+
+      // Search filter (table only)
+      const searchTerm = (document.getElementById('instrumentSearchInput')?.value || '').trim().toLowerCase();
+      let rows = searchTerm ? allTradedRows.filter(r => r.inst.toLowerCase().includes(searchTerm)) : allTradedRows;
 
       if (instrumentWinRateSortDir === 'asc') {
         rows.sort((a, b) => a.winRate - b.winRate);
@@ -3425,7 +4016,8 @@
       }
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No trades logged yet.</td></tr>`;
+        const msg = searchTerm ? `No instruments matching "${searchTerm}".` : 'No trades logged yet.';
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">${msg}</td></tr>`;
         const sortIconEmpty = document.getElementById('instrumentWinRateSortIcon');
         if (sortIconEmpty) sortIconEmpty.className = 'text-[9px] text-slate-300';
         return;
@@ -3437,8 +4029,16 @@
           <tr>
             <td class="p-3 font-bold text-slate-800">${r.inst}</td>
             <td class="p-3 font-semibold">${r.trades}</td>
-            <td class="p-3 font-bold ${r.winRate >= 50 ? 'text-emerald-600' : 'text-amber-500'}">${wr}%</td>
+            <td class="p-3">
+              <span class="font-bold ${r.winRate >= 50 ? 'text-emerald-600' : 'text-amber-500'}">${wr}%</span>
+              <span class="inline-block align-middle w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden ml-2">
+                <span class="block h-full ${r.winRate >= 50 ? 'bg-emerald-500' : 'bg-amber-500'} rounded-full" style="width:${wr}%"></span>
+              </span>
+            </td>
             <td class="p-3 text-slate-500">${r.wins}W / ${r.losses}L</td>
+            <td class="p-3 text-emerald-600 font-semibold">+$${r.profit.toFixed(2)}</td>
+            <td class="p-3 text-red-500 font-semibold">-$${r.loss.toFixed(2)}</td>
+            <td class="p-3 text-slate-500">+$${r.avgWin.toFixed(0)} / -$${r.avgLoss.toFixed(0)}</td>
             <td class="p-3 text-right font-bold ${r.net >= 0 ? 'text-emerald-600' : 'text-red-500'}">${r.net >= 0 ? '+' : ''}$${r.net.toFixed(2)}</td>
           </tr>
         `;
@@ -3547,11 +4147,26 @@
         lossPoints: lossPoints
       };
 
-      executionsStore.push(execData);
+      let isUpdate = false;
+      if (editingExecutionId) {
+        const idx = executionsStore.findIndex(x => x.executionId === editingExecutionId);
+        if (idx !== -1) {
+          execData.executionId = editingExecutionId;
+          executionsStore[idx] = execData;
+          isUpdate = true;
+        }
+      }
+      if (!isUpdate) executionsStore.push(execData);
       localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
+      // Your Apps Script's LOG_EXECUTION handler already upserts by executionId
+      // (see upsertRow_), so edits and new trades both use the same action —
+      // no separate UPDATE_EXECUTION action needed on the backend.
       if (gsUrl) await syncToGS('LOG_EXECUTION', execData);
 
-      alert('Trade Execution Logged!');
+      alert(isUpdate ? 'Trade Execution Updated!' : 'Trade Execution Logged!');
+      editingExecutionId = null;
+      const submitBtnLabel = document.getElementById('execSubmitBtnLabel');
+      if (submitBtnLabel) submitBtnLabel.innerText = 'Log Trade & Sync';
       const form = document.getElementById('executionForm');
       if (form) form.reset();
       const preview = document.getElementById('execImagePreview');
@@ -3561,6 +4176,7 @@
       renderExecMistakesCheckboxes();
       initIds();
       updateDashboard();
+      renderExecutedLogsTable();
       switchTab('history');
     }
 
@@ -3628,6 +4244,7 @@
         if (data.executed) executionsStore = data.executed.map(x => ({ ...x, date: normalizeDateField(x.date), netPnL: parseFloat(x['Net P&L'] || x.netPnL || 0) }));
         if (data.config) applyRemoteConfig(data.config);
         if (data.notebookFolders) notebookFolders = data.notebookFolders;
+        if (data.notebookFolders) nbEnsureFolderOrder();
         if (data.notebookNotes) {
           notebookNotes = data.notebookNotes.map(n => ({
             ...n,
@@ -3635,6 +4252,15 @@
             images: typeof n.images === 'string' ? (n.images ? JSON.parse(n.images) : []) : (n.images || []),
             refs: typeof n.refs === 'string' ? (n.refs ? JSON.parse(n.refs) : []) : (n.refs || [])
           }));
+        }
+        if (data.sessionNotes) {
+          const remoteNotes = {};
+          data.sessionNotes.forEach(n => {
+            const d = normalizeDateField(n.date);
+            if (d) remoteNotes[d] = { date: d, prep: n.prep || '', reflection: n.reflection || '', disciplineScore: n.disciplineScore ?? '', updatedAt: n.updatedAt || '' };
+          });
+          sessionNotesStore = remoteNotes;
+          localStorage.setItem('sessionNotesStore', JSON.stringify(sessionNotesStore));
         }
         localStorage.setItem('plansStore', JSON.stringify(plansStore));
         localStorage.setItem('executionsStore', JSON.stringify(executionsStore));
@@ -3647,6 +4273,146 @@
     }
 
     // MASTER LOG DELETION WITH CONFIRMATION PROMPT
+    // Opens the rich single-trade detail modal for a given execution record (Master Trade
+    // Logs rows and P&L Calendar day-detail entries both trigger this the same way).
+    function openTradeDetail(execId) {
+      const x = executionsStore.find(e => e.executionId === execId);
+      if (!x) return;
+      currentTradeDetailExecId = execId;
+
+      const pnl = Number(x.netPnL) || 0;
+      const rVal = x.rMultiple === null || x.rMultiple === undefined || x.rMultiple === '' || isNaN(Number(x.rMultiple))
+        ? null : Number(x.rMultiple);
+      const mistakesArr = Array.isArray(x.mistakes) ? x.mistakes : (typeof x.mistakes === 'string' && x.mistakes ? x.mistakes.split(',').map(s => s.trim()).filter(Boolean) : []);
+      const linkedPlan = x.planId && x.planId !== 'UNPLANNED' ? plansStore.find(p => p.planId === x.planId) : null;
+
+      const dirBadge = document.getElementById('tdDirectionBadge');
+      if (dirBadge) {
+        dirBadge.innerText = (x.direction || 'Long').toUpperCase();
+        dirBadge.className = `text-xs font-bold px-2.5 py-1 rounded-lg ${x.direction === 'Short' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`;
+      }
+      setText('tdInstrument', x.instrument || '—');
+      setText('tdAssetBadge', x.session || 'Session N/A');
+      setText('tdDate', x.date || '—');
+      setText('tdSubMeta', `${x.strategy || 'Unplanned'} \u2022 ${x.planId || 'UNPLANNED'}`);
+
+      const netCard = document.getElementById('tdNetReturnCard');
+      if (netCard) netCard.className = `p-3 rounded-xl border ${pnl >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`;
+      const netEl = document.getElementById('tdNetReturn');
+      if (netEl) { netEl.innerText = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`; netEl.className = `text-lg font-extrabold mt-0.5 ${pnl >= 0 ? 'text-emerald-600' : 'text-red-500'}`; }
+
+      const entryNum = parseFloat(x.entryPrice);
+      let roiTxt = '';
+      if (!isNaN(entryNum) && entryNum !== 0 && x.lotSize) {
+        const notional = entryNum * (Number(x.lotSize) || 1);
+        if (notional) roiTxt = `${((pnl / notional) * 100).toFixed(2)}% ROI`;
+      }
+      setText('tdROI', roiTxt);
+
+      const rEl = document.getElementById('tdRMultiple');
+      if (rEl) { rEl.innerText = rVal === null ? '—' : `${rVal >= 0 ? '+' : ''}${rVal.toFixed(2)}R`; rEl.className = `text-lg font-extrabold mt-0.5 ${rVal === null ? 'text-slate-400' : (rVal >= 0 ? 'text-emerald-600' : 'text-red-500')}`; }
+
+      setText('tdEntry', `$${x.entryPrice ?? '—'}`);
+      setText('tdExit', `$${x.exitPrice ?? '—'}`);
+      setText('tdLots', `${x.lotSize || 1} qty`);
+      setText('tdFees', x.actualSL ? `SL: ${x.actualSL}` : 'No SL recorded');
+
+      setText('tdStrategy', x.strategy || 'Unplanned Trade');
+      const setupTagsEl = document.getElementById('tdSetupTags');
+      if (setupTagsEl) {
+        const tags = [];
+        if (linkedPlan) {
+          tags.push(...parseTags(linkedPlan.tags));
+          if (linkedPlan.entryTimeframe) tags.push(linkedPlan.entryTimeframe);
+        }
+        setupTagsEl.innerHTML = tags.length
+          ? tags.map(t => `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">#${nbEsc(t)}</span>`).join('')
+          : `<span class="text-[10px] text-slate-400">No playbook tags linked</span>`;
+      }
+
+      const mistakesEl = document.getElementById('tdMistakes');
+      if (mistakesEl) {
+        mistakesEl.innerHTML = mistakesArr.length
+          ? mistakesArr.map(m => `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full inline-block mr-1 mb-1">${nbEsc(m)}</span>`).join('')
+          : `<span class="text-xs font-semibold text-emerald-600 flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i>Clean execution \u2022 No mistakes logged</span>`;
+      }
+      setText('tdExitReason', x.exitReason || '—');
+
+      const notesBlock = document.getElementById('tdNotesBlock');
+      if (notesBlock) {
+        if (x.notes) { notesBlock.classList.remove('hidden'); setText('tdNotes', x.notes); }
+        else notesBlock.classList.add('hidden');
+      }
+
+      const imagesBlock = document.getElementById('tdImagesBlock');
+      const beforeWrap = document.getElementById('tdBeforeImgWrap');
+      const afterWrap = document.getElementById('tdAfterImgWrap');
+      if (x.beforeImageUrl || x.afterImageUrl) {
+        imagesBlock?.classList.remove('hidden');
+        if (x.beforeImageUrl) { beforeWrap?.classList.remove('hidden'); const img = document.getElementById('tdBeforeImg'); if (img) { img.src = x.beforeImageUrl; img.onclick = () => openNbImageLightbox(x.beforeImageUrl); } }
+        else beforeWrap?.classList.add('hidden');
+        if (x.afterImageUrl) { afterWrap?.classList.remove('hidden'); const img = document.getElementById('tdAfterImg'); if (img) { img.src = x.afterImageUrl; img.onclick = () => openNbImageLightbox(x.afterImageUrl); } }
+        else afterWrap?.classList.add('hidden');
+      } else {
+        imagesBlock?.classList.add('hidden');
+      }
+
+      setText('tdTradeIdFooter', `Trade ID: ${x.executionId}`);
+
+      const modal = document.getElementById('tradeDetailModal');
+      if (modal) modal.classList.remove('hidden');
+      safeLucide();
+    }
+
+    function closeTradeDetailModal() {
+      const modal = document.getElementById('tradeDetailModal');
+      if (modal) modal.classList.add('hidden');
+      currentTradeDetailExecId = null;
+    }
+
+    function editExecutionFromDetail() {
+      const x = executionsStore.find(e => e.executionId === currentTradeDetailExecId);
+      if (!x) return;
+      closeTradeDetailModal();
+      switchTab('execution');
+      editingExecutionId = x.executionId;
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+      set('execId', x.executionId);
+      set('execPlanId', x.planId || 'UNPLANNED');
+      set('execDate', x.date);
+      set('execInstrument', x.instrument);
+      set('execStrategy', x.strategy);
+      set('execDirection', x.direction || 'Long');
+      set('execLotSize', x.lotSize || 1.0);
+      set('execEntry', x.entryPrice);
+      set('execActualSL', x.actualSL);
+      set('execExit', x.exitPrice);
+      set('execPnL', x.netPnL);
+      set('execSession', x.session || 'London');
+      set('execNotes', x.notes);
+      set('execExitReason', x.exitReason);
+      set('execBeforeImage', x.beforeImageUrl);
+      set('execAfterImage', x.afterImageUrl);
+      renderExecMistakesCheckboxes();
+      const mistakesArr = Array.isArray(x.mistakes) ? x.mistakes : (typeof x.mistakes === 'string' && x.mistakes ? x.mistakes.split(',').map(s => s.trim()).filter(Boolean) : []);
+      mistakesArr.forEach(m => {
+        const chk = document.querySelector(`#execMistakesContainer input[value="${CSS.escape(m)}"]`);
+        if (chk) chk.checked = true;
+      });
+      calculateExecR();
+      previewExecImage('before', x.beforeImageUrl || '');
+      previewExecImage('after', x.afterImageUrl || '');
+      const submitBtnLabel = document.getElementById('execSubmitBtnLabel');
+      if (submitBtnLabel) submitBtnLabel.innerText = 'Update Trade & Sync';
+    }
+
+    async function deleteExecutionFromDetail() {
+      if (!currentTradeDetailExecId) return;
+      const id = currentTradeDetailExecId;
+      closeTradeDetailModal();
+      await deleteExecutedTrade(id);
+    }
+
     async function deleteExecutedTrade(execId) {
       if (confirm(`Are you sure you want to delete trade record ${execId}? This action cannot be undone.`)) {
         executionsStore = executionsStore.filter(x => x.executionId !== execId);
@@ -3890,33 +4656,122 @@
       const overallStats = bucket(filtered);
 
       const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+      const fmtSigned = v => `${v >= 0 ? '+' : '-'}$${Math.abs(v).toFixed(2)}`;
 
-      setText('shortGaugeProfit', `${shortStats.net >= 0 ? '' : '-'}$${Math.abs(shortStats.net).toFixed(2)}`);
+      setText('shortTradesBadge', `${shortTrades.length} Trades`);
+      setText('shortGaugeProfit', fmtSigned(shortStats.net));
+      setText('shortGaugeWinRateSub', `${shortStats.winRate.toFixed(1)}% Win Rate`);
       setText('shortWinsCount', shortStats.wins);
-      setText('shortWinsAmt', `$${shortStats.winAmt.toFixed(2)}`);
-      setText('shortWinRate', `${shortStats.winRate.toFixed(2)}%`);
+      setText('shortWinsAmt', fmtSigned(shortStats.winAmt));
+      setText('shortWinRate', `${shortStats.winRate.toFixed(1)}%`);
       setText('shortLossesCount', shortStats.losses);
-      setText('shortLossesAmt', `$${shortStats.lossAmt.toFixed(2)}`);
+      setText('shortLossesAmt', `-$${shortStats.lossAmt.toFixed(2)}`);
 
-      setText('longGaugeProfit', `${longStats.net >= 0 ? '' : '-'}$${Math.abs(longStats.net).toFixed(2)}`);
+      setText('longTradesBadge', `${longTrades.length} Trades`);
+      setText('longGaugeProfit', fmtSigned(longStats.net));
+      setText('longGaugeWinRateSub', `${longStats.winRate.toFixed(1)}% Win Rate`);
       setText('longWinsCount', longStats.wins);
-      setText('longWinsAmt', `$${longStats.winAmt.toFixed(2)}`);
-      setText('longWinRate', `${longStats.winRate.toFixed(2)}%`);
+      setText('longWinsAmt', fmtSigned(longStats.winAmt));
+      setText('longWinRate', `${longStats.winRate.toFixed(1)}%`);
       setText('longLossesCount', longStats.losses);
-      setText('longLossesAmt', `$${longStats.lossAmt.toFixed(2)}`);
+      setText('longLossesAmt', `-$${longStats.lossAmt.toFixed(2)}`);
 
       const overallTotal = overallStats.wins + overallStats.losses;
       const winPct = overallTotal > 0 ? (overallStats.wins / overallTotal) * 100 : 0;
       const lossPct = overallTotal > 0 ? (overallStats.losses / overallTotal) * 100 : 0;
-      setText('profitTotalTrades', overallTotal);
-      setText('profitWinPct', `${winPct.toFixed(2)}%`);
-      setText('profitWinsCount', `Wins: ${overallStats.wins}`);
-      setText('profitLossPct', `${lossPct.toFixed(2)}%`);
-      setText('profitLossesCount', `Losses: ${overallStats.losses}`);
+      setText('profitTradesBadge', `${filtered.length} Total Trades`);
+      setText('profitRealizedTotal', fmtSigned(overallStats.net));
+      setText('profitGaugeWinRateSub', `${winPct.toFixed(1)}% Win Rate`);
+      setText('profitWinsCount', overallStats.wins);
+      setText('profitWinsAmt', fmtSigned(overallStats.winAmt));
+      setText('profitWinLossPct', `${winPct.toFixed(0)}% / ${lossPct.toFixed(0)}%`);
+      setText('profitLossesCount', overallStats.losses);
+      setText('profitLossAmt', `-$${overallStats.lossAmt.toFixed(2)}`);
 
       renderGauge('shortAnalysisGauge', 'shortGaugeInstance', shortStats.winRate);
       renderGauge('longAnalysisGauge', 'longGaugeInstance', longStats.winRate);
       renderGauge('profitabilityGauge', 'profitGaugeInstance', winPct);
+
+      renderMistakesBreakdown(filtered);
+    }
+
+    // Highest Repeated Mistakes Breakdown — tallies every mistake tag logged against
+    // executions, ranks by frequency, and shows the real dollar cost of each habit
+    // (only ever computed from LOSING trades, since a "mistake" that still won isn't
+    // what's draining the account). Capped to the top 3 as requested.
+    function renderMistakesBreakdown(filtered) {
+      const grid = document.getElementById('mistakesBreakdownGrid');
+      if (!grid) return;
+
+      const mistakeStats = {};
+      let totalTags = 0;
+      filtered.forEach(x => {
+        if (!x.mistakes) return;
+        const pnl = Number(x.netPnL) || 0;
+        String(x.mistakes).split(',').map(m => m.trim()).filter(Boolean).forEach(m => {
+          if (!mistakeStats[m]) mistakeStats[m] = { count: 0, lossTotal: 0, lossTrades: 0, wins: 0 };
+          mistakeStats[m].count++;
+          totalTags++;
+          if (pnl < 0) { mistakeStats[m].lossTotal += Math.abs(pnl); mistakeStats[m].lossTrades++; }
+          else if (pnl > 0) mistakeStats[m].wins++;
+        });
+      });
+
+      const top3 = Object.entries(mistakeStats)
+        .map(([name, st]) => ({
+          name, count: st.count,
+          pct: totalTags > 0 ? (st.count / totalTags) * 100 : 0,
+          lossTotal: st.lossTotal,
+          avgLoss: st.lossTrades > 0 ? st.lossTotal / st.lossTrades : 0,
+          winRate: st.count > 0 ? (st.wins / st.count) * 100 : 0
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
+
+      const titleEl = document.getElementById('mistakesBreakdownTitle');
+      if (titleEl) {
+        titleEl.querySelector('span').innerText = `Highest Repeated Mistakes Breakdown (${Object.keys(mistakeStats).length})`;
+      }
+
+      if (top3.length === 0) {
+        grid.innerHTML = `<p class="text-slate-400 text-xs col-span-3">No mistakes logged yet — keep it clean.</p>`;
+        return;
+      }
+
+      const rankColors = [
+        { bg: 'bg-red-50/60', border: 'border-red-200', bar: 'bg-red-500', badge: 'bg-red-100 text-red-600' },
+        { bg: 'bg-amber-50/60', border: 'border-amber-200', bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-600' },
+        { bg: 'bg-purple-50/60', border: 'border-purple-200', bar: 'bg-purple-400', badge: 'bg-purple-100 text-purple-600' }
+      ];
+
+      grid.innerHTML = top3.map((m, i) => {
+        const c = rankColors[i];
+        return `
+          <div class="${c.bg} border ${c.border} p-4 rounded-xl space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-slate-800 text-sm">#${i + 1} ${m.name}</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${c.badge}">${m.count} time${m.count === 1 ? '' : 's'} (${m.pct.toFixed(0)}%)</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full ${c.bar} rounded-full" style="width:${m.pct}%"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-1 text-center text-[11px] pt-1">
+              <div>
+                <p class="text-slate-400">Total Loss Cost</p>
+                <p class="font-bold text-red-500 mt-0.5">-$${m.lossTotal.toFixed(2)}</p>
+              </div>
+              <div>
+                <p class="text-slate-400">Avg Loss/Trade</p>
+                <p class="font-semibold text-slate-700 mt-0.5">-$${m.avgLoss.toFixed(2)}</p>
+              </div>
+              <div>
+                <p class="text-slate-400">Win Rate</p>
+                <p class="font-semibold text-slate-700 mt-0.5">${m.winRate.toFixed(0)}%</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // Draws (or redraws) a semi-circle win/loss gauge — green arc proportional to win rate,
@@ -4186,7 +5041,7 @@
           ? null : Number(x.rMultiple);
         const mistakesArr = Array.isArray(x.mistakes) ? x.mistakes : (typeof x.mistakes === 'string' && x.mistakes ? x.mistakes.split(',').map(s => s.trim()).filter(Boolean) : []);
         tbody.innerHTML += `
-          <tr>
+          <tr class="cursor-pointer hover:bg-purple-50/60 transition-colors" onclick="openTradeDetail('${x.executionId}')">
             <td class="p-2 font-mono font-bold text-emerald-600">${x.executionId}</td>
             <td class="p-2 font-mono text-purple-600">${x.planId || 'UNPLANNED'}</td>
             <td class="p-2">${x.date}</td>
@@ -4201,13 +5056,13 @@
             <td class="p-2 font-bold ${rVal === null ? 'text-slate-300' : (rVal >= 0 ? 'text-emerald-600' : 'text-red-500')}">${rVal === null ? '—' : `${rVal >= 0 ? '+' : ''}${rVal.toFixed(2)}R`}</td>
             <td class="p-2 text-slate-500">${x.exitReason || '—'}</td>
             <td class="p-2 text-slate-500">${mistakesArr.length > 0 ? mistakesArr.map(m => `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded-full inline-block mr-1 mb-0.5">${m}</span>`).join('') : '—'}</td>
-            <td class="p-2 text-center space-x-1">
+            <td class="p-2 text-center space-x-1" onclick="event.stopPropagation()">
               ${x.beforeImageUrl ? `<a href="${x.beforeImageUrl}" target="_blank" title="Before Entry" class="text-purple-600 hover:underline font-semibold">Before</a>` : ''}
               ${x.beforeImageUrl && x.afterImageUrl ? '<span class="text-slate-300">|</span>' : ''}
               ${x.afterImageUrl ? `<a href="${x.afterImageUrl}" target="_blank" title="After Entry" class="text-purple-600 hover:underline font-semibold">After</a>` : ''}
               ${!x.beforeImageUrl && !x.afterImageUrl ? '<span class="text-slate-300">—</span>' : ''}
             </td>
-            <td class="p-2 text-center">
+            <td class="p-2 text-center" onclick="event.stopPropagation()">
               <button onclick="deleteExecutedTrade('${x.executionId}')" title="Delete Trade Record" class="text-red-500 hover:text-red-700 font-bold p-1 border border-red-200 rounded hover:bg-red-50">🗑️</button>
             </td>
           </tr>
